@@ -1,2 +1,3 @@
+# Python version: 3.10.13
 pandas
 jupyter
