@@ -79,4 +79,4 @@ In both the Jupyter UI and the notebook in VS Code, you need to select the speci
 
 #### Run the notebook
 
-Now go ahead and run the notebook :)
+Now go ahead and run the notebook! :)
