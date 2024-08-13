@@ -1,5 +1,6 @@
 pandas
 jupyter
+<<<<<<< HEAD
 chardet
 meteostat
 awswrangler
@@ -9,3 +10,6 @@ scikit-learn
 seaborn
 pycaret[full]
 pyarrow==15.0.0
+=======
+plotly
+>>>>>>> b9186e3 (added plotly to requirements.txt)
