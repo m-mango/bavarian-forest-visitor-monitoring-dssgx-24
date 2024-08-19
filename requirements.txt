@@ -2,3 +2,6 @@
 pandas
 jupyter
 openpyxl
+prettytable
+plotly
+pycaret
