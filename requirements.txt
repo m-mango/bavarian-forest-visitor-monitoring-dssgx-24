@@ -3,3 +3,5 @@ pandas
 jupyter
 plotly
 matplotlib
+chardet
+meteostat
