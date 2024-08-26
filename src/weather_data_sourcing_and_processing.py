@@ -6,11 +6,13 @@ This script retrieves hourly weather data (Precipitation, Temperature, Wind Spee
 
 Usage:
 - To run this script, simply execute it using Python:
-  $ python src/weather_data_sourcing.py
+  $ python src/weather_data_sourcing_and_processing.py
 - The script will automatically fetch weather data for the specified date range, process it, and save it to a CSV file.
 
 Output:
-- The processed data will be saved as 'bf-weather.csv' in the './outputs/weather_data_final/' directory.
+- The sourced and processed weather data is saved as '/sourced_weather_data_2016-24_non_imputed.csv' and '/processed_weather_data_2016-24_imputed.csv' in the 'preprocessed_data' folder 
+    in the 'dssgx-munich-2024-bavarian-forest' AWS S3 bucket.
+
 """
 
 # Import necessary libraries
@@ -20,10 +22,12 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from meteostat import Point, Hourly
+import awswrangler as wr
+import boto3
+from impute_missing_values import fill_missing_values
 
 # Ignore warnings
 warnings.filterwarnings('ignore')
-
 
 
 ############################################################################################################
@@ -31,14 +35,20 @@ warnings.filterwarnings('ignore')
 ############################################################################################################
 
 # Set time period for sourcing the data
-START_TIME = datetime(2017, 1, 1)
-END_TIME = datetime(2024, 7, 31)
+START_TIME = datetime(2016, 1, 1)
+END_TIME = datetime(2024, 8, 26)
 
 # Coordinates of the Bavarian Forest (Haselbach)
 # These coordinates are based on the weather recommendation by Google for a Bavarian Forest Weather search
 LATITUDE = 49.31452390542327
 LONGITUDE = 12.711573421032
 
+# Set up AWS credentials
+boto3.setup_default_session(profile_name='manpa_barman_fellow_dssgx_24')
+
+# Set up S3 bucket and folder
+bucket = "dssgx-munich-2024-bavarian-forest"
+preprocessed_data_folder = "preprocessed_data"
 
 ############################################################################################################
 # Define functions
@@ -138,6 +148,33 @@ def save_data_to_csv(data, save_path):
     data.to_csv(os.path.join(save_path, 'bf-weather.csv'), index=False)
     print('Data saved successfully!')
 
+def write_csv_file_to_aws_s3(df: pd.DataFrame, 
+                             path: str, **kwargs) -> pd.DataFrame:
+    """Writes an individual CSV file to AWS S3.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to write.
+        path (str): The path to the CSV files on AWS S3.
+        **kwargs: Additional arguments to pass to the to_csv function.
+    """
+
+    wr.s3.to_csv(df, path=path, **kwargs)
+    return
+
+def load_csv_files_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
+    """Loads individual or multiple CSV files from an AWS S3 bucket.
+
+    Args:
+        path (str): The path to the CSV files on AWS S3.
+        **kwargs: Additional arguments to pass to the read_csv function.
+
+    Returns:
+        pd.DataFrame: The DataFrame containing the data from the CSV files.
+    """
+
+    df = wr.s3.read_csv(path=path, **kwargs)
+    return df
+
 
 def main():
     """
@@ -152,11 +189,30 @@ def main():
     hourly_data = get_hourly_data(bavarian_forest, START_TIME, END_TIME)
 
     # Process the hourly data to extract and format necessary weather parameters
-    processed_hourly_data = process_hourly_data(hourly_data)
+    sourced_hourly_data = process_hourly_data(hourly_data)
 
-    # Save the processed data to a CSV file
-    save_data_to_csv(processed_hourly_data, save_path='./outputs/weather_data_final/')
+    write_csv_file_to_aws_s3(
+    df=sourced_hourly_data,
+    path=f"s3://{bucket}/{preprocessed_data_folder}/sourced_weather_data_2016-24_non_imputed.csv",)
 
+    print('Sourced hourly data saved successfully to AWS S3!')
+
+    print("Processing the sourced hourly data...")
+
+    load_sourced_weather_data = load_csv_files_from_aws_s3(
+    path=f"s3://{bucket}/{preprocessed_data_folder}/sourced_weather_data_2016-24_non_imputed.csv",parse_dates=True)
+
+    # Get the list of columns to process
+    parameters = load_sourced_weather_data.columns.to_list()
+
+    # Fill missing values in the weather data
+    imputed_data = fill_missing_values(load_sourced_weather_data, parameters)
+
+    write_csv_file_to_aws_s3(
+    df=imputed_data,
+    path=f"s3://{bucket}/{preprocessed_data_folder}/processed_weather_data_2016-24_imputed.csv",)
+
+    print('Processed hourly data saved successfully to AWS S3!')
 
 # Execute the main function if the script is run directly
 if __name__ == "__main__":

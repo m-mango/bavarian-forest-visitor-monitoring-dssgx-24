@@ -121,37 +121,3 @@ def fill_missing_values(data, parameters):
     return data
 
 
-def main():
-    """
-    Main function to execute the script.
-
-    - Loads weather data from CSV.
-    - Visualizes temperature and precipitation data.
-    - Fills missing values in the dataset.
-    - Saves the processed data to a new CSV file.
-
-    Args:
-        None
-
-    Returns:
-        None
-    """
-    # Load the data
-    data = pd.read_csv(DATA_PATH, parse_dates=True)
-
-    # Visualize the weather data
-    visualize_weather_data(data, FIG_SAVE_PATH)
-
-    # Get the list of columns to process
-    parameters = data.columns.to_list()
-
-    # Fill missing values in the weather data
-    imputed_data = fill_missing_values(data, parameters)
-
-    # Save the imputed data
-    imputed_data.to_csv(IMPUTED_DATA_SAVE_PATH, index=False)
-    print(f'Imputed data saved to {IMPUTED_DATA_SAVE_PATH}')
-
-
-if __name__ == "__main__":
-    main()
