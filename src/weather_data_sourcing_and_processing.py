@@ -177,7 +177,7 @@ def load_csv_files_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
         pd.DataFrame: The DataFrame containing the data from the CSV files.
     """
 
-    df = wr.s3.read_csv(path=path, **kwargs, index=False)
+    df = wr.s3.read_csv(path=path, **kwargs)
     return df
 
 
