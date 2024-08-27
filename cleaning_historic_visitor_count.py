@@ -170,7 +170,7 @@ df = correct_non_replaced_sensors(df)
 
 def correct_sensor_data(df):
     """
-    Corrects sensor data by setting specific values to NaN based on predefined replacement dates for multiple sensor types.
+    Corrects sensor overlapping data by setting specific values to NaN based on replacement dates.
 
     Args:
         df (pd.DataFrame): The DataFrame containing sensor data to be corrected.
@@ -237,4 +237,6 @@ def correct_sensor_data(df):
         if pyro_columns:
             df.loc[df.index > replacement_date, pyro_columns] = np.nan
 
+
+    print("Fix overlap")
     return df
