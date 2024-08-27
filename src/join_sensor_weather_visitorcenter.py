@@ -1,12 +1,15 @@
 """
-Join sensor, weather and visitor center data script
+Join sensor, weather and visitor center data script.
 
 This script sources from AWS three different data sources, join them over a datetime index, and writes the joined df as a csv to AWS.
 
 Usage:
-- Fill your AWS credentiales
+- Change the global variables section if needed
+    - Fill your AWS credentiales
+    - Change the data paths or output directories
 
 - Run the script:
+
   $ python src/join_sensor_weather_visitorcenter.py
 
 Output:
@@ -19,7 +22,11 @@ from functools import reduce
 import awswrangler as wr
 import boto3
 
-aws_profile = "" #add here your credentials
+###########################################################################################
+#GLOBAL VARIABLES
+###########################################################################################
+
+aws_profile = "patricio_ferreira_fellow_dssgx_24" #add here your credentials
 
 sensor_aws_path = 's3://dssgx-munich-2024-bavarian-forest/preprocessed_data/normalized_visitor_sensor_data_2016_2024.csv'
 weather_aws_path = 's3://dssgx-munich-2024-bavarian-forest/preprocessed_data/processed_weather_data_2016-24_forecasted_imputed.csv'
@@ -29,10 +36,17 @@ output_file_name = "joined_sensor_weather_visitorcenter_2016-2024.csv"
 output_bucket = "dssgx-munich-2024-bavarian-forest"
 output_data_folder = "preprocessed_data"
 
+timestamp_column = "Time" # name of column with timestamp in the dataframes
+
+##############################################################################################
+
 # Setting up AWS
 
 boto3.setup_default_session(profile_name=aws_profile) 
 
+##############################################################################################
+
+# Functions
 
 def load_csv_files_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
     """Loads individual or multiple CSV files from an AWS S3 bucket.
@@ -47,17 +61,6 @@ def load_csv_files_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
 
     df = wr.s3.read_csv(path=path, **kwargs)
     return df
-
-
-# Load each dataset and creates a list for further loops
-
-sensor_df = load_csv_files_from_aws_s3(sensor_aws_path)
-weather_df = load_csv_files_from_aws_s3(weather_aws_path)
-visitorcenter_df = load_csv_files_from_aws_s3(visitorcenter_aws_path)
-
-df_list =[sensor_df, weather_df, visitorcenter_df]
-
-
 
 def create_datetimeindex(df, timestamp_column):
     """
@@ -75,26 +78,12 @@ def create_datetimeindex(df, timestamp_column):
     if timestamp_column in df.columns:
         df[timestamp_column] = pd.to_datetime(df[timestamp_column])
         df.set_index(timestamp_column, inplace=True)
-        print("Datetime index created for ", df)
     
     # Ensure the index is a DateTimeIndex
     if not isinstance(df.index, pd.DatetimeIndex):
         raise TypeError("Index must be a DateTimeIndex.")
     
     return df
-
-
-# Iterate over list of df to create datetime index
-for df in df_list:
-    create_datetimeindex(df)
-
-
-# Perform an outer join on datasets, this ensures that all indices from both DataFrames will be included in the final result. If an index doesn't exist in one of the DataFrames, the resulting cells will be filled with NaN.
-
-joined_data = reduce(lambda left, right: pd.concat([left, right], axis=1, join='outer'), df_list) # 
-
-
-# Write to AWS
 
 def write_csv_file_to_aws_s3(df: pd.DataFrame, path: str, **kwargs) -> pd.DataFrame:
     """Writes an individual CSV file to AWS S3.
@@ -109,8 +98,31 @@ def write_csv_file_to_aws_s3(df: pd.DataFrame, path: str, **kwargs) -> pd.DataFr
     return
 
 
+def main():
 
-write_csv_file_to_aws_s3(
+    # Load each dataset and creates a list for further loops
+    sensor_df = load_csv_files_from_aws_s3(sensor_aws_path)
+    weather_df = load_csv_files_from_aws_s3(weather_aws_path)
+    visitorcenter_df = load_csv_files_from_aws_s3(visitorcenter_aws_path)
+
+    df_list = [sensor_df, weather_df, visitorcenter_df]
+
+    # Iterate over list of df to create datetime index
+    for df in df_list:
+        create_datetimeindex(df, timestamp_column)
+
+    # Perform an outer join on datasets,
+    # this ensures that all indices from both DataFrames will be included in the final result.
+    # If an index doesn't exist in one of the DataFrames, the resulting cells will be filled with NaN.
+
+    joined_data = reduce(lambda left, right: pd.concat([left, right], axis=1, join='outer'), df_list) 
+
+    write_csv_file_to_aws_s3(
     df=joined_data,
     path=f"s3://{output_bucket}/{output_data_folder}/{output_file_name}",
-)
+    )
+    
+    print("Joined data uploaded to AWS succesfully!")
+    
+if __name__ == "__main__":
+    main()
