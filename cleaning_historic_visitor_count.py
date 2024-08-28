@@ -5,7 +5,9 @@ import locale
 import glob
 import chardet
 import numpy as np
-
+from sklearn.preprocessing import MinMaxScaler
+import awswrangler as wr
+import boto3
 """
 
 
@@ -20,9 +22,6 @@ df = visitor_counts_parsed_dates.reset_index(drop=True)
 #lists and dictionaries for columns that need to be dropped or renamed
 
 to_drop = ['Brechhäuslau Fußgänger IN', 'Brechhäuslau Fußgänger OUT', 'Waldhausreibe Channel 1 IN', 'Waldhausreibe Channel 2 OUT']
-
-to_create = ['Bucina_Multi IN']
-
 
 to_rename = {'Bucina IN': 'Bucina PYRO IN',
           'Bucina OUT': 'Bucina PYRO OUT',
@@ -63,9 +62,9 @@ to_rename = {'Bucina IN': 'Bucina PYRO IN',
           'Trinkwassertalsperre OUT' : 'Trinkwassertalsperre PYRO OUT'
           }
 
-def process_dataframe(df, rename, drop, create):
+def fix_columns_names(df, rename, drop, create):
     """
-    Processes the given DataFrame by renaming columns, dropping specified columns, and creating a new column.
+    Processes the given DataFrame by renaming columns, dropping specified columns, and creating a new column for Bucina_Multi IN by summing the Bucina_Multi Fahrräder IN and Bucina_Multi Fußgänger IN columns. .
 
     Args:
         df (pd.DataFrame): The DataFrame to be modified.
@@ -86,53 +85,53 @@ def process_dataframe(df, rename, drop, create):
     print(len(drop), ' repeated columns were dropped')
 
     # Add a new column by summing two existing columns
-    df[create] = df["Bucina_Multi Fahrräder IN"] + df["Bucina_Multi Fußgänger IN"]
-    print(len(create), ' column was created')
+    df['Bucina_Multi IN'] = df["Bucina_Multi Fahrräder IN"] + df["Bucina_Multi Fußgänger IN"]
+    print('Bucina_Multi IN column was created')
 
     return df
-
-df = process_dataframe(df, rename=to_rename, drop=to_drop, create=to_create)
-
 
 
 # Fix problems with duplicated values in time column
 
 def correct_and_impute_times(df):
+    
     """
-    Identifies rows with missing values in all columns except 'Time', corrects the 'Time' by subtracting one hour, 
-    and imputes missing values by copying from the preceding row.
+    Corrects repeated timestamps caused by a 2-hour interval that is indicative of a daylight saving.
+
+    The function operates under the following assumptions:
+    1. The first interval in the 'Time' column is considered the reference interval.
+    2. If any subsequent intervals differ from this reference, particularly showing a 2-hour difference due to daylight saving changes, the repeated timestamp is corrected by subtracting one hour.
+    3. The data values for the corrected timestamp are then imputed from the next available row.
 
     Args:
-        df (pd.DataFrame): The DataFrame to be corrected and imputed.
+        df (pandas.DataFrame): A DataFrame containing a 'Time' column with datetime-like values and other associated data columns.
 
     Returns:
-        pd.DataFrame: The corrected DataFrame with missing values imputed and time index sorted.
+        pandas.DataFrame: The corrected DataFrame with timestamps set as the index and sorted chronologically.
+
+    Raises:
+        ValueError: If the 'Time' column is missing from the DataFrame.
+        KeyError: If an index out of range occurs due to imputation attempts beyond the DataFrame bounds.
     """
-    # Identify rows where all columns except 'Time' have missing values
-    index_wrong_time = df[df.loc[:, df.columns != "Time"].isna().all(axis=1)].index
+    # Calculate time intervals
+    intervals = df.Time.diff().dropna()
+    reference_interval = intervals.iloc[0]  # Establish the first interval as the reference
 
-    # Subtract one hour from the 'Time' for the identified rows
-    df.loc[index_wrong_time, 'Time'] = df.loc[index_wrong_time, 'Time'] - pd.Timedelta(hours=1)
+    # Identify intervals that differ from the reference interval
+    different_intervals = intervals[intervals != reference_interval]
 
-    # Impute missing values by copying from the preceding row for each identified index
+    # Identify the indexes for intervals of 2 hours (indicative of a daylight saving time change)
+    index_wrong_time = different_intervals[different_intervals == "0 days 02:00:00"].index
+
+    # Impute values from the next row for affected timestamps
     for idx in index_wrong_time:
-        if idx > 0:  # Ensure that there is a preceding row
-            # Copy values from the preceding row to the current row
-            df.loc[idx, df.columns != 'Time'] = df.loc[idx - 1, df.columns != 'Time']
+        df.loc[idx, 'Time'] = df.loc[idx, 'Time'] - pd.Timedelta(hours=1)  # Adjust the repeated timestamp by subtracting one hour
+        df.loc[idx, df.columns != 'Time'] = df.loc[idx + 1, df.columns != 'Time']  # Impute the values from the next row
 
-    # Set 'Time' as the index and sort the DataFrame by this index
+    # Set 'Time' as the index and sort the DataFrame by index
     df = df.set_index('Time').sort_index()
 
-    print("Repeated values in Time column were identified and solved. Time is now set as index. ")
-
     return df
-
-
-df = correct_and_impute_times(df)
-
-
-
-# Fix problem of existing values in timestamps when a sensor was not installed
 
 def correct_non_replaced_sensors(df):
     """
@@ -163,14 +162,11 @@ def correct_non_replaced_sensors(df):
     return df
 
 
-df = correct_non_replaced_sensors(df)
-
-
 # Fix overlapping values in replaced sensors
 
-def correct_sensor_data(df):
+def correct_overlapping_sensor_data(df):
     """
-    Corrects sensor overlapping data by setting specific values to NaN based on replacement dates.
+    Corrects sensor overlapping data by setting specific values to NaN based on replacement dates. Also filters the DataFrame to include only rows with an index timestamp on or after "2016-05-10 03:00:00". This is 3am after the installing date for the first working sensor.
 
     Args:
         df (pd.DataFrame): The DataFrame containing sensor data to be corrected.
@@ -237,6 +233,213 @@ def correct_sensor_data(df):
         if pyro_columns:
             df.loc[df.index > replacement_date, pyro_columns] = np.nan
 
+    # Slice data before date because  there were no sensors installed
+    df = df[df.index >= "2016-05-10 03:00:00"]
 
-    print("Fix overlap")
+
+    print("Fixed overlapping values for replaced sensors")
     return df
+
+
+def merge_columns(df):
+    """
+    Merges columns from replaced sensors in the DataFrame into new combined columns based on a predefined mapping and drops the original columns after merging.
+
+    The function merges multiple related columns into single combined columns using a predefined dictionary (`merge_dict`). 
+    For each key-value pair in the dictionary, values from the first column are used, and missing values are filled 
+    from the second column. After merging, the original columns used for merging are dropped from the DataFrame.
+
+    Args:
+        df (pandas.DataFrame): A DataFrame containing columns to be merged.
+
+    Returns:
+        pandas.DataFrame: The modified DataFrame with the new merged columns and original columns removed.
+    """
+    merge_dict = {
+        'Bucina MERGED IN': ['Bucina PYRO IN', 'Bucina_Multi IN'],
+        'Bucina MERGED OUT': ['Bucina PYRO OUT', 'Bucina_Multi OUT'],
+        'Falkenstein 1 MERGED IN': ['Falkenstein 1 PYRO IN', 'Falkenstein 1 IN'],
+        'Falkenstein 1 MERGED OUT': ['Falkenstein 1 PYRO OUT', 'Falkenstein 1 OUT'],
+        'Lusen 1 MERGED IN': ['Lusen 1 PYRO IN', 'Lusen 1 EVO IN'],
+        'Lusen 1 MERGED OUT': ['Lusen 1 PYRO OUT', 'Lusen 1 EVO OUT'],
+        'Trinkwassertalsperre MERGED IN': ['Trinkwassertalsperre PYRO IN', 'Trinkwassertalsperre_MULTI IN'],
+        'Trinkwassertalsperre MERGED OUT': ['Trinkwassertalsperre PYRO OUT', 'Trinkwassertalsperre_MULTI OUT']
+    }
+
+    # Iterate over each item in the dictionary to merge columns
+    for new_col, cols in merge_dict.items():
+        # Combine the two columns into one using the first non-null value
+        df[new_col] = df[cols[0]].combine_first(df[cols[1]])
+
+    # Drop the original columns used for merging
+    cols_to_drop = [col for cols in merge_dict.values() for col in cols]
+    df = df.drop(columns=cols_to_drop)
+
+    return df
+
+def handle_outliers(df):
+    """
+    Transform to NaN every value higher than 800. During exploration we found that values over that are outliers. There were only 6 rows with any count over 800
+
+    Args:
+        df (pandas.DataFrame): DataFrame with values to be turned to NaN.
+
+    Returns:
+        pandas.DataFrame: The modified DataFrame with values over 800 turned to NaN
+    """
+
+    df[df > 800] = np.nan
+
+    return df
+
+def traffic_columns_counting_sensors(df):
+    """
+    Discards columns with the distinction between cyclist and pedestrians, as they will not be taken into account this iteration. Adds a column to the DataFrame that counts the number of non-null entries in columns to determine the number of working sensors.
+
+
+    Args:
+        df (pandas.DataFrame): DataFrame containing the sensor data with various columns.
+
+    Returns:
+        pandas.DataFrame: The DataFrame with out cyclist and pedestrian columns and with an additional 'working_sensors' column that represents the count of non-null values in the relevant sensor columns for each row.
+    """
+    # Identify columns that do not include "Fahrräder" or "Fußgänger" in their names
+    non_cyclist_pedestrian = [col for col in df.columns 
+                             if "Fahrräder" not in col 
+                             and "Fußgänger" not in col]
+    
+    # Discard columns with the distinction between cyclist and pedestrians    
+    df = df[non_cyclist_pedestrian]
+
+    # Count non-null entries in the identified columns and create a new column 'working_sensors'
+    df['working_sensors'] = df[non_cyclist_pedestrian].notnull().sum(axis=1)
+
+    return df
+
+
+def calculate_traffic_metrics_abs(df):
+    """
+      This function calculates several traffic metrics and adds them to the DataFrame:
+    - `traffic_abs`: The sum of all INs and OUTs for every sensor
+    - `sum_IN_abs`: The sum of all columns containing 'IN' in their names.
+    - `sum_OUT_abs`: The sum of all columns containing 'OUT' in their names.
+    - `diff_abs`: The difference between `sum_IN_abs` and `sum_OUT_abs`.
+    - `occupancy_abs`: The cumulative sum of `diff_abs`, representing the occupancy over time.
+
+    Args:
+        df (pandas.DataFrame): DataFrame containing traffic data.
+
+    Returns:
+        pandas.DataFrame: The DataFrame with additional columns for absolute traffic metrics.
+    """
+    # Calculate total traffic
+    df["traffic_abs"] = df.sum(axis=1)
+
+    # Calculate sum of 'IN' columns
+    df["sum_IN_abs"] = df.filter(like='IN').sum(axis=1)
+
+    # Calculate sum of 'OUT' columns
+    df["sum_OUT_abs"] = df.filter(like='OUT').sum(axis=1)
+
+    # Calculate difference between 'IN' and 'OUT' sums
+    df['diff_abs'] = df['sum_IN_abs'] - df['sum_OUT_abs']
+
+    # Calculate cumulative occupancy
+    df['occupancy_abs'] = df['diff_abs'].cumsum().fillna(0)
+
+    return df
+
+
+def normalize_traffic_metrics(df):
+    """
+    Identifies change points and normalizes 'traffic' and 'occupancy' columns for each segment.
+
+    This function performs the following steps:
+    1. Identifies change points in the 'working_sensors' column to segment the data.
+    2. Normalizes the columns 'traffic_abs', 'sum_IN_abs', 'sum_OUT_abs', 'diff_abs', and 'occupancy_abs'
+       from 0% to 100% for each segment. The normalized values are stored in new columns with '_norm' suffixes.
+
+    Args:
+        df (pandas.DataFrame): DataFrame containing the traffic and occupancy metrics.
+
+    Returns:
+        pandas.DataFrame: The DataFrame with additional columns for normalized metrics.
+    """
+    # Step 1: Identify the change points
+    change_points = df['working_sensors'].ne(df['working_sensors'].shift()).cumsum()
+
+       # Initialize the scaler
+    scaler = MinMaxScaler(feature_range=(0, 100))
+
+    # Define dictionary mapping original column names to normalized column names
+    metrics_dict = {
+        'traffic_abs': 'traffic_norm',
+        'sum_IN_abs': 'sum_IN_norm',
+        'sum_OUT_abs': 'sum_OUT_norm',
+        'diff_abs': 'diff_norm',
+        'occupancy_abs': 'occupancy_norm'
+    }
+
+    # Normalize columns for each segment
+    for segment in change_points.unique():
+        segment_df = df[change_points == segment]
+        
+        # Fit and transform the segment data
+        for key, value in metrics_dict.items():
+            values = segment_df[[key]].values  # Extract values as a 2D array
+            if len(values) > 1:  # Only scale if there is more than one value to avoid errors
+                scaled_values = scaler.fit_transform(values)
+                df.loc[segment_df.index, value] = scaled_values.flatten()
+
+    return df
+
+    def write_csv_file_to_aws_s3(df: pd.DataFrame, path: str, **kwargs) -> pd.DataFrame:
+        """Writes an individual CSV file to AWS S3.
+
+        Args:
+            df (pd.DataFrame): The DataFrame to write.
+            path (str): The path to the CSV files on AWS S3.
+            **kwargs: Additional arguments to pass to the to_csv function.
+        """
+
+        wr.s3.to_csv(df, path=path, **kwargs)
+        return
+
+
+def main():
+
+    df_mapped = fix_columns_names(df, rename=to_rename, drop=to_drop)
+    
+    df_imputed_timestamps = correct_and_impute_times(df_mapped)
+
+    df_corrected_sensors = correct_non_replaced_sensors(df_imputed_timestamps)
+
+    df_corrected_sensors = correct_overlapping_sensor_data(df_corrected_sensors)
+
+    df_merged_columns = merge_columns(df_corrected_sensors)
+
+    df_no_outliers = handle_outliers(df_merged_columns)
+
+    df_traffic_columns = traffic_columns_counting_sensors(df_no_outliers)
+
+    df_traffic_metrics = calculate_traffic_metrics_abs(df_traffic_columns)
+
+    df_normalized_traffic = normalize_traffic_metrics(df_traffic_metrics)
+
+    print("\n Visitor sensors data is preprocessed and traffic metrics are created! \n")
+
+    write_csv_file_to_aws_s3(
+        df=joined_data,
+        path=f"s3://{output_bucket}/{output_data_folder}/{output_file_name}",
+        )
+    
+    print("Preprocessed data uploaded to AWS succesfully!")
+
+
+
+
+
+    print("")
+    
+if __name__ == "__main__":
+    main()
