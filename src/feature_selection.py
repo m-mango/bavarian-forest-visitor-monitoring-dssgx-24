@@ -3,13 +3,14 @@
 FEATURES_CONFIG = {
     "overall_park_model": {
         "target": {
-            "relative_traffic": "occupancy_norm",
-            "absolute_traffic": "occupancy_abs"
+            "relative_traffic": "traffic_norm",
+            "absolute_traffic": "traffic_abs"
         },
         "input": {
             "num_features": ['Temperature (°C)','Relative Humidity (%)','Precipitation (mm)',
                              'Wind Speed (km/h)','Sunshine Duration (min)','Tag','Monat','Jahr',
-                             'Niederschlagsmenge','Schneehoehe','GS mit','GS max',],
+                             #'Niederschlagsmenge','Schneehoehe','GS mit','GS max',
+                             ],
             "cat_features": ['Wochentag', 'Jahreszeit'],
             "binary_features": ['Wochenende','Laubfärbung','Schulferien_Bayern','Schulferien_CZ','Feiertag_Bayern',
                                 'Feiertag_CZ','HEH_geoeffnet','HZW_geoeffnet','WGM_geoeffnet','Lusenschutzhaus_geoeffnet',
