@@ -1,12 +1,11 @@
 # Import necessary libraries
-import pandas as pd
-import matplotlib.pyplot as plt
 import warnings
+import pandas as pd
 
 # Ignore warnings
 warnings.filterwarnings('ignore')
 
-import source_data as sd
+from .. import source_data as sd
 
 def fill_missing_values(data, parameters):
     """
@@ -56,11 +55,19 @@ def fill_missing_values(data, parameters):
     return data
 
 
-def main():
+def process_weather_data(weather_data_df):
+    """
+    Process the hourly weather data by filling missing values.
 
-    _,_, weather_data_df = sd.source_all_data()
+    Args:
+        weather_data_df (pandas.DataFrame): Hourly weather data.
+    
+    Returns:
+        pandas.DataFrame: Processed weather data with missing values filled.
+    """
 
-        # Get the list of columns to process
+
+    # Get the list of columns to process
     parameters = weather_data_df.columns.to_list()
 
     print(f'Processing weather data with the following columns: {parameters}')
@@ -69,7 +76,5 @@ def main():
     imputed_data = fill_missing_values(weather_data_df, parameters)
 
     return imputed_data
-if __name__ == "__main__":
-    main()
 
 

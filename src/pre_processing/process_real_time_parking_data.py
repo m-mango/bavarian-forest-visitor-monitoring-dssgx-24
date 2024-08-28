@@ -1,9 +1,8 @@
 # import libraries
 import pandas as pd
-import os
-import source_data as sd
 
-def process_parking_data(all_parking_data):
+
+def impute_missing_data(all_parking_data):
 
     # Fill missing values in the parking data
 
@@ -22,14 +21,27 @@ def process_parking_data(all_parking_data):
     all_parking_data['current_capacity'] = all_parking_data['current_capacity'].astype(int)
     all_parking_data['current_occupancy'] = all_parking_data['current_occupancy'].astype(int)
 
-    return all_parking_data
+    # add a column called 'current availability' that is the difference between the capacity and the occupancy
 
-def main():
-    _, all_parking_data,_ = sd.source_all_data()
-
-    all_parking_data = process_parking_data(all_parking_data)
+    all_parking_data['current_availability'] = all_parking_data['current_capacity'] - all_parking_data['current_occupancy']
 
     return all_parking_data
 
-if __name__ == '__main__':
-    main()
+def process_real_time_parking_data(parking_data_df):
+    """
+    Process the real-time parking data by imputing missing values.
+
+    Args:
+        parking_data_df (pandas.DataFrame): Raw real-time parking data.
+    
+    Returns:
+        pandas.DataFrame: Processed real-time parking data.
+    """
+
+
+    clean_parking_data = impute_missing_data(parking_data_df)
+
+    print("Parking data processed and cleaned!")
+
+    return clean_parking_data
+
