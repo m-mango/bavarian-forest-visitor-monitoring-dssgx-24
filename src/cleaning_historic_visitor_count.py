@@ -1,3 +1,23 @@
+"""
+Join sensor, weather and visitor center data script.
+
+This script sources from AWS three different data sources, join them over a datetime index, and writes the joined df as a csv to AWS.
+
+Usage:
+- Change the global variables section if needed
+    - Fill your AWS credentiales
+    - Change the data paths or output directories
+
+- Run the script:
+
+  $ python cleaning_historic_visitor_count.py
+
+Output:
+- The joined data is saved as 'joined_sensor_weather_visitorcenter_2016-2024.csv' in the 'preprocessed_data' directory in AWS.
+"""
+
+
+
 #import libraries
 
 import pandas as pd
@@ -6,6 +26,7 @@ import glob
 import chardet
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
+pd.options.mode.chained_assignment = None  
 
 
 ###########################################################################################
@@ -16,7 +37,7 @@ aws_profile = "patricio_ferreira_fellow_dssgx_24" #add here your credentials
 
 raw_data_aws_path = ""
 
-output_file_name = r"C:\Users\patricio\Documents\bf-dssgx\outputs\normalized_sensor_data_2016_2024.csv"
+output_file_name = r"C:\Users\patricio\Documents\bf-dssgx\outputs\normalized_sensor_data_2016_2024SCRIPTTEST.csv"
 output_bucket = "dssgx-munich-2024-bavarian-forest"
 output_data_folder = "preprocessed_data"
 
@@ -518,7 +539,7 @@ def write_csv_file_to_aws_s3(df: pd.DataFrame, path: str, **kwargs) -> pd.DataFr
 
 def main():
 
-    data = read_data_per_file
+    visitor_counts = load_visitor_counts_data(data_folder="data\manual_visitor_counts")
 
     visitor_counts_parsed_dates = parse_german_dates(df=visitor_counts, date_column_name="Time")
 
