@@ -35,7 +35,7 @@ parking_sensors = {
     "p-r-spiegelau-1":"ee0490b2-3cc5-4adb-a527-95267257598e",
     # "skiwanderzentrum-zwieslerwaldhaus-2": "dd3734c2-c4fb-4e1d-a57c-9bbed8130d8f",
     "parkplatz-zwieslerwaldhaus-1": "6c9b765e-1ff9-401d-98bc-b0302ee65c62",
-    "parkplatz-zwieslerwaldhaus-nord-1": "4bbb3b5c-edc2-4b00-a923-91c1544aa29d",
+    # "parkplatz-zwieslerwaldhaus-nord-1": "4bbb3b5c-edc2-4b00-a923-91c1544aa29d",
     "parkplatz-nationalparkzentrum-falkenstein-2" : "a93b64e9-35fb-4b3e-8348-81ba8f1c0d6f",
     "scheidt-bachmann-parkplatz-1" : "144e1868-3051-4140-a83c-41d4b79a6d14",
     "parkplatz-nationalparkzentrum-lusen-p2" : "454b0f50-130b-4c21-9db2-b163e158c847",
@@ -118,6 +118,7 @@ def source_parking_data_from_cloud(location_slug: str):
 
     return parking_data
 
+
 def merge_all_df_from_list(df_list):
     """
     Merge all the dataframes in the list into a single dataframe.
@@ -131,6 +132,7 @@ def merge_all_df_from_list(df_list):
     # Merge all the dataframes in the list with the 'time' column as index
     merged_dataframe = pd.concat(df_list, axis=0, ignore_index=True)
     return merged_dataframe
+
 
 def get_hourly_data_forecasted(bavarian_forest):
     
@@ -167,20 +169,9 @@ def source_weather_data():
     # Drop unnecessary columns
     weather_hourly = weather_hourly.drop(columns=['dwpt', 'snow', 'wdir', 'wpgt', 'pres', 'coco'])
 
-    # Rename columns for clarity
-    weather_hourly = weather_hourly.rename(columns={
-        'time': 'Time',
-        'temp': 'Temperature (°C)',
-        'prcp': 'Precipitation (mm)',
-        'wspd': 'Wind Speed (km/h)',
-        'tsun': 'Sunshine Duration (min)',
-        'rhum': 'Relative Humidity (%)'
-    })
-
     # Convert the 'Time' column to datetime format
-    weather_hourly['Time'] = pd.to_datetime(weather_hourly['Time'])
+    weather_hourly['time'] = pd.to_datetime(weather_hourly['time'])
     return weather_hourly
-
 
 
 def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
