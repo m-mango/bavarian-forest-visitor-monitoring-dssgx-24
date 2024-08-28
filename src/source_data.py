@@ -30,18 +30,21 @@ BAYERN_CLOUD_API_KEY = os.getenv('BAYERN_CLOUD_API_KEY')
 
 # We are not using 'parkplatz-fredenbruecke-1' and 'skiwanderzentrum-zwieslerwaldhaus-2' because of inconsistency in sending data to the cloud
 parking_sensors = {
-    "parkplatz-graupsaege-1":"e42069a6-702f-4ef4-b3b5-04e310d97ca0",
-    # "parkplatz-fredenbruecke-1":"fac08b6b-e9cb-40cd-a106-b9f2cbfc7447",
-    "p-r-spiegelau-1":"ee0490b2-3cc5-4adb-a527-95267257598e",
-    # "skiwanderzentrum-zwieslerwaldhaus-2": "dd3734c2-c4fb-4e1d-a57c-9bbed8130d8f",
-    "parkplatz-zwieslerwaldhaus-1": "6c9b765e-1ff9-401d-98bc-b0302ee65c62",
-    # "parkplatz-zwieslerwaldhaus-nord-1": "4bbb3b5c-edc2-4b00-a923-91c1544aa29d",
-    "parkplatz-nationalparkzentrum-falkenstein-2" : "a93b64e9-35fb-4b3e-8348-81ba8f1c0d6f",
-    "scheidt-bachmann-parkplatz-1" : "144e1868-3051-4140-a83c-41d4b79a6d14",
-    "parkplatz-nationalparkzentrum-lusen-p2" : "454b0f50-130b-4c21-9db2-b163e158c847",
-    "parkplatz-waldhaeuser-kirche-1" : "454b0f50-130b-4c21-9db2-b163e158c847",
-    "parkplatz-waldhaeuser-ausblick-1" : "a14d8ebd-9261-49f7-875b-6a924fe34990",
-    "parkplatz-skisportzentrum-finsterau-1": "ea474092-1064-4ae7-955e-8db099955c16"} 
+    # "parkplatz-graupsaege-1":["e42069a6-702f-4ef4-b3b5-04e310d97ca0",(825578.3337000003,5428553.0152)],
+    # # "parkplatz-fredenbruecke-1":["fac08b6b-e9cb-40cd-a106-b9f2cbfc7447",()],
+    # "p-r-spiegelau-1": ["ee0490b2-3cc5-4adb-a527-95267257598e",(819050.0575000001,5427466.528999999)],
+    # # "skiwanderzentrum-zwieslerwaldhaus-2":[ "dd3734c2-c4fb-4e1d-a57c-9bbed8130d8f",()],
+    "parkplatz-zwieslerwaldhaus-1": [ "6c9b765e-1ff9-401d-98bc-b0302ee65c62",(49.092086882841166, 13.24523208515499)],
+    # "parkplatz-zwieslerwaldhaus-1": [ "6c9b765e-1ff9-401d-98bc-b0302ee65c62",(810051.1677000001, 5445970.7607)],
+    # "parkplatz-zwieslerwaldhaus-nord-1": [ "4bbb3b5c-edc2-4b00-a923-91c1544aa29d",()],
+    "parkplatz-nationalparkzentrum-falkenstein-2" : [ "a93b64e9-35fb-4b3e-8348-81ba8f1c0d6f",(49.06044880177309, 13.23647463926216)],
+    # "parkplatz-nationalparkzentrum-falkenstein-2" : [ "a93b64e9-35fb-4b3e-8348-81ba8f1c0d6f",(809404.6046000002, 5442818.757200001)],
+    # "scheidt-bachmann-parkplatz-1" : [ "144e1868-3051-4140-a83c-41d4b79a6d14",(816654.5043000001, 5429202.5154)],
+    # "parkplatz-nationalparkzentrum-lusen-p2" : [ "454b0f50-130b-4c21-9db2-b163e158c847",(829026.8021999998, 5425027.2245000005)],
+    # "parkplatz-waldhaeuser-kirche-1" : [ "454b0f50-130b-4c21-9db2-b163e158c847",(826813.6995000001, 5429101.716700001)],
+    # "parkplatz-waldhaeuser-ausblick-1" : [ "a14d8ebd-9261-49f7-875b-6a924fe34990",(827428.7165999999, 5429087.2853)],
+    # "parkplatz-skisportzentrum-finsterau-1": [ "ea474092-1064-4ae7-955e-8db099955c16",(834964.7417000001,5431023.592)],
+    } 
 
 ########################################################################################
 # Weather Data Sourcing - METEOSTAT API
@@ -116,7 +119,32 @@ def source_parking_data_from_cloud(location_slug: str):
     
     parking_data.reset_index(drop=True, inplace=True)
 
-    return parking_data
+    # add additional columns for spatial information
+
+    parking_df_with_spatial_info = add_spatial_info_to_parking_sensors(parking_data)
+
+    return parking_df_with_spatial_info
+
+def add_spatial_info_to_parking_sensors(parking_data_df):
+
+    """
+    Add spatial information to the parking data
+
+    Args:
+        parking_data_df (pd.DataFrame): DataFrame containing parking sensor data.
+    
+    Returns:
+        pd.DataFrame: DataFrame containing parking sensor data with spatial information.
+    """
+
+    for location_slug in parking_sensors.keys():
+        if location_slug in parking_data_df['location'].values:
+            parking_data_df['latitude'] = parking_sensors[location_slug][1][0]
+            parking_data_df['longitude'] = parking_sensors[location_slug][1][1]
+
+            return parking_data_df
+
+            
 
 
 def merge_all_df_from_list(df_list):
@@ -198,5 +226,6 @@ def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     print("Weather data sourced successfully!")
 
-    # print(historic_visitor_counts.head(), all_parking_data.head(), weather_data_df.head())
+    # print(historic_visitor_counts.columns, all_parking_data.columns, weather_data_df.columns)
+
     return historic_visitor_counts, all_parking_data, weather_data_df
