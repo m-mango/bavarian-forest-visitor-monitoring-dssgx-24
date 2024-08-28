@@ -21,10 +21,19 @@ docker --version
 docker build -t bavarian-forest .
 ```
 
-5. After the Docker container has been built, run the Docker container with attaching the repository as volume (`-v` parameter)as is with the following command:
+5. In the meantime, log into your AWS account:
+
+In case you have not yet configured AWS locally on your machine, make sure to set it up (see Slack or ping TM Julie).
 
 ```
-docker run -v {path-to-repo}:/app -p 8501:8501 -t bavarian-forest
+aws sso login
+```
+
+
+5. After the Docker container has been built, run the Docker container with attaching the repository and aws credentials as volume (`-v` parameter) and specify the AWS role you assume with the following command:
+
+```
+docker run -v {path-to-repo}:/app -v {path-to-aws-credentials-folder}/.aws:/root/.aws -e AWS_PROFILE={name-of-your-aws-profile} -p 8501:8501 -t bavarian-forest
 ```
 
 Optional:
