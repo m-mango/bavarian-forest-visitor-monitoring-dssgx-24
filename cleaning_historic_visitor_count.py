@@ -6,24 +6,146 @@ import glob
 import chardet
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-import awswrangler as wr
-import boto3
-"""
+
+
+###########################################################################################
+#GLOBAL VARIABLES
+###########################################################################################
+
+aws_profile = "patricio_ferreira_fellow_dssgx_24" #add here your credentials
+
+raw_data_aws_path = ""
+
+output_file_name = r"C:\Users\patricio\Documents\bf-dssgx\outputs\normalized_sensor_data_2016_2024.csv"
+output_bucket = "dssgx-munich-2024-bavarian-forest"
+output_data_folder = "preprocessed_data"
 
 
 
-LOAD PREPROCESSED DATA FROM AWS
+##############################################################################################
+
+# Setting up AWS
+
+#boto3.setup_default_session(profile_name=aws_profile) 
+
+##############################################################################################
 
 
-"""
 
-df = visitor_counts_parsed_dates.reset_index(drop=True)
+##############################################################################################
+        # SOURCING THAT SHOULD BE CHANGED TO AWS BY MAMPA
 
-#lists and dictionaries for columns that need to be dropped or renamed
+def read_data_per_file(file: str) -> pd.DataFrame:
+    """
+    Reads data from a CSV file and returns it as a pandas DataFrame. Handles skipping rows
 
-to_drop = ['Brechhäuslau Fußgänger IN', 'Brechhäuslau Fußgänger OUT', 'Waldhausreibe Channel 1 IN', 'Waldhausreibe Channel 2 OUT']
+    Args:
+        file (str): The path to the CSV file.
 
-to_rename = {'Bucina IN': 'Bucina PYRO IN',
+    Returns:
+        pd.DataFrame: The DataFrame containing the data from the CSV file.
+    """
+    # Detect the encoding
+    with open(file, 'rb') as f:
+        result = chardet.detect(f.read())
+        encoding = result['encoding']
+    data =  pd.read_csv(file, encoding=encoding, skiprows=2)
+        
+    return data
+
+def load_visitor_counts_data(
+    data_folder: str,
+) -> pd.DataFrame:
+    """
+    Loads visitor counts data from multiple CSV files in the specified folder and deletes some unnecessary column.
+
+    Args:
+        data_folder (str): The path to the folder containing the CSV files.
+
+    Returns:
+        pd.DataFrame: The DataFrame containing the visitor counts data.
+    """
+    # Read data from CSV files
+
+    raw_visitor_counts = pd.concat([read_data_per_file(
+        file
+    ) for file in glob.glob(f"{data_folder}/*.csv")])
+    
+    # Drop last empty column
+    visitor_counts = raw_visitor_counts.drop(columns=["Unnamed: 96"])
+
+    return visitor_counts
+
+# SOURCING THAT SHOULD BE DELETED BY MAMPA
+##############################################################################################
+        
+
+# Functions
+
+def parse_german_dates(
+    df: pd.DataFrame,
+    date_column_name: str
+    ) -> pd.DataFrame:
+    """
+    Parses German dates in the specified date column of the DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame containing the date column.
+        date_column_name (str): The name of the date column.
+
+    Returns:
+        pd.DataFrame: The DataFrame with parsed German dates.
+    """
+    
+    # Set German locale
+    locale.setlocale(locale.LC_TIME, "de_DE.UTF-8")
+    
+    # Mapping of German month names to their English equivalents
+    month_map = {
+        "Jan.": "Jan",
+        "Feb.": "Feb",
+        "März": "Mar",
+        "Apr.": "Apr",
+        "Mai": "May",
+        "Juni": "Jun",
+        "Juli": "Jul",
+        "Aug.": "Aug",
+        "Sep.": "Sep",
+        "Okt.": "Oct",
+        "Nov.": "Nov",
+        "Dez.": "Dec"
+    }
+
+    # Replace German month names with English equivalents
+    for german, english in month_map.items():
+        df[date_column_name] = df[date_column_name].str.replace(german, english)
+
+    # Parse the dates
+    df[date_column_name] = pd.to_datetime(df[date_column_name], format="mixed")
+
+    return df
+
+
+def fix_columns_names(df):
+    """
+    Processes the given DataFrame by renaming columns, dropping specified columns, and creating a new column for Bucina_Multi IN by summing the Bucina_Multi Fahrräder IN and Bucina_Multi Fußgänger IN columns. .
+
+    Args:
+        df (pd.DataFrame): The DataFrame to be modified.
+        rename (dict): A dictionary where the keys are existing column names and the values are the new column names.
+        drop (list): A list of column names that should be removed from the DataFrame.
+        create (str): The name of the new column that will be created by summing the "Bucina_Multi Fahrräder IN" 
+                      and "Bucina_Multi Fußgänger IN" columns.
+
+    Returns:
+        pd.DataFrame: The modified DataFrame with the specified changes applied.
+    """
+
+    #lists and dictionaries for columns that need to be dropped or renamed
+
+    drop = ['Brechhäuslau Fußgänger IN', 'Brechhäuslau Fußgänger OUT', 'Waldhausreibe Channel 1 IN', 'Waldhausreibe Channel 2 OUT']
+
+    rename = {'Bucina IN': 'Bucina PYRO IN',
           'Bucina OUT': 'Bucina PYRO OUT',
           'Gsenget IN.1': 'Gsenget Fußgänger IN',
           'Gsenget OUT.1': 'Gsenget Fußgänger OUT',
@@ -62,21 +184,9 @@ to_rename = {'Bucina IN': 'Bucina PYRO IN',
           'Trinkwassertalsperre OUT' : 'Trinkwassertalsperre PYRO OUT'
           }
 
-def fix_columns_names(df, rename, drop, create):
-    """
-    Processes the given DataFrame by renaming columns, dropping specified columns, and creating a new column for Bucina_Multi IN by summing the Bucina_Multi Fahrräder IN and Bucina_Multi Fußgänger IN columns. .
 
-    Args:
-        df (pd.DataFrame): The DataFrame to be modified.
-        rename (dict): A dictionary where the keys are existing column names and the values are the new column names.
-        drop (list): A list of column names that should be removed from the DataFrame.
-        create (str): The name of the new column that will be created by summing the "Bucina_Multi Fahrräder IN" 
-                      and "Bucina_Multi Fußgänger IN" columns.
-
-    Returns:
-        pd.DataFrame: The modified DataFrame with the specified changes applied.
-    """
     # Rename columns according to the provided mapping
+    
     df.rename(columns=rename, inplace=True)
     print(len(rename), ' columns were renamed')
 
@@ -393,22 +503,28 @@ def normalize_traffic_metrics(df):
 
     return df
 
-    def write_csv_file_to_aws_s3(df: pd.DataFrame, path: str, **kwargs) -> pd.DataFrame:
-        """Writes an individual CSV file to AWS S3.
+def write_csv_file_to_aws_s3(df: pd.DataFrame, path: str, **kwargs) -> pd.DataFrame:
+    """Writes an individual CSV file to AWS S3.
 
-        Args:
-            df (pd.DataFrame): The DataFrame to write.
-            path (str): The path to the CSV files on AWS S3.
-            **kwargs: Additional arguments to pass to the to_csv function.
-        """
+    Args:
+        df (pd.DataFrame): The DataFrame to write.
+        path (str): The path to the CSV files on AWS S3.
+        **kwargs: Additional arguments to pass to the to_csv function.
+    """
 
-        wr.s3.to_csv(df, path=path, **kwargs)
-        return
+    wr.s3.to_csv(df, path=path, **kwargs)
+    return
 
 
 def main():
 
-    df_mapped = fix_columns_names(df, rename=to_rename, drop=to_drop)
+    data = read_data_per_file
+
+    visitor_counts_parsed_dates = parse_german_dates(df=visitor_counts, date_column_name="Time")
+
+    df = visitor_counts_parsed_dates.reset_index(drop=True)
+
+    df_mapped = fix_columns_names(df)
     
     df_imputed_timestamps = correct_and_impute_times(df_mapped)
 
@@ -428,18 +544,14 @@ def main():
 
     print("\n Visitor sensors data is preprocessed and traffic metrics are created! \n")
 
-    write_csv_file_to_aws_s3(
-        df=joined_data,
+    df_normalized_traffic.to_csv(output_file_name)
+
+    """ write_csv_file_to_aws_s3(
+        df=df_normalized_traffic,
         path=f"s3://{output_bucket}/{output_data_folder}/{output_file_name}",
-        )
-    
+        )"""
+        
     print("Preprocessed data uploaded to AWS succesfully!")
-
-
-
-
-
-    print("")
     
 if __name__ == "__main__":
     main()
