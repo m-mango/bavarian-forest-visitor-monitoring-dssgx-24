@@ -8,6 +8,10 @@ Usage:
 - To run this script, simply execute it using Python:
   $ python src/weather_data_sourcing_and_processing.py
 - The script will automatically fetch weather data for the specified date range, process it, and save it to a CSV file.
+<<<<<<< HEAD
+=======
+- Please change the AWS credentials, global variables (start and end time, latitude, and longitude), and the S3 bucket and folder name before running the script.
+>>>>>>> 65b8fff (additions and deletion to pre_processing folder)
 
 Output:
 - The sourced and processed weather data is saved as '/sourced_weather_data_2016-24_non_imputed.csv' and '/processed_weather_data_2016-24_imputed.csv' in the 'preprocessed_data' folder 
@@ -33,10 +37,21 @@ warnings.filterwarnings('ignore')
 ############################################################################################################
 # Define global variables
 ############################################################################################################
+<<<<<<< HEAD
 
 # Set time period for sourcing the data
 START_TIME = datetime(2016, 1, 1)
 END_TIME = datetime(2024, 8, 26)
+=======
+# Uncomment this if you want to get the weather data for the next 7 days starting from today
+# Get dates for the data sourcing
+# START_TIME = datetime.now()
+# END_TIME = (START_TIME + pd.Timedelta(days=7))
+
+# Set time period for sourcing the data
+START_TIME = datetime(2016, 1, 1)
+END_TIME = datetime(2024, 9, 3)
+>>>>>>> 65b8fff (additions and deletion to pre_processing folder)
 
 # Coordinates of the Bavarian Forest (Haselbach)
 # These coordinates are based on the weather recommendation by Google for a Bavarian Forest Weather search
@@ -54,7 +69,11 @@ preprocessed_data_folder = "preprocessed_data"
 # Define functions
 ############################################################################################################
 
+<<<<<<< HEAD
 def get_hourly_data(region, start_date, end_date):
+=======
+def get_hourly_data(region):
+>>>>>>> 65b8fff (additions and deletion to pre_processing folder)
     """
     Fetch hourly weather data for a specified region and date range.
 
@@ -82,7 +101,11 @@ def get_hourly_data(region, start_date, end_date):
             - coco: Weather condition code.
     """
     # Fetch hourly data
+<<<<<<< HEAD
     data = Hourly(region, start_date, end_date).fetch()
+=======
+    data = Hourly(region, START_TIME, END_TIME).fetch()
+>>>>>>> 65b8fff (additions and deletion to pre_processing folder)
     
     # Reset the index
     data.reset_index(inplace=True)
@@ -145,7 +168,11 @@ def save_data_to_csv(data, save_path):
         os.makedirs(save_path)
     
     # Save the data to CSV
+<<<<<<< HEAD
     data.to_csv(os.path.join(save_path, 'bf-weather.csv'), index=False)
+=======
+    data.to_csv(save_path, index=False)
+>>>>>>> 65b8fff (additions and deletion to pre_processing folder)
     print('Data saved successfully!')
 
 def write_csv_file_to_aws_s3(df: pd.DataFrame, 
@@ -158,7 +185,11 @@ def write_csv_file_to_aws_s3(df: pd.DataFrame,
         **kwargs: Additional arguments to pass to the to_csv function.
     """
 
+<<<<<<< HEAD
     wr.s3.to_csv(df, path=path, **kwargs)
+=======
+    wr.s3.to_csv(df, path=path, **kwargs, index=False)
+>>>>>>> 65b8fff (additions and deletion to pre_processing folder)
     return
 
 def load_csv_files_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
@@ -186,6 +217,7 @@ def main():
     bavarian_forest = Point(lat=LATITUDE, lon=LONGITUDE)
 
     # Fetch hourly data for the location
+<<<<<<< HEAD
     hourly_data = get_hourly_data(bavarian_forest, START_TIME, END_TIME)
 
     # Process the hourly data to extract and format necessary weather parameters
@@ -194,13 +226,32 @@ def main():
     write_csv_file_to_aws_s3(
     df=sourced_hourly_data,
     path=f"s3://{bucket}/{preprocessed_data_folder}/sourced_weather_data_2016-24_non_imputed.csv",)
+=======
+    hourly_data = get_hourly_data(bavarian_forest)
+
+    # Process the hourly data to extract and format necessary weather parameters
+    sourced_hourly_data = process_hourly_data(hourly_data)
+    
+    # # Uncomment the following line to save the sourced data to a CSV file
+
+    # # Save the processed data to a CSV file
+    # save_data_to_csv(sourced_hourly_data, 'outputs/weather_data_final/weather_data_2016-24_non_imputed_forecasted.csv')
+
+    write_csv_file_to_aws_s3(
+    df=sourced_hourly_data,
+    path=f"s3://{bucket}/{preprocessed_data_folder}/sourced_weather_data_2016-24_forecasted_non_imputed.csv")
+>>>>>>> 65b8fff (additions and deletion to pre_processing folder)
 
     print('Sourced hourly data saved successfully to AWS S3!')
 
     print("Processing the sourced hourly data...")
 
     load_sourced_weather_data = load_csv_files_from_aws_s3(
+<<<<<<< HEAD
     path=f"s3://{bucket}/{preprocessed_data_folder}/sourced_weather_data_2016-24_non_imputed.csv",parse_dates=True)
+=======
+    path=f"s3://{bucket}/{preprocessed_data_folder}/sourced_weather_data_2016-24_forecasted_non_imputed.csv",parse_dates=True)
+>>>>>>> 65b8fff (additions and deletion to pre_processing folder)
 
     # Get the list of columns to process
     parameters = load_sourced_weather_data.columns.to_list()
@@ -208,9 +259,19 @@ def main():
     # Fill missing values in the weather data
     imputed_data = fill_missing_values(load_sourced_weather_data, parameters)
 
+<<<<<<< HEAD
     write_csv_file_to_aws_s3(
     df=imputed_data,
     path=f"s3://{bucket}/{preprocessed_data_folder}/processed_weather_data_2016-24_imputed.csv",)
+=======
+    # # Uncomment the following line to save the processed data to a CSV file
+    # # Save the processed data to a CSV file
+    # save_data_to_csv(imputed_data, 'outputs/weather_data_final/processed_weather_data_2016-24_forecasted_imputed.csv')
+
+    write_csv_file_to_aws_s3(
+    df=imputed_data,
+    path=f"s3://{bucket}/{preprocessed_data_folder}/processed_weather_data_2016-24_forecasted_imputed.csv",)
+>>>>>>> 65b8fff (additions and deletion to pre_processing folder)
 
     print('Processed hourly data saved successfully to AWS S3!')
 
