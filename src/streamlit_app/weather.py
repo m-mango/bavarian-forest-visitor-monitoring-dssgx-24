@@ -4,37 +4,16 @@ import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 
-# from language_selection_menu import TRANSLATIONS
-
-# Get the start time as todays date
-START_TIME = datetime.now()
-END_TIME = (START_TIME + pd.Timedelta(days=7))
-
-
-# Coordinates of the Bavarian Forest (Haselbach)
-# These coordinates are based on the weather recommendation by Google for a Bavarian Forest Weather search
-LATITUDE = 49.31452390542327
-LONGITUDE = 12.711573421032
-
-def get_hourly_data_forecasted():
-    
-    """
-    Fetch hourly weather data for the Bavarian Forest - forecasted from todays date
-
-    Returns:
-    --------
-    pd.DataFrame: Hourly weather data
-    
-    """
-    bavarian_forest = Point(lat=LATITUDE, lon=LONGITUDE)
-    data = Hourly(bavarian_forest, START_TIME, END_TIME)
-    data = data.fetch()
-    return data 
-
-
 def find_peaks(data):
+    """
+    Find the peak indices in the data.
 
-    # only get the highest peaks per day
+    Args:
+        data (list): List of values.
+    
+    Returns:
+        list: List of peak indices.
+    """
     peaks = []
     for i in range(1, len(data) - 1):
         if data[i] > data[i-1] and data[i] > data[i+1]:
@@ -122,17 +101,15 @@ def get_graph(forecast_data):
     return fig
 
     
-def get_weather_section():
+def get_weather_section(processed_weather_data):
     """
     Display the weather section
     """
 
     st.markdown("### Weather Forecast")
 
-    # Get the weather data
-    forecast_data = get_hourly_data_forecasted()
 
-    fig  = get_graph(forecast_data)
+    fig  = get_graph(processed_weather_data)
 
     st.plotly_chart(fig)
 
