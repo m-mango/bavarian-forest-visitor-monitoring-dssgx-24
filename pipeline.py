@@ -7,6 +7,7 @@ import altair as alt
 import src.streamlit_app.page_layout_config as page_layout_config
 import src.streamlit_app.language_selection_menu as lang_sel_menu
 import src.streamlit_app.weather as weather
+import src.streamlit_app.parking as parking 
 
 # get the process data functions
 import src.pre_processing.process_forecast_weather_data as pwd
@@ -21,6 +22,10 @@ def create_dashboard(processed_weather_data, processed_parking_data):
         logo = Image.open("src/streamlit_app/assets/bf_logo2.png")
         st.image(logo, width=100)
         st.title("Plan Your Trip to the Bavarian Forest")
+
+        # get the parking section
+        parking.get_parking_section(processed_parking_data)
+
 
     with col2:
         # get the language selection menu
@@ -56,7 +61,6 @@ if __name__ == "__main__":
 
     # call the sourcing and processing pipeline
     processed_weather_data, processed_parking_data = pipeline()
-
 
     # create the dashboard
     create_dashboard(processed_weather_data, processed_parking_data)
