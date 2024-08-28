@@ -10,7 +10,7 @@ from meteostat import Hourly, Point
 ########################################################################################
 # AWS Setup 
 ########################################################################################
-boto3.setup_default_session(profile_name='Fellow-permissions-S3-Sagemaker-586794458956')
+boto3.setup_default_session(profile_name='manpa_barman_fellow_dssgx_24')
 
 bucket = "dssgx-munich-2024-bavarian-forest"
 raw_data_folder = "raw-data"
@@ -85,12 +85,13 @@ def source_parking_data_from_cloud(location_slug: str):
     Returns:
         pd.DataFrame: A DataFrame containing the current occupancy data, occupancy rate, and capacity.
     """
-
+    
     API_endpoint = f'https://data.bayerncloud.digital/api/v4/endpoints/list_occupancy/{location_slug}'
 
     request_params = {
         'token': BAYERN_CLOUD_API_KEY
     }
+
 
     response = requests.get(API_endpoint, params=request_params)
     response_json = response.json()
@@ -182,13 +183,13 @@ def source_weather_data():
 
 
 
-def main():
+def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     # Load the visyor count data form AWS S3
     historic_visitor_counts = source_historic_sensor_data_from_aws_s3(
     path=f"s3://{bucket}/{raw_data_folder}/hourly-historic-visitor-counts-all-sensors/",
     skiprows=2)
 
-    print("Historic visitor counts data loaded successfully.")
+    print("Historic visitor counts data loaded successfully!")
 
     # Source the parking data from bayern cloud
     all_parking_dataframes = []
@@ -199,14 +200,12 @@ def main():
 
     all_parking_data = merge_all_df_from_list(all_parking_dataframes)
 
-    print("Parking data sourced successfully.")
+    print("Parking data sourced successfully!")
 
     # Source the weather data
     weather_data_df = source_weather_data()
 
-    print("Weather data sourced successfully.")
-    return historic_visitor_counts, all_parking_data, weather_data_df
+    print("Weather data sourced successfully!")
 
-    
-if __name__ == "__main__":
-    main()
+    # print(historic_visitor_counts.head(), all_parking_data.head(), weather_data_df.head())
+    return historic_visitor_counts, all_parking_data, weather_data_df
