@@ -1,7 +1,5 @@
 """
-Join sensor, weather and visitor center data script.
-
-This script sources from AWS three different data sources, join them over a datetime index, and writes the joined df as a csv to AWS.
+Clean historic sensor data from 2016 to 2024
 
 Usage:
 - Change the global variables section if needed
@@ -13,7 +11,7 @@ Usage:
   $ python cleaning_historic_visitor_count.py
 
 Output:
-- The joined data is saved as 'joined_sensor_weather_visitorcenter_2016-2024.csv' in the 'preprocessed_data' directory in AWS.
+- The preprocessed data is saved as 'normalized_sensor_data_2016_20244.csv' in the 'preprocessed_data' directory in AWS.
 """
 
 
