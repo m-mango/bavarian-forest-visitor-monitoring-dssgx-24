@@ -3,6 +3,39 @@ This repo includes the code developed during DSSGx Munich 2024 for a project tha
 
 ## How to run the code
 
+### Run the pipeline and dashboard via Docker container
+
+1. Install Docker to your local machine. Follow tutorials/guidelines online.
+
+2. Verify the Docker installation:
+
+```
+docker --version
+```
+
+3. Initiate the Docker Engine (e.g., start the Docker app).
+
+4. Navigate to the root of the repository. Build a Docker container for our project with the following command:
+
+```
+docker build -t bavarian-forest .
+```
+
+5. After the Docker container has been built, run the Docker container with attaching the repository as volume (`-v` parameter)as is with the following command:
+
+```
+docker run -v {path-to-repo}:/app -p 8501:8501 -t bavarian-forest
+```
+
+Optional:
+
+In order to not use the entrypoint specified in the `Dockerfile`, run the Docker container in bash mode to jump into the terminal of the Docker (more flexibility for execution):
+
+```
+docker run -it --entrypoint /bin/bash bavarian-forest
+```
+
+
 ### Create a virtual environment
 
 Choose a virtual environment of your choice and install the dependencies of the `requirements.txt` in the root of the repository. In the following, you see the steps to create a virtual environment with a particularly, specified Python version with `pyenv` and the plugin `pyenv-virtualenv`.
