@@ -13,7 +13,7 @@ def get_other_information():
         st.write("🏛️ Find information about the main visitor centers in the Bavarian Forest.")
         st.markdown("[Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/facilities/index.htm)")
 
-    with st.expander("Popular Entrances"):
+    with st.expander("Popular Entrances to the Park"):
         st.write("🚪 Explore the two most popular entrances to the park.")
 
         # Entrance 1
@@ -33,7 +33,7 @@ def get_other_information():
         st.markdown("[Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/service/getting_there/index.htm)")
 
 
-    with st.expander("Cross-Country Skiing"):
-        st.write("⛷️ Discover the best cross-country skiing routes in the park in Germany and the Czech Republic.")
-        st.markdown("[Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/cross_country_skiing/index.htm)")
+    # with st.expander("Cross-Country Skiing"):
+    #     st.write("⛷️ Discover the best cross-country skiing routes in the park in Germany and the Czech Republic.")
+    #     st.markdown("[Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/cross_country_skiing/index.htm)")
 
