@@ -47,7 +47,7 @@ def get_language_selection_menu():
         unsafe_allow_html=True,
     )
 
-    language = st.selectbox("Language", 
+    language = st.selectbox("Select Language", 
                             options=list(LANGUAGE_OPTIONS.keys()), 
                             format_func=lambda x: LANGUAGE_OPTIONS[x])
 
