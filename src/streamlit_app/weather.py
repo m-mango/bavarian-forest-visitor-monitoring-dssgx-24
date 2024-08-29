@@ -3,33 +3,29 @@ from datetime import datetime
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
+import plotly.graph_objects as go
 
 def find_peaks(data):
-    """
-    Find the peak indices in the data.
-
-    Args:
-        data (list): List of values.
-    
-    Returns:
-        list: List of peak indices.
-    """
     peaks = []
     for i in range(1, len(data) - 1):
         if data[i] > data[i-1] and data[i] > data[i+1]:
             peaks.append(i)
     return peaks
 
-
 def get_graph(forecast_data):
     """
-    Display a line graph of the temperature and precipitation forecast in the same plot.
-
+    Display a line graph of the temperature forecast in the same plot,
+    with clear day labels on the x-axis and properly formatted hover info.
+    
     Parameters:
     -----------
     forecast_data: pd.DataFrame
         Hourly weather forecast data.
     """
+
+    # Ensure that the time column is in datetime format and set it as index
+    forecast_data['time'] = pd.to_datetime(forecast_data['time'])
+    forecast_data.set_index('time', inplace=True)
 
     fig = go.Figure()
 
@@ -40,7 +36,7 @@ def get_graph(forecast_data):
         mode='lines', 
         name='Temperature (°C)',
         line=dict(color='orange', width=2),  # Smoother line with better color
-        hovertemplate='Date: %{x}<br>Temperature: %{y}°C<extra></extra>'
+        hovertemplate='Date: %{x|%d %b %Y, %H:%M}<br>Temperature: %{y}°C<extra></extra>'
     ))
 
     # Find peak indices for temperature
@@ -65,42 +61,39 @@ def get_graph(forecast_data):
     # Add peak points trace to the figure
     fig.add_trace(peak_points_trace)
 
-    # Add the precipitation line
-    fig.add_trace(go.Scatter(
-        x=forecast_data.index, 
-        y=forecast_data['prcp'], 
-        mode='lines', 
-        name='Precipitation (mm)',
-        line=dict(color='blue', width=2, dash='dash'),  # Dashed line for precipitation
-        yaxis='y2',  # Use secondary y-axis for precipitation
-        hovertemplate='Date: %{x}<br>Precipitation: %{y} mm<extra></extra>'
-    ))
-
-    # Update layout for dual y-axes and improved styling
     fig.update_layout(
-        title='7-Day Hourly Weather Forecast',
-        xaxis_title='Date',
-        yaxis_title='Temperature (°C)',
-        yaxis2=dict(
-            title='Precipitation (mm)',
-            overlaying='y',
-            side='right',
-            showgrid=False  # Remove grid lines from secondary y-axis
-        ),
-        legend=dict(
-            orientation="h",  # Horizontal legend
-            yanchor="top",
-            y=-0.3,  # Position below the plot
-            xanchor="center",
-            x=0.5
-        ),
-        template='plotly_dark',
-        hovermode="x unified"  # Unified hover to show both temperature and precipitation together
+    title='7-Day Hourly Weather Forecast',
+    xaxis_title='Date',
+    yaxis_title='Temperature (°C)',
+    xaxis=dict(
+        tickformat='%a, %b %d',  # Format x-axis as 'Day, Month Date'
+        dtick=24 * 60 * 60 * 1000,  # Tick every day
+        tickangle=-45,  # Rotate the labels to make them more readable
+        color='white',  # Ensure labels are visible on the dark background
+        showgrid=False,  # Hide vertical grid lines for better clarity
+    ),
+    yaxis=dict(
+        color='white'  # Ensure y-axis labels are visible
+    ),
+    legend=dict(
+        orientation="h",  # Horizontal legend
+        yanchor="top",
+        y=-0.4,  # Move the legend further down below the plot
+        xanchor="center",
+        x=0.5
+    ),
+    margin=dict(
+        l=50, r=50, t=50, b=100  # Increase bottom margin to make space for the x-axis labels
+    ),
+    template='plotly_dark',
+    hovermode="x unified"  # Unified hover to show temperature together
     )
+
 
     return fig
 
-    
+
+
 def get_weather_section(processed_weather_data):
     """
     Display the weather section
@@ -112,5 +105,3 @@ def get_weather_section(processed_weather_data):
     fig  = get_graph(processed_weather_data)
 
     st.plotly_chart(fig)
-
-    
