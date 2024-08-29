@@ -18,20 +18,21 @@ import src.pre_processing.process_real_time_parking_data as prtpd
 
 from PIL import Image
 
+col1, col2 = page_layout_config.get_page_layout()
+
 
 def create_dashboard(processed_weather_data, processed_parking_data):
-    col1, col2 = page_layout_config.get_page_layout()
     
     with col1:
         logo = Image.open("src/streamlit_app/assets/bf_logo2.png")
         st.image(logo, width=100)
-        st.title("Plan Your Trip to the Bavarian Forest")
+        st.title("Plan Your Trip to the Bavarian Forest 🌲")
 
         # Get the visitor count section
         visitor_count.get_visitor_counts_section()
 
 
-        # get the new parking section
+        # get the parking section
         parking.get_parking_section(processed_parking_data)
 
 
@@ -51,11 +52,11 @@ def create_dashboard(processed_weather_data, processed_parking_data):
 
 
     
-
+@st.cache_data
 def pipeline():
 
     # Source all data
-    visitor_counts_data, parking_data, weather_data, predicted_data = source_all_data()
+    visitor_counts_data, parking_data, weather_data  = source_all_data()
 
     # Process the weather data
     processed_weather_data = pwd.process_weather_data(weather_data)
@@ -63,18 +64,18 @@ def pipeline():
     # process the parking data
     processed_parking_data = prtpd.process_real_time_parking_data(parking_data)
 
+    # filter predicted df
+
     # # process the visitor count data
     # process_visitor_count_data = prtpd.process_visitor_count_data(historic_visitor_counts)
 
 
-    return processed_weather_data, processed_parking_data, predicted_data
+    return processed_weather_data, processed_parking_data
 
 if __name__ == "__main__":
 
     # call the sourcing and processing pipeline
-    processed_weather_data, processed_parking_data, predicted_data = pipeline()
-
-    print(predicted_data.head())
+    processed_weather_data, processed_parking_data = pipeline()
 
     # create the dashboard
     create_dashboard(processed_weather_data, processed_parking_data)
