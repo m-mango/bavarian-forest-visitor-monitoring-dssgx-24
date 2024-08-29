@@ -5,7 +5,4 @@
 *.log
 *.log
 logs.log
-*.log
-logs.log
-logs.log
-logs.log
+/catboost_info
