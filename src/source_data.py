@@ -31,7 +31,7 @@ BAYERN_CLOUD_API_KEY = os.getenv('BAYERN_CLOUD_API_KEY')
 # We are not using 'parkplatz-fredenbruecke-1' and 'skiwanderzentrum-zwieslerwaldhaus-2' because of inconsistency in sending data to the cloud
 
 parking_sensors = {
-     "parkplatz-graupsaege-1":["e42069a6-702f-4ef4-b3b5-04e310d97ca0",(48.92414,13.44515,)],
+     "parkplatz-graupsaege-1":["e42069a6-702f-4ef4-b3b5-04e310d97ca0",(48.92414,13.44515)],
      # "parkplatz-fredenbruecke-1":["fac08b6b-e9cb-40cd-a106-b9f2cbfc7447",()],
      "p-r-spiegelau-1": ["ee0490b2-3cc5-4adb-a527-95267257598e",(48.9178,13.35544)],
      # "skiwanderzentrum-zwieslerwaldhaus-2":[ "dd3734c2-c4fb-4e1d-a57c-9bbed8130d8f",()],
@@ -226,11 +226,4 @@ def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     print("Weather data sourced successfully!")
 
-    # # Load the predicted data from the AWS S3 bucket
-
-    predicted_values_df = source_data_from_aws_s3(
-        path=f"s3://{bucket}/{preprocessed_data_folder}/predicted_traffic_for_dashboard.csv")
-    
-    print("Predicted values from model data loaded successfully!")
-
-    return historic_visitor_counts, all_parking_data, weather_data_df, predicted_values_df
+    return historic_visitor_counts, all_parking_data, weather_data_df
