@@ -19,6 +19,6 @@ def get_page_layout():
 
     # Define the app layout
 
-    col1, col2 = st.columns((3,1), gap='medium')
+    col1, col2 = st.columns((2.2,1), gap='medium')
 
     return col1, col2
