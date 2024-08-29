@@ -29,22 +29,22 @@ BAYERN_CLOUD_API_KEY = os.getenv('BAYERN_CLOUD_API_KEY')
 # get the location ID of the parking sensors
 
 # We are not using 'parkplatz-fredenbruecke-1' and 'skiwanderzentrum-zwieslerwaldhaus-2' because of inconsistency in sending data to the cloud
+
 parking_sensors = {
-    # "parkplatz-graupsaege-1":["e42069a6-702f-4ef4-b3b5-04e310d97ca0",(825578.3337000003,5428553.0152)],
-    # # "parkplatz-fredenbruecke-1":["fac08b6b-e9cb-40cd-a106-b9f2cbfc7447",()],
-    # "p-r-spiegelau-1": ["ee0490b2-3cc5-4adb-a527-95267257598e",(819050.0575000001,5427466.528999999)],
-    # # "skiwanderzentrum-zwieslerwaldhaus-2":[ "dd3734c2-c4fb-4e1d-a57c-9bbed8130d8f",()],
-    "parkplatz-zwieslerwaldhaus-1": [ "6c9b765e-1ff9-401d-98bc-b0302ee65c62",(49.092086882841166, 13.24523208515499)],
-    # "parkplatz-zwieslerwaldhaus-1": [ "6c9b765e-1ff9-401d-98bc-b0302ee65c62",(810051.1677000001, 5445970.7607)],
-    # "parkplatz-zwieslerwaldhaus-nord-1": [ "4bbb3b5c-edc2-4b00-a923-91c1544aa29d",()],
-    "parkplatz-nationalparkzentrum-falkenstein-2" : [ "a93b64e9-35fb-4b3e-8348-81ba8f1c0d6f",(49.06044880177309, 13.23647463926216)],
-    # "parkplatz-nationalparkzentrum-falkenstein-2" : [ "a93b64e9-35fb-4b3e-8348-81ba8f1c0d6f",(809404.6046000002, 5442818.757200001)],
-    # "scheidt-bachmann-parkplatz-1" : [ "144e1868-3051-4140-a83c-41d4b79a6d14",(816654.5043000001, 5429202.5154)],
-    # "parkplatz-nationalparkzentrum-lusen-p2" : [ "454b0f50-130b-4c21-9db2-b163e158c847",(829026.8021999998, 5425027.2245000005)],
-    # "parkplatz-waldhaeuser-kirche-1" : [ "454b0f50-130b-4c21-9db2-b163e158c847",(826813.6995000001, 5429101.716700001)],
-    # "parkplatz-waldhaeuser-ausblick-1" : [ "a14d8ebd-9261-49f7-875b-6a924fe34990",(827428.7165999999, 5429087.2853)],
-    # "parkplatz-skisportzentrum-finsterau-1": [ "ea474092-1064-4ae7-955e-8db099955c16",(834964.7417000001,5431023.592)],
-    } 
+     "parkplatz-graupsaege-1":["e42069a6-702f-4ef4-b3b5-04e310d97ca0",(48.92414,13.44515,)],
+     # "parkplatz-fredenbruecke-1":["fac08b6b-e9cb-40cd-a106-b9f2cbfc7447",()],
+     "p-r-spiegelau-1": ["ee0490b2-3cc5-4adb-a527-95267257598e",(48.9178,13.35544)],
+     # "skiwanderzentrum-zwieslerwaldhaus-2":[ "dd3734c2-c4fb-4e1d-a57c-9bbed8130d8f",()],
+     "parkplatz-zwieslerwaldhaus-1": [ "6c9b765e-1ff9-401d-98bc-b0302ee65c62",(49.08837,13.24707)],
+     # "parkplatz-zwieslerwaldhaus-nord-1": [ "4bbb3b5c-edc2-4b00-a923-91c1544aa29d",()],
+     "parkplatz-nationalparkzentrum-falkenstein-2" : [ "a93b64e9-35fb-4b3e-8348-81ba8f1c0d6f",(49.06042,13.23583)],
+     "scheidt-bachmann-parkplatz-1" : [ "144e1868-3051-4140-a83c-41d4b79a6d14",(48.9346,13.32418)],
+     "parkplatz-nationalparkzentrum-lusen-p2" : [ "454b0f50-130b-4c21-9db2-b163e158c847",(48.8907,13.48924)],
+     "parkplatz-waldhaeuser-kirche-1" : [ "454b0f50-130b-4c21-9db2-b163e158c847",(48.92842,13.4624,)],
+     "parkplatz-waldhaeuser-ausblick-1" : [ "a14d8ebd-9261-49f7-875b-6a924fe34990",(48.92796,13.47076)],
+     "parkplatz-skisportzentrum-finsterau-1": [ "ea474092-1064-4ae7-955e-8db099955c16",(48.94129,13.57491)],
+}
+
 
 ########################################################################################
 # Weather Data Sourcing - METEOSTAT API
@@ -64,7 +64,7 @@ LONGITUDE = 12.711573421032
 
 # Functions
 
-def source_historic_sensor_data_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
+def source_data_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
     """Loads individual or multiple CSV files from an AWS S3 bucket.
 
     Args:
@@ -204,7 +204,7 @@ def source_weather_data():
 
 def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     # Load the visyor count data form AWS S3
-    historic_visitor_counts = source_historic_sensor_data_from_aws_s3(
+    historic_visitor_counts = source_data_from_aws_s3(
     path=f"s3://{bucket}/{raw_data_folder}/hourly-historic-visitor-counts-all-sensors/",
     skiprows=2)
 
@@ -226,6 +226,11 @@ def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     print("Weather data sourced successfully!")
 
-    # print(historic_visitor_counts.columns, all_parking_data.columns, weather_data_df.columns)
+    # # Load the predicted data from the AWS S3 bucket
 
-    return historic_visitor_counts, all_parking_data, weather_data_df
+    predicted_values_df = source_data_from_aws_s3(
+        path=f"s3://{bucket}/{preprocessed_data_folder}/predicted_traffic_for_dashboard.csv")
+    
+    print("Predicted values from model data loaded successfully!")
+
+    return historic_visitor_counts, all_parking_data, weather_data_df, predicted_values_df
