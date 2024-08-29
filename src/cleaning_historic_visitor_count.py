@@ -462,7 +462,7 @@ def calculate_traffic_metrics_abs(df):
         pandas.DataFrame: The DataFrame with additional columns for absolute traffic metrics.
     """
     # Calculate total traffic
-    df["traffic_abs"] = df.sum(axis=1)
+    df["traffic_abs"] = df.filter(regex='IN|OUT').sum(axis=1)
 
     # Calculate sum of 'IN' columns
     df["sum_IN_abs"] = df.filter(like='IN').sum(axis=1)
