@@ -31,7 +31,7 @@ def get_parking_section(processed_parking_data):
     view_state = pdk.ViewState(
         latitude=avg_latitude,  # Center map at the average latitude
         longitude=avg_longitude,  # Center map at the average longitude
-        zoom=10,  # Zoom level increased for a closer view
+        zoom=15,  # Zoom level increased for a closer view
         pitch=50
     )
 
