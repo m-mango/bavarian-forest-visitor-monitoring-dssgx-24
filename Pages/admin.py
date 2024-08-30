@@ -82,7 +82,7 @@ fig2 = px.bar(
     y='prediction_label',
     color='prediction_color',  # Use the prediction color column
     labels={'prediction_label': 'Expected Traffic (Absolute)', 'Unnamed: 0': 'Hour of Day'},
-    title=f"Expected Traffic (Absolute) for {day_selected}",
+    title=f"Expected Visitor Foot Traffic (Absolute , Hourly) for {day_selected}",
     color_discrete_map={'red': 'red', 'blue': 'blue', 'green': 'green'}
 )
 
@@ -90,7 +90,7 @@ fig2 = px.bar(
 fig2.update_traces(
     hovertemplate=(
         'Hour: %{x|%H:%M}<br>'
-        'Occupancy: %{y} cars<br>'  # Add the prediction_label value as "Occupancy" in hover info
+        'Occupancy: %{y} visitors <br>'  # Add the prediction_label value as "Occupancy" in hover info
     ),
 )
 
@@ -100,7 +100,7 @@ fig2.update_layout(
     xaxis_title='Hour of the selected day',
     yaxis_title='Expected Traffic (Absolute)',  # Added y-axis title
     template='plotly_dark',
-    legend_title_text='Traffic Intensity',
+    legend_title_text='Visitor Foot Traffic',
     yaxis=dict(range=[0, max_occupancy_value])  # Fixing the y-axis
 )
 
