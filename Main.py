@@ -1,3 +1,4 @@
+# import libraries
 import pandas as pd
 import streamlit as st
 from src.source_data import source_all_data
@@ -18,19 +19,32 @@ import src.pre_processing.process_real_time_parking_data as prtpd
 
 from PIL import Image
 
+# Set the page layout - it is a two column layout
 col1, col2 = page_layout_config.get_page_layout()
 
 
 def create_dashboard(processed_weather_data, processed_parking_data):
+
+    """
+    Create the dashboard for the Bavarian Forest National Park.
+
+    Args:
+        processed_weather_data (pd.DataFrame): Processed weather data.
+        processed_parking_data (pd.DataFrame): Processed parking data.
+
+    Returns:
+        None
+    """
     
     with col1:
+
+        # Display the logo and title of the column
         logo = Image.open("src/streamlit_app/assets/bf_logo2.png")
         st.image(logo, width=100)
         st.title("Plan Your Trip to the Bavarian Forest 🌲")
 
         # Get the visitor count section
         visitor_count.get_visitor_counts_section()
-
 
         # get the parking section
         parking.get_parking_section(processed_parking_data)
@@ -54,6 +68,16 @@ def create_dashboard(processed_weather_data, processed_parking_data):
     
 @st.cache_data
 def pipeline():
+    """
+    Run the sourcing and processing pipeline for the dashboard.
+    
+    Args:
+        None
+    
+    Returns:
+        processed_weather_data (pd.DataFrame): Processed weather data.
+        processed_parking_data (pd.DataFrame): Processed parking data.
+    """
 
     # Source all data
     visitor_counts_data, parking_data, weather_data  = source_all_data()
@@ -63,12 +87,20 @@ def pipeline():
 
     # process the parking data
     processed_parking_data = prtpd.process_real_time_parking_data(parking_data)
+    
+    # # TODO : Add code for getting the prediction data automatically
 
-    # filter predicted df
+    # step 1: Source data from aws raw_data folder (source_data.py) - DONE
+    # step 2: Process/filter the data to add the missing values, imputations etc.
+    #  # process_visitor_count_data = prtpd.process_visitor_count_data(historic_visitor_counts)
 
-    # # process the visitor count data
-    # process_visitor_count_data = prtpd.process_visitor_count_data(historic_visitor_counts)
+    # step 3: get the processed_weather_data and processed_parking_data and join to the processed_visitor_count_data
+    # # joined_data = join_data(processed_weather_data, processed_parking_data, process_visitor_count_data) # join data script
 
+    # step 4: run the prediction model on the joined data
+    # # prediction_data = run_prediction_modeljoined_data) # prediction model script
+
+    # step 5: save the prediction data as csv to AWS for streamlit to use - DONE (script already added visitor_count.py)
 
     return processed_weather_data, processed_parking_data
 
