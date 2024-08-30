@@ -1,3 +1,16 @@
+"""
+This is the main file for the Bavarian Forest National Park dashboard.
+
+This script has the following functionalities:
+    - Source and process all data (pipeline())
+    - Create the dashboard - create_dashboard()
+    - Run the streamlit app - create_dashboard()
+
+This script files pulls the sourced data from `source_data.py` and processes the data using the functions in the `pre_processing` folder and 
+then creates the dashboard using the modules in the `streamlit_app` folder.
+
+"""
+
 # import libraries
 import streamlit as st
 from src.source_data import source_all_data
