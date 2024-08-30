@@ -53,7 +53,7 @@ def get_visitor_counts_section():
         y='weekly_relative_traffic',
         color='traffic_color',  # Use the traffic color column
         labels={'weekly_relative_traffic': '', 'Unnamed: 0': 'Hour of Day'},
-        title=f"Relative Hourly Traffic for {day_selected}",
+        title=f"Relative Visitor Foot Traffic for {day_selected} (Hourly)",
         color_discrete_map={'red': 'red', 'blue': 'blue', 'green': 'green'}
     )
 
@@ -72,7 +72,7 @@ def get_visitor_counts_section():
         xaxis_title=None,  # Hide the x-axis title
         yaxis_title=None,  # Hide the y-axis title
         template='plotly_dark',
-        legend_title_text='Traffic Intensity',
+        legend_title_text='Vistor Foot Traffic',
         legend=dict(
             itemsizing='constant',
             traceorder="normal",
