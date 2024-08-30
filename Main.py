@@ -1,8 +1,6 @@
 # import libraries
-import pandas as pd
 import streamlit as st
 from src.source_data import source_all_data
-import altair as alt
 
 # get the streamlit app modules
 import src.streamlit_app.page_layout_config as page_layout_config
