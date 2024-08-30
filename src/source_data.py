@@ -1,3 +1,15 @@
+"""
+This script files pulls the data from the Bayern Cloud API, AWS S3 bucket, and METEOSTAT API to source the data for the Bavarian Forest National Park dashboard.
+
+The data sourced includes:
+- Historic visitor counts data - from the AWS S3 bucket
+- Real-time parking data - from the Bayern Cloud API
+- Hourly weather data - from the METEOSTAT API
+
+The functions in this script are used to source the data and return the dataframes for further processing.
+
+"""
+# import the necessary libraries
 import pandas as pd
 import awswrangler as wr
 import boto3
@@ -20,16 +32,11 @@ preprocessed_data_folder = "preprocessed_data"
 # Bayern Cloud setup
 ########################################################################################
 
-# Load Bayern Cloud API key from environment variables]
-
 # Load Bayern Cloud API key from environment variables
 BAYERN_CLOUD_API_KEY = os.getenv('BAYERN_CLOUD_API_KEY')
 
 
-# get the location ID of the parking sensors
-
 # We are not using 'parkplatz-fredenbruecke-1' and 'skiwanderzentrum-zwieslerwaldhaus-2' because of inconsistency in sending data to the cloud
-
 parking_sensors = {
      "parkplatz-graupsaege-1":["e42069a6-702f-4ef4-b3b5-04e310d97ca0",(48.92414,13.44515)],
      # "parkplatz-fredenbruecke-1":["fac08b6b-e9cb-40cd-a106-b9f2cbfc7447",()],
@@ -45,11 +52,9 @@ parking_sensors = {
      "parkplatz-skisportzentrum-finsterau-1": [ "ea474092-1064-4ae7-955e-8db099955c16",(48.94129,13.57491)],
 }
 
-
 ########################################################################################
 # Weather Data Sourcing - METEOSTAT API
 ########################################################################################
-
 
 # Get the start time as todays date
 START_TIME = datetime.now()
@@ -60,9 +65,9 @@ END_TIME = (START_TIME + pd.Timedelta(days=7))
 LATITUDE = 49.31452390542327
 LONGITUDE = 12.711573421032
 
-
-
+########################################################################################
 # Functions
+########################################################################################
 
 def source_data_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
     """Loads individual or multiple CSV files from an AWS S3 bucket.
@@ -99,7 +104,6 @@ def source_parking_data_from_cloud(location_slug: str):
     response = requests.get(API_endpoint, params=request_params)
     response_json = response.json()
 
-
     # Access the first item in the @graph list
     graph_item = response_json["@graph"][0]
 
@@ -119,8 +123,7 @@ def source_parking_data_from_cloud(location_slug: str):
     
     parking_data.reset_index(drop=True, inplace=True)
 
-    # add additional columns for spatial information
-
+    # adding spatial information to the dataframe
     parking_df_with_spatial_info = add_spatial_info_to_parking_sensors(parking_data)
 
     return parking_df_with_spatial_info
@@ -145,8 +148,6 @@ def add_spatial_info_to_parking_sensors(parking_data_df):
             return parking_data_df
 
             
-
-
 def merge_all_df_from_list(df_list):
     """
     Merge all the dataframes in the list into a single dataframe.
