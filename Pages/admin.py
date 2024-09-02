@@ -1,12 +1,19 @@
+# import the necessary libraries
 import hmac
 import streamlit as st
 import awswrangler as wr
 import pandas as pd
 import plotly.express as px
 
+
+# AWS Setup
+########################################################################################
 bucket = "dssgx-munich-2024-bavarian-forest"
 preprocessed_data_folder = "preprocessed_data"
 
+########################################################################################
+
+# Title of the page - page layout
 st.write("# Bavarian Forest admin page")
 
 def check_password():
