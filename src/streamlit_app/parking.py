@@ -1,18 +1,31 @@
+# import libraries
 import streamlit as st
 import pydeck as pdk
 import pandas as pd
 
-# Assuming processed_parking_data DataFrame is already available
-
-# Define fixed size for markers
+# TODO: Normalize the numbers to get different sized markers according to the occupancy rate of the parking sections
 def get_fixed_size():
-    return 100  # Choose a fixed size value that works best for your map
+    """
+    Get a fixed size value for the map markers.
+    """
+    return 100  
 
 def calculate_color(occupancy_rate):
     # Use a simple green-red color map
     return [int(255 * occupancy_rate), int(255 * (1 - occupancy_rate)), 0]
 
 def get_parking_section(processed_parking_data):
+    """
+    
+    Display the parking section of the dashboard with a map showing the real-time parking occupancy 
+    and interactive metrics.
+
+    Args:
+        processed_parking_data (pd.DataFrame): Processed parking data.
+
+    Returns:
+        None
+    """
     st.markdown("### Real Time Parking Occupancy")
     
     # Set a fixed size for all markers
