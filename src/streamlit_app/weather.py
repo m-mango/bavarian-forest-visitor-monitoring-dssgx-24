@@ -1,11 +1,21 @@
-from meteostat import Hourly, Point
-from datetime import datetime
+# import libraries
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
-import plotly.graph_objects as go
+
+
+# Functions
 
 def find_peaks(data):
+    """
+    Find peaks in the data.
+
+    Args:
+        data (pd.Series): The data to find peaks in.
+    
+    Returns:
+        list: A list of indices where peaks occur.
+    """
     peaks = []
     for i in range(1, len(data) - 1):
         if data[i] > data[i-1] and data[i] > data[i+1]:
@@ -16,11 +26,12 @@ def get_graph(forecast_data):
     """
     Display a line graph of the temperature forecast in the same plot,
     with clear day labels on the x-axis and properly formatted hover info.
+
+    Args:
+        forecast_data (pd.DataFrame): The forecast data to plot.
     
-    Parameters:
-    -----------
-    forecast_data: pd.DataFrame
-        Hourly weather forecast data.
+    Returns:
+        plotly.graph_objects.Figure: The plotly figure object.
     """
 
     # Ensure that the time column is in datetime format and set it as index
@@ -96,7 +107,13 @@ def get_graph(forecast_data):
 
 def get_weather_section(processed_weather_data):
     """
-    Display the weather section
+    Display the weather section of the dashboard.
+
+    Args:
+        processed_weather_data (pd.DataFrame): Processed weather data.
+    
+    Returns:
+        None
     """
 
     st.markdown("### Weather Forecast")
