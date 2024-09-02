@@ -204,6 +204,13 @@ def source_weather_data():
 
 
 def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+
+    """
+    Source all the data required for the dashboard.
+
+    Returns:
+        tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]: Historic visitor counts data, real-time parking data, and weather data.
+    """
     # Load the visyor count data form AWS S3
     historic_visitor_counts = source_data_from_aws_s3(
     path=f"s3://{bucket}/{raw_data_folder}/hourly-historic-visitor-counts-all-sensors/",
