@@ -1,14 +1,28 @@
+#TODO: change the index name ('Unnamed: 0') of the timestamps of the predicted csv in the generation script and also in visitor_count.py
+# import the necessary libraries
 import streamlit as st
 import awswrangler as wr
 import pandas as pd
 import plotly.express as px
 
+
+# AWS Setup
+########################################################################################
+
 bucket = "dssgx-munich-2024-bavarian-forest"
 preprocessed_data_folder = "preprocessed_data"
+
+########################################################################################
 
 def get_visitor_counts_section():
     """
     Get the visitor counts section with the highest occupancy rate.
+
+    Args:
+        None
+    
+    Returns:
+        None
     """
     st.markdown("## Visitor Counts (Forecasted) 🚶🚶‍♀️")
 
