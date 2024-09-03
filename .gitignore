@@ -1,8 +1,6 @@
 
+logs.log
 /data
 .DS_Store
 /outputs
-*.log
-*.log
-logs.log
 /catboost_info
