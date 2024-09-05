@@ -11,4 +11,7 @@ scikit-learn
 seaborn
 pycaret[full]
 pyarrow==15.0.0
+streamlit-pandas-profiling
+ydata-profiling
+pydantic-settings
 
