@@ -17,13 +17,13 @@ import streamlit as st
 from src.source_data import source_all_data
 
 # get the streamlit app modules
-import src.streamlit_app.page_layout_config as page_layout_config
-import src.streamlit_app.language_selection_menu as lang_sel_menu
-import src.streamlit_app.weather as weather
-import src.streamlit_app.parking as parking 
-import src.streamlit_app.visitor_count as visitor_count
-import src.streamlit_app.recreational_activities as recreation
-import src.streamlit_app.other_information as other_info
+import src.streamlit_app.visitors.page_layout_config as page_layout_config
+import src.streamlit_app.visitors.language_selection_menu as lang_sel_menu
+import src.streamlit_app.visitors.weather as weather
+import src.streamlit_app.visitors.parking as parking 
+import src.streamlit_app.visitors.visitor_count as visitor_count
+import src.streamlit_app.visitors.recreational_activities as recreation
+import src.streamlit_app.visitors.other_information as other_info
 
 # get the process data functions
 import src.pre_processing.process_forecast_weather_data as pwd

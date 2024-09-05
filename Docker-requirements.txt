@@ -4,4 +4,6 @@ awswrangler
 meteostat
 plotly
 pydeck
-
+streamlit-pandas-profiling
+ydata-profiling
+pyarrow
