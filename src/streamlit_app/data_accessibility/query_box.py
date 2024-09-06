@@ -4,15 +4,13 @@ import datetime
 from src.streamlit_app.data_accessibility.data_retrieval import get_data_from_query
 
 
-
-
 def select_category():
     """
     Select the category of data to access.
     """
     # select the dropdown for the category
     category = st.selectbox("Select data category", 
-                            ["preprocessed_data","weather", "visitor occupancy", "parking"],
+                            ["weather", "visitor occupancy", "parking"],
                             index=0)
     
     return category
@@ -120,7 +118,7 @@ def get_query_section():
     """
     Get the query section.
     """
-    st.markdown("# Data query")
+    st.markdown("## Data query")
 
     col1, col2 = st.columns((1,1))
 
@@ -143,8 +141,9 @@ def get_query_section():
     queries = list(queries_dict.values())
 
     selected_query = st.selectbox("Select a query", queries)
+    
 
-    get_data_from_query(queries_dict, selected_query, select_category)
+    get_data_from_query(queries_dict, selected_query, selected_category)
 
     # have a button to run the query
     if st.button("Run Query"):
