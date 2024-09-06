@@ -36,11 +36,11 @@ def get_visualization_section():
 
     # Generate Pandas Profiling report
     # pr = retrieved_df.profile_report()
-    pr = ProfileReport(retrieved_df, minimal=True)
+    pr = ProfileReport(retrieved_df, minimal=True, dark_mode=True)
     st_profile_report(pr)
 
-    export=pr.to_html()
-    st.download_button(label="Download Full Report", data=export, file_name='report.html')
+    # export=pr.to_html()
+    # st.download_button(label="Download Full Report", data=export, file_name='report.html')
 
 
     # st.write("### Profiling Report")
