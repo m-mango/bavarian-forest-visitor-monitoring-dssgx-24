@@ -3,10 +3,10 @@ import pandas as pd
 import awswrangler as wr
 import boto3
 from ydata_profiling import ProfileReport
-from streamlit_pandas_profiling import st_profile_report
+# from streamlit_pandas_profiling import st_profile_report
 
 # AWS Setup
-boto3.setup_default_session(profile_name='aisha_younas_fellow_dssgx_24')
+boto3.setup_default_session(profile_name='manpa_barman_fellow_dssgx_24')
 bucket = "dssgx-munich-2024-bavarian-forest"
 base_folder = "raw-data/bf_raw_files"
 
@@ -135,111 +135,100 @@ def custom_pandas_profiling_report(report):
     # Render the report in Streamlit
     st.components.v1.html(report_html, height=800, scrolling=True)
 
-def main():
+def get_upload_and_download_section():
     """Main function to handle Streamlit app logic for uploading, processing, and downloading data."""
-    st.set_page_config(layout="wide")
-    st.title("Data Accessibility")
+    st.markdown("## Data Accessibility")
 
-    # Divide page into two columns
-    col1, col2 = st.columns([2, 2])
+    # Tabs for Upload and Download
+    tab1, tab2 = st.tabs(["Upload Data", "Download Data"])
 
-    with col1:
-        # Tabs for Upload and Download
-        tab1, tab2 = st.tabs(["Upload Data", "Download Data"])
+    with tab1:
+        st.header("Upload Data")
+        
+        # Select category
+        category = st.selectbox(
+            "Select the data category",
+            ["visitor count sensors", "visitors count centers", "other"]
+        )
+        
+        # File upload
+        uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
 
-        with tab1:
-            st.header("Upload Data")
+        if uploaded_file and category:
+            data = read_csv_file(uploaded_file)
+
+            # Display the header and place the upload button next to it
+            st.write(" ")  # Add some space between elements
+            col_preview, col_upload = st.columns([8, 2])
             
-            # Select category
-            category = st.selectbox(
-                "Select the data category",
-                ["visitor count sensors", "visitors count centers", "other"]
-            )
+            with col_preview:
+                st.header("Preview of Data")
             
-            # File upload
-            uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
+            with col_upload:
+                # Confirm button (aligned to the right side, bigger size)
+                upload_confirm = st.button(
+                    label="Confirm Upload",
+                    disabled=not uploaded_file,
+                    help="Review the data before confirming upload",
+                )
+                st.write(f"<style>.stButton > button {{width: 100%; height: 50px;}}</style>", unsafe_allow_html=True)
 
-            if uploaded_file and category:
-                data = read_csv_file(uploaded_file)
+            # Show the preview and summary report below the header
+            st.dataframe(data)
+            st.header("Data Summary Report")
 
-                # Display the header and place the upload button next to it
-                st.write(" ")  # Add some space between elements
-                col_preview, col_upload = st.columns([8, 2])
-                
-                with col_preview:
-                    st.header("Preview of Data")
-                
-                with col_upload:
-                    # Confirm button (aligned to the right side, bigger size)
-                    upload_confirm = st.button(
-                        label="Confirm Upload",
-                        disabled=not uploaded_file,
-                        help="Review the data before confirming upload",
+            # Use the custom Pandas Profiling report function with the new theme
+            pr = ProfileReport(data, minimal=True)
+            custom_pandas_profiling_report(pr)
+
+            if upload_confirm:
+                # Capture upload timestamp
+                upload_timestamp = pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')
+
+                # Generate file name and S3 path
+                file_name = generate_file_name(category, upload_timestamp)
+                s3_path = f"s3://{bucket}/{base_folder}/{category.replace(' ', '_')}/{file_name}"
+
+                # Upload the file to AWS S3
+                write_csv_file_to_aws_s3(data, s3_path, index=False)
+                st.success("File successfully uploaded.")
+
+    with tab2:
+        st.header("Download Data")
+        
+        # Select category
+        category = st.selectbox(
+            "Select the data category to browse",
+            ["visitor count sensors", "visitors count centers", "other"]
+        )
+        
+        # List files based on category
+        if category:
+            files = list_files_in_s3(category)
+            selected_file = st.selectbox("Select a file to preview", files) if files else None
+
+            if selected_file:
+                # Preview button (enabled only when a file is selected)
+                preview_confirm = st.button(
+                    label="Preview Data",
+                    disabled=not selected_file,
+                    help="Preview the data before confirming download"
+                )
+
+                if preview_confirm:
+                    # Correctly construct the full path to the selected file
+                    file_path = f"s3://{bucket}/{base_folder}/{category.replace(' ', '_')}/{selected_file}"
+
+                    # Load and preview selected file
+                    st.write(f"Preview of {selected_file}")
+                    data = load_csv_files_from_aws_s3(file_path)
+                    st.dataframe(data)
+
+                    # Download button
+                    st.download_button(
+                        label="Download selected file as CSV",
+                        data=data.to_csv(index=False),
+                        file_name=selected_file,
+                        mime='text/csv',
                     )
-                    st.write(f"<style>.stButton > button {{width: 100%; height: 50px;}}</style>", unsafe_allow_html=True)
 
-                # Show the preview and summary report below the header
-                st.dataframe(data)
-                st.header("Data Summary Report")
-
-                # Use the custom Pandas Profiling report function with the new theme
-                pr = ProfileReport(data, minimal=True)
-                custom_pandas_profiling_report(pr)
-
-                if upload_confirm:
-                    # Capture upload timestamp
-                    upload_timestamp = pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')
-
-                    # Generate file name and S3 path
-                    file_name = generate_file_name(category, upload_timestamp)
-                    s3_path = f"s3://{bucket}/{base_folder}/{category.replace(' ', '_')}/{file_name}"
-
-                    # Upload the file to AWS S3
-                    write_csv_file_to_aws_s3(data, s3_path, index=False)
-                    st.success("File successfully uploaded.")
-
-        with tab2:
-            st.header("Download Data")
-            
-            # Select category
-            category = st.selectbox(
-                "Select the data category to browse",
-                ["visitor count sensors", "visitors count centers", "other"]
-            )
-            
-            # List files based on category
-            if category:
-                files = list_files_in_s3(category)
-                selected_file = st.selectbox("Select a file to preview", files) if files else None
-
-                if selected_file:
-                    # Preview button (enabled only when a file is selected)
-                    preview_confirm = st.button(
-                        label="Preview Data",
-                        disabled=not selected_file,
-                        help="Preview the data before confirming download"
-                    )
-
-                    if preview_confirm:
-                        # Correctly construct the full path to the selected file
-                        file_path = f"s3://{bucket}/{base_folder}/{category.replace(' ', '_')}/{selected_file}"
-
-                        # Load and preview selected file
-                        st.write(f"Preview of {selected_file}")
-                        data = load_csv_files_from_aws_s3(file_path)
-                        st.dataframe(data)
-
-                        # Download button
-                        st.download_button(
-                            label="Download selected file as CSV",
-                            data=data.to_csv(index=False),
-                            file_name=selected_file,
-                            mime='text/csv',
-                        )
-
-    # Right part (left empty for your fellow team member)
-    with col2:
-        st.header("To Be Developed")
-
-if __name__ == "__main__":
-    main()
