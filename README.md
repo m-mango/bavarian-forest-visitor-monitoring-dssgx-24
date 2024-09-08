@@ -33,7 +33,7 @@ aws sso login
 5. After the Docker container has been built, run the Docker container with attaching the repository and aws credentials as volume (`-v` parameter) and specify the AWS role you assume with the following command:
 
 ```
-docker run -v {path-to-repo}:/app -v {path-to-aws-credentials-folder}/.aws:/root/.aws -e AWS_PROFILE={name-of-your-aws-profile} -p 8501:8501 -t bavarian-forest
+docker run -v {path-to-repo}:/app -v {path-to-aws-credentials-folder}/.aws:/root/.aws -e AWS_PROFILE={name-of-your-aws-profile} -e BAYERN_CLOUD_API_KEY={api_key_here} -p 8501:8501 -t bavarian-forest
 ```
 
 Optional:
