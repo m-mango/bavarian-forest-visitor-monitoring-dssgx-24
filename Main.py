@@ -35,7 +35,7 @@ from PIL import Image
 col1, col2 = page_layout_config.get_page_layout()
 
 
-def create_dashboard(processed_weather_data, processed_parking_data):
+def create_dashboard_main_page(processed_weather_data, processed_parking_data):
 
     """
     Create the dashboard for the Bavarian Forest National Park.
@@ -122,6 +122,6 @@ if __name__ == "__main__":
     processed_weather_data, processed_parking_data = pipeline()
 
     # create the dashboard
-    create_dashboard(processed_weather_data, processed_parking_data)
+    create_dashboard_main_page(processed_weather_data, processed_parking_data)
 
     
