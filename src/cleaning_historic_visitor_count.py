@@ -24,6 +24,8 @@ import glob
 import chardet
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
+import awswrangler as wr
+import boto3
 pd.options.mode.chained_assignment = None  
 
 
@@ -32,70 +34,53 @@ pd.options.mode.chained_assignment = None
 ###########################################################################################
 
 aws_profile = "patricio_ferreira_fellow_dssgx_24" #add here your credentials
-
-raw_data_aws_path = ""
-
-output_file_name = r"C:\Users\patricio\Documents\bf-dssgx\outputs\normalized_sensor_data_2016_2024SCRIPTTEST.csv"
-output_bucket = "dssgx-munich-2024-bavarian-forest"
+raw_data_folder = "raw-data"
+bucket = "dssgx-munich-2024-bavarian-forest"
 output_data_folder = "preprocessed_data"
-
-
+output_file_name = r"C:\Users\patricio\Documents\bf-dssgx\outputs\normalized_sensor_data_2016_2024SCRIPTTEST.csv"
 
 ##############################################################################################
 
 # Setting up AWS
 
-#boto3.setup_default_session(profile_name=aws_profile) 
+boto3.setup_default_session(profile_name=aws_profile) 
 
 ##############################################################################################
 
 
 
 ##############################################################################################
-        # SOURCING THAT SHOULD BE CHANGED TO AWS BY MAMPA
+        # SOURCING
 
-def read_data_per_file(file: str) -> pd.DataFrame:
-    """
-    Reads data from a CSV file and returns it as a pandas DataFrame. Handles skipping rows
-
-    Args:
-        file (str): The path to the CSV file.
-
-    Returns:
-        pd.DataFrame: The DataFrame containing the data from the CSV file.
-    """
-    # Detect the encoding
-    with open(file, 'rb') as f:
-        result = chardet.detect(f.read())
-        encoding = result['encoding']
-    data =  pd.read_csv(file, encoding=encoding, skiprows=2)
-        
-    return data
-
-def load_visitor_counts_data(
-    data_folder: str,
-) -> pd.DataFrame:
-    """
-    Loads visitor counts data from multiple CSV files in the specified folder and deletes some unnecessary column.
+def load_csv_files_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
+    """Loads individual or multiple CSV files from an AWS S3 bucket.
 
     Args:
-        data_folder (str): The path to the folder containing the CSV files.
+        path (str): The path to the CSV files on AWS S3.
+        **kwargs: Additional arguments to pass to the read_csv function.
 
     Returns:
-        pd.DataFrame: The DataFrame containing the visitor counts data.
+        pd.DataFrame: The DataFrame containing the data from the CSV files.
     """
-    # Read data from CSV files
 
-    raw_visitor_counts = pd.concat([read_data_per_file(
-        file
-    ) for file in glob.glob(f"{data_folder}/*.csv")])
+    df = wr.s3.read_csv(path=path, **kwargs)
+    return df
+
+def get_common_columns_across_historic_visitor_counts():
+    df_2016 = load_csv_files_from_aws_s3("s3://dssgx-munich-2024-bavarian-forest/raw-data/hourly-historic-visitor-counts-all-sensors/visitor_counts_2016.csv", skiprows=2)
+
+
+
+    historic_visitor_counts = load_csv_files_from_aws_s3(
+    path=f"s3://{bucket}/{raw_data_folder}/hourly-historic-visitor-counts-all-sensors/export*.csv", skiprows=2)
+
+    col_2016 = df_2016.columns
+    col_export = historic_visitor_counts.columns
+
+    common_cols = [col for col in col_2016 if col in col_export]
     
-    # Drop last empty column
-    visitor_counts = raw_visitor_counts.drop(columns=["Unnamed: 96"])
+    return common_cols
 
-    return visitor_counts
-
-# SOURCING THAT SHOULD BE DELETED BY MAMPA
 ##############################################################################################
         
 
@@ -162,7 +147,7 @@ def fix_columns_names(df):
 
     #lists and dictionaries for columns that need to be dropped or renamed
 
-    drop = ['Brechhäuslau Fußgänger IN', 'Brechhäuslau Fußgänger OUT', 'Waldhausreibe Channel 1 IN', 'Waldhausreibe Channel 2 OUT']
+    drop = ['Brechhäuslau Fußgänger IN', 'Brechhäuslau Fußgänger OUT', 'Waldhausreibe Channel 1 IN', 'Waldhausreibe Channel 2 OUT'] #Waldhausreibe Channel 1 (IN and OUT) had a total sum of values of 10 and 13. Brechhäuslau columns were duplicated.
 
     rename = {'Bucina IN': 'Bucina PYRO IN',
           'Bucina OUT': 'Bucina PYRO OUT',
@@ -213,7 +198,7 @@ def fix_columns_names(df):
     df.drop(columns=drop, inplace=True)
     print(len(drop), ' repeated columns were dropped')
 
-    # Add a new column by summing two existing columns
+    # Add Bucina_Multi IN column by summing Fahrraeder and Fussgaenger columns
     df['Bucina_Multi IN'] = df["Bucina_Multi Fahrräder IN"] + df["Bucina_Multi Fußgänger IN"]
     print('Bucina_Multi IN column was created')
 
@@ -228,9 +213,10 @@ def correct_and_impute_times(df):
     Corrects repeated timestamps caused by a 2-hour interval that is indicative of a daylight saving.
 
     The function operates under the following assumptions:
-    1. The first interval in the 'Time' column is considered the reference interval.
-    2. If any subsequent intervals differ from this reference, particularly showing a 2-hour difference due to daylight saving changes, the repeated timestamp is corrected by subtracting one hour.
+    1. By default every interval should be of 1 hour
+    2. If any interval differ from this, particularly the repeated timestamp is corrected by subtracting one hour.
     3. The data values for the corrected timestamp are then imputed from the next available row.
+    4. 2017 is an odd year where the null row is not the one with the 2 hours interval, but the one with 0. We fixed this manually for this specific rows.
 
     Args:
         df (pandas.DataFrame): A DataFrame containing a 'Time' column with datetime-like values and other associated data columns.
@@ -242,22 +228,22 @@ def correct_and_impute_times(df):
         ValueError: If the 'Time' column is missing from the DataFrame.
         KeyError: If an index out of range occurs due to imputation attempts beyond the DataFrame bounds.
     """
-    # Calculate time intervals
+    # Swap values of specific rows to correct data misalignment
+    df.iloc[[54603, 54602]] = df.iloc[[54602, 54603]].values
+
+    # Sort DataFrame by 'Time'
+    df.sort_values("Time", ascending=True, inplace=True)
+
+    # Identify intervals where there is a 2 hours gap
     intervals = df.Time.diff().dropna()
-    reference_interval = intervals.iloc[0]  # Establish the first interval as the reference
+    index_wrong_time = intervals[intervals == "0 days 02:00:00"].index
 
-    # Identify intervals that differ from the reference interval
-    different_intervals = intervals[intervals != reference_interval]
-
-    # Identify the indexes for intervals of 2 hours (indicative of a daylight saving time change)
-    index_wrong_time = different_intervals[different_intervals == "0 days 02:00:00"].index
-
-    # Impute values from the next row for affected timestamps
+    # Impute values from the next row and adjust 'Time' column
     for idx in index_wrong_time:
-        df.loc[idx, 'Time'] = df.loc[idx, 'Time'] - pd.Timedelta(hours=1)  # Adjust the repeated timestamp by subtracting one hour
-        df.loc[idx, df.columns != 'Time'] = df.loc[idx + 1, df.columns != 'Time']  # Impute the values from the next row
+        df.loc[idx, 'Time'] = df.loc[idx, 'Time'] - pd.Timedelta(hours=1)  # Adjust for daylight saving
+        df.loc[idx, df.columns != 'Time'] = df.loc[idx + 1, df.columns != 'Time']  # Impute values from the next row
 
-    # Set 'Time' as the index and sort the DataFrame by index
+    # Set 'Time' as index and sort by index
     df = df.set_index('Time').sort_index()
 
     return df
@@ -421,27 +407,39 @@ def handle_outliers(df):
 
     return df
 
-def traffic_columns_counting_sensors(df):
+def merge_columns(df):
     """
-    Discards columns with the distinction between cyclist and pedestrians, as they will not be taken into account this iteration. Adds a column to the DataFrame that counts the number of non-null entries in columns to determine the number of working sensors.
-
+    Merges columns from replaced sensors in the DataFrame into new combined columns based on a predefined mapping
+    and drops the original columns after merging. Additionally, drops columns with names containing "Fahrräder" or "Fußgänger" as we will not use that distinction.
 
     Args:
-        df (pandas.DataFrame): DataFrame containing the sensor data with various columns.
+        df (pandas.DataFrame): A DataFrame containing columns to be merged.
 
     Returns:
-        pandas.DataFrame: The DataFrame with out cyclist and pedestrian columns and with an additional 'working_sensors' column that represents the count of non-null values in the relevant sensor columns for each row.
+        pandas.DataFrame: The modified DataFrame with the new merged columns, original columns removed, and Fahrräder or Fußgänger columns dropped.
     """
-    # Identify columns that do not include "Fahrräder" or "Fußgänger" in their names
-    non_cyclist_pedestrian = [col for col in df.columns 
-                             if "Fahrräder" not in col 
-                             and "Fußgänger" not in col]
-    
-    # Discard columns with the distinction between cyclist and pedestrians    
-    df = df[non_cyclist_pedestrian]
+    merge_dict = {
+        'Bucina MERGED IN': ['Bucina PYRO IN', 'Bucina_Multi IN'],
+        'Bucina MERGED OUT': ['Bucina PYRO OUT', 'Bucina_Multi OUT'],
+        'Falkenstein 1 MERGED IN': ['Falkenstein 1 PYRO IN', 'Falkenstein 1 IN'],
+        'Falkenstein 1 MERGED OUT': ['Falkenstein 1 PYRO OUT', 'Falkenstein 1 OUT'],
+        'Lusen 1 MERGED IN': ['Lusen 1 PYRO IN', 'Lusen 1 EVO IN'],
+        'Lusen 1 MERGED OUT': ['Lusen 1 PYRO OUT', 'Lusen 1 EVO OUT'],
+        'Trinkwassertalsperre MERGED IN': ['Trinkwassertalsperre PYRO IN', 'Trinkwassertalsperre_MULTI IN'],
+        'Trinkwassertalsperre MERGED OUT': ['Trinkwassertalsperre PYRO OUT', 'Trinkwassertalsperre_MULTI OUT']
+    }
 
-    # Count non-null entries in the identified columns and create a new column 'working_sensors'
-    df['working_sensors'] = df[non_cyclist_pedestrian].notnull().sum(axis=1)
+    # Iterate over each item in the dictionary to merge columns
+    for new_col, cols in merge_dict.items():
+        # Combine the two columns into one using the first non-null value
+        df[new_col] = df[cols[0]].combine_first(df[cols[1]])
+
+    # Drop the original columns used for merging
+    cols_to_drop = [col for cols in merge_dict.values() for col in cols]
+    df = df.drop(columns=cols_to_drop)
+
+    # Drop columns with names containing "Fahrräder" or "Fußgänger"
+    df = df.loc[:, ~df.columns.str.contains("Fahrräder|Fußgänger")]
 
     return df
 
@@ -537,12 +535,15 @@ def write_csv_file_to_aws_s3(df: pd.DataFrame, path: str, **kwargs) -> pd.DataFr
 
 def main():
 
-    visitor_counts = load_visitor_counts_data(data_folder="data\manual_visitor_counts")
+    visitor_counts = load_csv_files_from_aws_s3(
+    path=f"s3://{bucket}/{raw_data_folder}/hourly-historic-visitor-counts-all-sensors/*.csv",
+    skiprows=2,
+    usecols = get_common_columns_across_historic_visitor_counts())
 
     visitor_counts_parsed_dates = parse_german_dates(df=visitor_counts, date_column_name="Time")
-
-    df = visitor_counts_parsed_dates.reset_index(drop=True)
-
+    # Remove data before 2016-05-10 03:00:00 as there were no sensors installed
+    df = visitor_counts_parsed_dates[visitor_counts_parsed_dates['Time'] >= "2016-05-10 03:00:00"].reset_index(drop=True)
+   
     df_mapped = fix_columns_names(df)
     
     df_imputed_timestamps = correct_and_impute_times(df_mapped)
@@ -567,7 +568,7 @@ def main():
 
     """ write_csv_file_to_aws_s3(
         df=df_normalized_traffic,
-        path=f"s3://{output_bucket}/{output_data_folder}/{output_file_name}",
+        path=f"s3://{bucket}/{output_data_folder}/{output_file_name}",
         )"""
         
     print("Preprocessed data uploaded to AWS succesfully!")
