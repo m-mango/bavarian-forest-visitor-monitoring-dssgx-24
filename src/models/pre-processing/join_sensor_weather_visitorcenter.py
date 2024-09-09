@@ -21,13 +21,14 @@ import pandas as pd
 from functools import reduce
 import awswrangler as wr
 import boto3
+from access_config_file import get_aws_credentials
 
 ###########################################################################################
 #GLOBAL VARIABLES
 ###########################################################################################
 
-aws_profile = "patricio_ferreira_fellow_dssgx_24" #add here your credentials
 
+aws_profile = get_aws_credentials()
 sensor_aws_path = 's3://dssgx-munich-2024-bavarian-forest/preprocessed_data/normalized_visitor_sensor_data_2016_2024.csv'
 weather_aws_path = 's3://dssgx-munich-2024-bavarian-forest/preprocessed_data/processed_weather_data_2016-24_forecasted_imputed.csv'
 visitorcenter_aws_path = 's3://dssgx-munich-2024-bavarian-forest/preprocessed_data/bf_visitcenters_hourly .csv'
