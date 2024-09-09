@@ -1,5 +1,5 @@
 import streamlit as st
-from src.streamlit_app.data_accessibility.data_retrieval import get_retrieved_df
+from src.streamlit_app.pages_in_dashboard.data_accessibility.data_retrieval import get_retrieved_df
 import pandas as pd
 from ydata_profiling import ProfileReport
 from streamlit_pandas_profiling import st_profile_report

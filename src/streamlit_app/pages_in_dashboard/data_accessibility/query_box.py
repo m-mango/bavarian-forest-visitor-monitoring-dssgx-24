@@ -1,12 +1,15 @@
+# Import libraries
 import streamlit as st
 import awswrangler as wr
 import datetime
-from src.streamlit_app.data_accessibility.data_retrieval import get_data_from_query
+from src.streamlit_app.pages_in_dashboard.data_accessibility.data_retrieval import get_data_from_query
 
 
 def select_category():
     """
     Select the category of data to access.
+
+    Returns:
     """
     # select the dropdown for the category
     category = st.selectbox("Select data category", 
@@ -19,32 +22,28 @@ def select_date():
     """
     Select the date of the data to access.
     """
-    # # Define the start and end of the range
-    # start_range = datetime.date(2017, 1, 1)
-    # end_range = datetime.date(2025, 12, 31)
     
     # Define the default start and end dates
     default_start = datetime.datetime.now() - datetime.timedelta(days=7)
     default_end = datetime.datetime.now()
 
-    # Create the date input widget with the updated range and default values
+    # Create the date input widget with start date
     d = st.date_input(
         "Select the start date",
         default_start,
         format="MM.DD.YYYY",
     )
-
+    # Create the date input widget with end date
     e = st.date_input(
         "Select the end date",
         default_end,
         format="MM.DD.YYYY",
     )
-
     # capture the selected date
     start_date = d.strftime("%m-%d-%Y")
     end_date = e.strftime("%m-%d-%Y")
 
-
+    # prompt if the end date is chosen before start date
     if start_date > end_date:
         st.error("Error: End date must fall after start date.")
         st.stop()
@@ -74,19 +73,30 @@ def select_filters(category):
     # Select the sensors or weather values or parking values
     category_based_filters = {
         "weather" : ['Temperature', 'Humidity', 'Wind Speed', 'Precipitation', 'Sunshine Duration'],
-        "parking" : ['Occupancy', 'Capacity', 'Occupancy Rate'],
-        "visitor occupancy"  : ["Bayerisch Eisenstein", "Brechhäuslau", "Deffernik", "Diensthüttenstraße", "Felswandergebiet", "Ferdinandsthal", "Fredenbrücke", "Gfäll", "Gsenget", "Klingenbrunner Wald",
+        "parking" : {'sensors':['p-r-spiegelau-1','parkplatz-fredenbruecke-1','parkplatz-graupsaege-1',
+                                'parkplatz-nationalparkzentrum-falkenstein-2','parkplatz-nationalparkzentrum-lusen-p2'
+                                'parkplatz-skisportzentrum-finsterau-1','parkplatz-waldhaeuser-ausblick-1',
+                                'parkplatz-waldhaeuser-kirche-1','parkplatz-zwieslerwaldhaus-1',
+                                'parkplatz-zwieslerwaldhaus-nord-1','scheidt-bachmann-parkplatz-1',
+                                'skiwanderzentrum-zwieslerwaldhaus-2'],
+                     'properties':['Occupancy', 'Capacity', 'Occupancy Rate'],},
+        "visitor occupancy"  : {'sensors':["Bayerisch Eisenstein", "Brechhäuslau", "Deffernik", "Diensthüttenstraße", "Felswandergebiet", "Ferdinandsthal", "Fredenbrücke", "Gfäll", "Gsenget", "Klingenbrunner Wald",
                               "Klosterfilz", "Racheldiensthütte", "Schillerstraße", "Scheuereck", "Schwarzbachbrücke", "Falkenstein 2", "Lusen 2","Lusen 3", "Waldhausreibe", "Waldspielgelände", "Wistlberg",
-                              "Bucina", "Falkenstein 1", "Lusen 1", "Trinkwassertalsperre"]
+                              "Bucina", "Falkenstein 1", "Lusen 1", "Trinkwassertalsperre"],
+                              'properties':['IN','OUT','TOTAL']}
     }
     if category == "weather":
-        selected_properties = st.multiselect("Select the weather values", category_based_filters[category], default=None)
+        selected_properties = st.multiselect("Select the weather properties", category_based_filters[category], default=None)
+        selected_sensors = None
     elif category == "parking":
-        selected_properties = st.multiselect("Select the parking values", category_based_filters[category], default=None)
+        selected_properties = st.multiselect("Select the parking values", category_based_filters[category]['properties'], default=None)  
+        selected_sensors = st.multiselect("Select the parking sensor you want to find the values for?", category_based_filters[category]['sensors'], default=None)
     elif category == "visitor occupancy":
-        selected_properties = st.multiselect("Select the visitor sensor you want to find the occupancy for?", category_based_filters[category], default=None)
+        selected_properties = st.multiselect("Select the visitor sensor you want to find the occupancy for?", category_based_filters[category]['properties'], default=None)
+        selected_sensors = st.multiselect("Select the visitor sensor you want to find the occupancy for?", category_based_filters[category]['sensors'], default=None)
     else:
         selected_properties = None
+        selected_sensors = None
 
     return months, seasons, selected_properties
 
