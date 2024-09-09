@@ -17,12 +17,16 @@ import requests
 from datetime import datetime
 import os
 from meteostat import Hourly, Point
+from access_config_file import get_aws_credentials
 
 
 ########################################################################################
 # AWS Setup 
 ########################################################################################
-boto3.setup_default_session(profile_name='manpa_barman_fellow_dssgx_24')
+
+# Load AWS profile name 
+aws_user_name = get_aws_credentials()
+boto3.setup_default_session(profile_name=aws_user_name)
 
 bucket = "dssgx-munich-2024-bavarian-forest"
 raw_data_folder = "raw-data"

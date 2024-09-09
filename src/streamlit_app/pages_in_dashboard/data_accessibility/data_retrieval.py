@@ -2,8 +2,11 @@ import streamlit as st
 import pandas as pd
 import boto3
 import awswrangler as wr
+from access_config_file import get_aws_credentials
 
-boto3.setup_default_session(profile_name='manpa_barman_fellow_dssgx_24')
+# AWS Setup
+aws_user_name = get_aws_credentials()
+boto3.setup_default_session(profile_name=aws_user_name)
 
 bucket = "dssgx-munich-2024-bavarian-forest"
 
