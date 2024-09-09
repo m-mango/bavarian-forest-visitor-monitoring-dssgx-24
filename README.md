@@ -43,7 +43,12 @@ In order to not use the entrypoint specified in the `Dockerfile`, run the Docker
 ```
 docker run -it --entrypoint /bin/bash bavarian-forest
 ```
+5. For running the streamlit dashboard, setup the aws_credentials in the config file in the `/config/aws_profile.toml` file. Create the toml file once in your project root directory and add the following content:
 
+```
+[profile]
+name = 'manpa_barman_fellow_dssgx_24'
+```
 
 ### Create a virtual environment
 
