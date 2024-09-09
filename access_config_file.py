@@ -1,8 +1,9 @@
 import toml
+import os
 
 def get_aws_credentials():
 
-    with open('config/aws_profile.toml', 'r') as f:
+    with open(os.path.join('config','aws_profile.toml'), 'r') as f:
         config = toml.load(f)
     
     # get the aws profile
