@@ -5,12 +5,12 @@ import awswrangler as wr
 # AWS Setup
 bucket = "dssgx-munich-2024-bavarian-forest"
 
-def get_the_df_from_csv():
+def get_the_df_from_csv(path="s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/weather_2020_01_01_to_2023_12_31_dummy.csv"):
     """
     Get the dataframe from the csv file.
     """
     # Load the data
-    df = wr.s3.read_csv("s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/weather_2020_01_01_to_2023_12_31_dummy.csv")
+    df = wr.s3.read_csv(path)
     return df
 
 # def get_files_from_aws(selected_category):
@@ -110,14 +110,3 @@ def get_data_from_query(queries_dict, selected_query, selected_category):
 
     
     return 
-
-
-def get_retrieved_df():
-    """
-    Get the retrieved dataframe.
-    """
-    # get the data from the query
-    retrieved_df = get_the_df_from_csv()
-
-    return retrieved_df
-
