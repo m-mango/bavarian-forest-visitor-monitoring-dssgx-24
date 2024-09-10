@@ -2,7 +2,6 @@
 import streamlit as st
 import altair as alt
 from src.streamlit_app.pages_in_dashboard.data_accessibility.query_box import get_query_section
-from src.streamlit_app.pages_in_dashboard.data_accessibility.query_viz_and_download import get_visualization_section
 from src.streamlit_app.pages_in_dashboard.data_accessibility.upload_download import get_upload_and_download_section
 
 # Define the page layout of the Streamlit app
@@ -22,5 +21,3 @@ with col1:
     get_upload_and_download_section()
 with col2:
     get_query_section()
-
-    get_visualization_section()
