@@ -3,6 +3,7 @@ import streamlit as st
 import awswrangler as wr
 import datetime
 from src.streamlit_app.pages_in_dashboard.data_accessibility.data_retrieval import get_data_from_query
+from src.streamlit_app.pages_in_dashboard.data_accessibility.query_viz_and_download import get_visualization_section
 
 
 def select_category():
@@ -160,5 +161,7 @@ def get_query_section():
 
             get_data_from_query(queries_dict, selected_query, selected_category)
             st.write("Query executed successfully!")
+            get_visualization_section()
+
 
 
