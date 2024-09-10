@@ -2,12 +2,8 @@ import streamlit as st
 import pandas as pd
 import boto3
 import awswrangler as wr
-from access_config_file import get_aws_credentials
 
 # AWS Setup
-aws_user_name = get_aws_credentials()
-boto3.setup_default_session(profile_name=aws_user_name)
-
 bucket = "dssgx-munich-2024-bavarian-forest"
 
 def get_the_df_from_csv():
@@ -15,7 +11,7 @@ def get_the_df_from_csv():
     Get the dataframe from the csv file.
     """
     # Load the data
-    df = pd.read_csv("outputs/dummy.csv")
+    df = wr.s3.read_csv("s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/weather_2020_01_01_to_2023_12_31_dummy.csv")
     return df
 
 # def get_files_from_aws(selected_category):
