@@ -26,7 +26,6 @@ from meteostat import Point, Hourly
 import awswrangler as wr
 import boto3
 from pre_processing.models.impute_missing_weather_values import fill_missing_values
-from access_config_file import get_aws_credentials
 
 # Ignore warnings
 warnings.filterwarnings('ignore')
@@ -48,10 +47,6 @@ END_TIME = datetime(2024, 9, 3)
 # These coordinates are based on the weather recommendation by Google for a Bavarian Forest Weather search
 LATITUDE = 49.31452390542327
 LONGITUDE = 12.711573421032
-
-# Set up AWS credentials
-aws_profile_name = get_aws_credentials()
-boto3.setup_default_session(profile_name=aws_profile_name)
 
 # Set up S3 bucket and folder
 bucket = "dssgx-munich-2024-bavarian-forest"

@@ -3,11 +3,8 @@ import pandas as pd
 import awswrangler as wr
 import boto3
 from ydata_profiling import ProfileReport
-from access_config_file import get_aws_credentials
 
 # AWS Setup
-aws_user_name = get_aws_credentials()
-boto3.setup_default_session(profile_name=aws_user_name)
 bucket = "dssgx-munich-2024-bavarian-forest"
 base_folder = "raw-data/bf_raw_files"
 
