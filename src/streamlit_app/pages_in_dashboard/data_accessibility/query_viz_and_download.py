@@ -15,10 +15,6 @@ def get_visualization_section():
     # get the data from the query
     retrieved_df = get_retrieved_df()
 
-    # display the data
-    print(retrieved_df.columns)
-    print(retrieved_df.head())
-
     # # display the data
     # st.write(retrieved_df)
 
