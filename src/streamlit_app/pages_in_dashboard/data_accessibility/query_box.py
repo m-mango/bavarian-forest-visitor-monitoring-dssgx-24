@@ -128,35 +128,37 @@ def get_query_section():
     """
     Get the query section.
     """
-    st.markdown("## Data query")
-
-    col1, col2 = st.columns((1,1))
-
-    with col1:
-        selected_category = select_category()
-
-    with col2:
-        start_date, end_date = select_date()
 
     # display the query box
 
     # add a more filters section to select months seasons etc
-    months, seasons, selected_properties = select_filters(selected_category)
+    with st.form("More filters"):
+        st.markdown("## Data query")
+
+        col1, col2 = st.columns((1,1))
+
+        with col1:
+            selected_category = select_category()
+
+        with col2:
+            start_date, end_date = select_date()
+
+        months, seasons, selected_properties = select_filters(selected_category)
+        
+        # Give options to select your queries in form of a dropdown
+        queries_dict = generate_queries(selected_category, start_date, end_date, months, seasons, selected_properties)
+
+        # get all the values of the all the keys in the dictionary queries
+
+        queries = list(queries_dict.values())
+
+        selected_query = st.selectbox("Select a query", queries)
     
-    # Give options to select your queries in form of a dropdown
-    queries_dict = generate_queries(selected_category, start_date, end_date, months, seasons, selected_properties)
+        # Every form must have a submit button.
+        submitted = st.form_submit_button("Run Query")
+        if submitted:
 
-    # get all the values of the all the keys in the dictionary queries
-
-    queries = list(queries_dict.values())
-
-    selected_query = st.selectbox("Select a query", queries)
-    
-
-    get_data_from_query(queries_dict, selected_query, selected_category)
-
-    # have a button to run the query
-    if st.button("Run Query"):
-        st.write("Query executed successfully!")
+            get_data_from_query(queries_dict, selected_query, selected_category)
+            st.write("Query executed successfully!")
 
 
