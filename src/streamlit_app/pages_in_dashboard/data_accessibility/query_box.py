@@ -273,6 +273,8 @@ def get_query_section():
             st.stop()
         else:
             st.write("Query executed successfully!")
+            get_visualization_section()
+
 
             # get visualization for the queried data
             get_visualization_section(queried_df)
