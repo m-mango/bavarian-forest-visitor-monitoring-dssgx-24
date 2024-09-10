@@ -17,7 +17,7 @@ run:
 		-e BAYERN_CLOUD_API_KEY=$(BAYERN_CLOUD_API_KEY) \
 		-e AWS_PROFILE=$(AWS_PROFILE) \
 		-p 8501:8501 \
-		-t bavarian-forest
+		-t $(IMAGE_NAME)
 
 # Combined build and run
 all: build run
