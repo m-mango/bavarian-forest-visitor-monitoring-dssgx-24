@@ -15,13 +15,17 @@ def get_visualization_section():
     # get the data from the query
     retrieved_df = get_retrieved_df()
 
+    # display the data
+    print(retrieved_df.columns)
+    print(retrieved_df.head())
+
     # # display the data
     # st.write(retrieved_df)
 
     # display the visualization
     # Do a very basic line plot of the dataframe with maiking the time column as the index
-    retrieved_df["time"] = pd.to_datetime(retrieved_df["time"])
-    retrieved_df.set_index("time", inplace=True)
+    retrieved_df["Time"] = pd.to_datetime(retrieved_df["Time"])
+    retrieved_df.set_index("Time", inplace=True)
 
     st.line_chart(retrieved_df)
 
