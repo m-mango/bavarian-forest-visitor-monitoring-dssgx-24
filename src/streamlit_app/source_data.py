@@ -12,7 +12,6 @@ The functions in this script are used to source the data and return the datafram
 # import the necessary libraries
 import pandas as pd
 import awswrangler as wr
-import boto3
 import requests
 from datetime import datetime
 import os

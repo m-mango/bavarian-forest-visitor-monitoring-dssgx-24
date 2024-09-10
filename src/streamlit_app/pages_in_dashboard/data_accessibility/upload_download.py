@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import awswrangler as wr
-import boto3
 from ydata_profiling import ProfileReport
 
 # AWS Setup

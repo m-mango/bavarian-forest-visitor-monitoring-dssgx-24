@@ -20,7 +20,6 @@ Output:
 import pandas as pd
 from functools import reduce
 import awswrangler as wr
-import boto3
 
 ###########################################################################################
 #GLOBAL VARIABLES
@@ -38,10 +37,6 @@ output_data_folder = "preprocessed_data"
 timestamp_column = "Time" # name of column with timestamp in the dataframes
 
 ##############################################################################################
-
-# Setting up AWS
-
-boto3.setup_default_session(profile_name=aws_profile) 
 
 ##############################################################################################
 
