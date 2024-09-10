@@ -35,6 +35,7 @@ pd.options.mode.chained_assignment = None
 
 aws_profile = "patricio_ferreira_fellow_dssgx_24" #add here your credentials
 raw_data_folder = "raw-data"
+visitor_counts_folder = "hourly-historic-visitor-counts-all-sensors"
 bucket = "dssgx-munich-2024-bavarian-forest"
 output_data_folder = "preprocessed_data"
 output_file_name = r"C:\Users\patricio\Documents\bf-dssgx\outputs\normalized_sensor_data_2016_2024SCRIPTTEST.csv"
@@ -45,12 +46,10 @@ output_file_name = r"C:\Users\patricio\Documents\bf-dssgx\outputs\normalized_sen
 
 boto3.setup_default_session(profile_name=aws_profile) 
 
-##############################################################################################
-
-
 
 ##############################################################################################
-        # SOURCING
+
+# Sourcing
 
 def load_csv_files_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
     """Loads individual or multiple CSV files from an AWS S3 bucket.
@@ -443,7 +442,6 @@ def merge_columns(df):
 
     return df
 
-
 def calculate_traffic_metrics_abs(df):
     """
       This function calculates several traffic metrics and adds them to the DataFrame:
@@ -467,57 +465,7 @@ def calculate_traffic_metrics_abs(df):
 
     # Calculate sum of 'OUT' columns
     df["sum_OUT_abs"] = df.filter(like='OUT').sum(axis=1)
-
-    # Calculate difference between 'IN' and 'OUT' sums
-    df['diff_abs'] = df['sum_IN_abs'] - df['sum_OUT_abs']
-
-    # Calculate cumulative occupancy
-    df['occupancy_abs'] = df['diff_abs'].cumsum().fillna(0)
-
-    return df
-
-
-def normalize_traffic_metrics(df):
-    """
-    Identifies change points and normalizes 'traffic' and 'occupancy' columns for each segment.
-
-    This function performs the following steps:
-    1. Identifies change points in the 'working_sensors' column to segment the data.
-    2. Normalizes the columns 'traffic_abs', 'sum_IN_abs', 'sum_OUT_abs', 'diff_abs', and 'occupancy_abs'
-       from 0% to 100% for each segment. The normalized values are stored in new columns with '_norm' suffixes.
-
-    Args:
-        df (pandas.DataFrame): DataFrame containing the traffic and occupancy metrics.
-
-    Returns:
-        pandas.DataFrame: The DataFrame with additional columns for normalized metrics.
-    """
-    # Step 1: Identify the change points
-    change_points = df['working_sensors'].ne(df['working_sensors'].shift()).cumsum()
-
-       # Initialize the scaler
-    scaler = MinMaxScaler(feature_range=(0, 100))
-
-    # Define dictionary mapping original column names to normalized column names
-    metrics_dict = {
-        'traffic_abs': 'traffic_norm',
-        'sum_IN_abs': 'sum_IN_norm',
-        'sum_OUT_abs': 'sum_OUT_norm',
-        'diff_abs': 'diff_norm',
-        'occupancy_abs': 'occupancy_norm'
-    }
-
-    # Normalize columns for each segment
-    for segment in change_points.unique():
-        segment_df = df[change_points == segment]
-        
-        # Fit and transform the segment data
-        for key, value in metrics_dict.items():
-            values = segment_df[[key]].values  # Extract values as a 2D array
-            if len(values) > 1:  # Only scale if there is more than one value to avoid errors
-                scaled_values = scaler.fit_transform(values)
-                df.loc[segment_df.index, value] = scaled_values.flatten()
-
+    
     return df
 
 def write_csv_file_to_aws_s3(df: pd.DataFrame, path: str, **kwargs) -> pd.DataFrame:
@@ -532,11 +480,10 @@ def write_csv_file_to_aws_s3(df: pd.DataFrame, path: str, **kwargs) -> pd.DataFr
     wr.s3.to_csv(df, path=path, **kwargs)
     return
 
-
 def main():
 
     visitor_counts = load_csv_files_from_aws_s3(
-    path=f"s3://{bucket}/{raw_data_folder}/hourly-historic-visitor-counts-all-sensors/*.csv",
+    path=f"s3://{bucket}/{raw_data_folder}/{visitor_counts_folder}/*.csv",
     skiprows=2,
     usecols = get_common_columns_across_historic_visitor_counts())
 
@@ -555,23 +502,17 @@ def main():
     df_merged_columns = merge_columns(df_corrected_sensors)
 
     df_no_outliers = handle_outliers(df_merged_columns)
+   
+    df_traffic_metrics = calculate_traffic_metrics_abs(df_no_outliers)
 
-    df_traffic_columns = traffic_columns_counting_sensors(df_no_outliers)
+    print("\nVisitor sensors data is preprocessed and overall traffic metrics were created! \n")
 
-    df_traffic_metrics = calculate_traffic_metrics_abs(df_traffic_columns)
-
-    df_normalized_traffic = normalize_traffic_metrics(df_traffic_metrics)
-
-    print("\n Visitor sensors data is preprocessed and traffic metrics are created! \n")
-
-    df_normalized_traffic.to_csv(output_file_name)
-
-    """ write_csv_file_to_aws_s3(
-        df=df_normalized_traffic,
-        path=f"s3://{bucket}/{output_data_folder}/{output_file_name}",
-        )"""
+    write_csv_file_to_aws_s3(
+    df=df_traffic_metrics,
+    path=f"s3://{bucket}/{output_data_folder}/{output_file_name}",
+    )
         
-    print("Preprocessed data uploaded to AWS succesfully!")
+    print("Preprocessed visitor counts data uploaded to AWS succesfully!")
     
 if __name__ == "__main__":
     main()
