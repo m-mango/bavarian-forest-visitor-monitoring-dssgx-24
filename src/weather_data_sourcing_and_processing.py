@@ -24,7 +24,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from meteostat import Point, Hourly
 import awswrangler as wr
-from pre_processing.models.impute_missing_weather_values import fill_missing_values
+from src.models.pre_processing.impute_missing_weather_values import fill_missing_values
 
 # Ignore warnings
 warnings.filterwarnings('ignore')
@@ -177,7 +177,7 @@ def load_csv_files_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
     return df
 
 
-def main():
+def source_and_process_weather_data():
     """
     This function creates a point over the Bavarian Forest National Park, retrieves hourly weather data
     for the specified time period, processes the data to extract necessary weather parameters,
@@ -224,6 +224,3 @@ def main():
 
     print('Processed hourly data saved successfully to AWS S3!')
 
-# Execute the main function if the script is run directly
-if __name__ == "__main__":
-    main()
