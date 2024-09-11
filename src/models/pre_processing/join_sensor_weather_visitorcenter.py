@@ -34,7 +34,7 @@ output_file_name = "joined_sensor_weather_visitorcenter_2016-2024.csv"
 output_bucket = "dssgx-munich-2024-bavarian-forest"
 output_data_folder = "preprocessed_data"
 
-timestamp_column = "Time" # name of column with timestamp in the dataframes
+"Time" = "Time" # name of column with timestamp in the dataframes
 
 ##############################################################################################
 
@@ -56,22 +56,22 @@ def load_csv_files_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
     df = wr.s3.read_csv(path=path, **kwargs)
     return df
 
-def create_datetimeindex(df, timestamp_column):
+def create_datetimeindex(df):
     """
     Prepare DataFrame by ensuring the index is a DateTimeIndex, resampling to hourly frequency,
     and handling missing values.
     
     Parameters:
     - df: DataFrame containing the data.
-    - timestamp_column: Name of the timestamp column to convert and set as the index.
+    - "Time": Name of the timestamp column to convert and set as the index.
     
     Returns:
     - df: DataFrame resampled to hourly frequency with missing values handled.
     """
     # Ensure the timestamp column is converted to datetime if it's not already the index
-    if timestamp_column in df.columns:
-        df[timestamp_column] = pd.to_datetime(df[timestamp_column])
-        df.set_index(timestamp_column, inplace=True)
+    if "Time" in df.columns:
+        df["Time"] = pd.to_datetime(df["Time"])
+        df.set_index("Time", inplace=True)
     
     # Ensure the index is a DateTimeIndex
     if not isinstance(df.index, pd.DatetimeIndex):
@@ -91,6 +91,18 @@ def write_csv_file_to_aws_s3(df: pd.DataFrame, path: str, **kwargs) -> pd.DataFr
     wr.s3.to_csv(df, path=path, **kwargs)
     return
 
+def join_dataframes(df_list):
+    """
+    Joins a list of DataFrames using an outer join along the columns.
+
+    Args:
+        df_list (list of pd.DataFrame): A list of pandas DataFrames to join.
+
+    Returns:
+        pd.DataFrame: A single DataFrame resulting from concatenating all input DataFrames along columns.
+    """
+    return reduce(lambda left, right: pd.concat([left, right], axis=1, join='outer'), df_list)
+
 
 def main():
 
@@ -103,7 +115,7 @@ def main():
 
     # Iterate over list of df to create datetime index
     for df in df_list:
-        create_datetimeindex(df, timestamp_column)
+        create_datetimeindex(df)
 
     # Perform an outer join on datasets,
     # this ensures that all indices from both DataFrames will be included in the final result.
@@ -117,6 +129,3 @@ def main():
                             )
     
     print("Joined data uploaded to AWS succesfully!")
-    
-if __name__ == "__main__":
-    main()
