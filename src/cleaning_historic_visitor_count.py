@@ -11,7 +11,7 @@ Usage:
   $ python cleaning_historic_visitor_count.py
 
 Output:
-- The preprocessed data is saved as 'normalized_sensor_data_2016_20244.csv' in the 'preprocessed_data' directory in AWS.
+- The preprocessed data is saved as 'preprocessed_visitor_sensor_data.csv' in the 'preprocessed_data' directory in AWS.
 """
 
 
@@ -38,7 +38,7 @@ raw_data_folder = "raw-data"
 visitor_counts_folder = "hourly-historic-visitor-counts-all-sensors"
 bucket = "dssgx-munich-2024-bavarian-forest"
 output_data_folder = "preprocessed_data"
-output_file_name = r"C:\Users\patricio\Documents\bf-dssgx\outputs\normalized_sensor_data_2016_2024SCRIPTTEST.csv"
+output_file_name = "preprocessed_visitor_sensor_data.csv"
 
 ##############################################################################################
 
