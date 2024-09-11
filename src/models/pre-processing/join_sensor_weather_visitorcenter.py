@@ -1,12 +1,12 @@
 """
 Join sensor, weather and visitor center data script.
 
-This script sources from AWS three different data sources, join them over a datetime index, and writes the joined df as a csv to AWS.
+This script sources from AWS three different data sources, joins them over a datetime index, and writes the joined df as a csv to AWS.
 
 Usage:
 - Change the global variables section if needed
     - Fill your AWS credentiales
-    - Change the data paths or output directories
+    - Change the data paths or output directories if necessary
 
 - Run the script:
 
@@ -112,9 +112,9 @@ def main():
     joined_data = reduce(lambda left, right: pd.concat([left, right], axis=1, join='outer'), df_list) 
 
     write_csv_file_to_aws_s3(
-    df=joined_data,
-    path=f"s3://{output_bucket}/{output_data_folder}/{output_file_name}",
-    )
+                            df=joined_data,
+                            path=f"s3://{output_bucket}/{output_data_folder}/{output_file_name}",
+                            )
     
     print("Joined data uploaded to AWS succesfully!")
     
