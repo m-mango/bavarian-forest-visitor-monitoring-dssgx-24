@@ -1,27 +1,26 @@
 import streamlit as st
-from src.streamlit_app.pages_in_dashboard.data_accessibility.data_retrieval import get_the_df_from_csv
+from src.streamlit_app.pages_in_dashboard.data_accessibility.data_retrieval import get_data_from_query
 import pandas as pd
 from ydata_profiling import ProfileReport
 from streamlit_pandas_profiling import st_profile_report
-# from streamlit_pandas_profiling import st_profile_report
 
-def get_visualization_section():
-    print("Running visualization section.")
+
+def get_visualization_section(retrieved_df):
     """
     Get the visualization section.
     """
     st.markdown("# Data visualization")
 
-    # get the data from the query
-    retrieved_df = get_the_df_from_csv()
+    # # get the data from the query
+    # retrieved_df = get_data_from_query(selected_category='weather')
 
     # # display the data
     # st.write(retrieved_df)
 
     # display the visualization
     # Do a very basic line plot of the dataframe with maiking the time column as the index
-    retrieved_df["Time"] = pd.to_datetime(retrieved_df["Time"])
-    retrieved_df.set_index("Time", inplace=True)
+    # retrieved_df["time"] = pd.to_datetime(retrieved_df["time"])
+    # retrieved_df.set_index("time", inplace=True)
 
     st.line_chart(retrieved_df)
 
@@ -36,7 +35,7 @@ def get_visualization_section():
 
     # Generate Pandas Profiling report
     # pr = retrieved_df.profile_report()
-    pr = ProfileReport(retrieved_df, minimal=True, dark_mode=True)
+    pr = ProfileReport(retrieved_df,minimal=True)
     st_profile_report(pr)
 
     # export=pr.to_html()
