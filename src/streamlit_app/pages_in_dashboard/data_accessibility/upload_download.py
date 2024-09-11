@@ -134,7 +134,7 @@ def custom_pandas_profiling_report(report):
 
 def get_upload_and_download_section():
     """Main function to handle Streamlit app logic for uploading, processing, and downloading data."""
-    st.markdown("## Data Accessibility")
+    st.markdown("## Data Access Point")
 
     # Tabs for Upload and Download
     tab1, tab2 = st.tabs(["Upload Data", "Download Data"])
