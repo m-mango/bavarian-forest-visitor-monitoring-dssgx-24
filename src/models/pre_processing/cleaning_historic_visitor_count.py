@@ -505,11 +505,15 @@ def main():
    
     df_traffic_metrics = calculate_traffic_metrics_abs(df_no_outliers)
 
+    df_traffic_metrics.reset_index(inplace=True)
+
     print("\nVisitor sensors data is preprocessed and overall traffic metrics were created! \n")
 
-    write_csv_file_to_aws_s3(
+    return df_traffic_metrics
+
+    """write_csv_file_to_aws_s3(
     df=df_traffic_metrics,
     path=f"s3://{bucket}/{output_data_folder}/{output_file_name}",
-    )
+    )"""
         
-    print("Preprocessed visitor counts data uploaded to AWS succesfully!")
+    #print("Preprocessed visitor counts data uploaded to AWS succesfully!")
