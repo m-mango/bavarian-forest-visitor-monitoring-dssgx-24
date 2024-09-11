@@ -56,7 +56,7 @@ def select_filters(category):
     Select additional filters such as months, seasons, etc.
     """
     st.markdown("### More Filters")
-
+    year = None
     # Select month(s)
     months = st.multiselect(
         "Select month(s)",
@@ -64,23 +64,35 @@ def select_filters(category):
                  "July", "August", "September", "October", "November", "December"],
         default=None
     )
-    
     # Select season(s)
     seasons = st.multiselect(
         "Select season(s)",
         options=["Winter", "Spring", "Summer", "Fall"],
         default=None
     )
+
+    # Only show the year selection if a month or a season is selected
+    if months or seasons:
+        # Get the current year
+        current_year = datetime.datetime.now().year
+        
+        # Generate a list of years from 2016 to the current year
+        years = list(range(2016, current_year + 1))
+        
+        # Streamlit selectbox for year
+        year = st.selectbox("Select year", options=years, index=0)
+
+        
     # Select the sensors or weather values or parking values
     category_based_filters = {
-        "weather" : ['Temperature', 'Humidity', 'Wind Speed', 'Precipitation', 'Sunshine Duration'],
+        "weather" : ['temperature', 'humidity', 'wind speed', 'precipitation', 'sunshine duration'],
         "parking" : {'sensors':['p-r-spiegelau-1','parkplatz-fredenbruecke-1','parkplatz-graupsaege-1',
                                 'parkplatz-nationalparkzentrum-falkenstein-2','parkplatz-nationalparkzentrum-lusen-p2'
                                 'parkplatz-skisportzentrum-finsterau-1','parkplatz-waldhaeuser-ausblick-1',
                                 'parkplatz-waldhaeuser-kirche-1','parkplatz-zwieslerwaldhaus-1',
                                 'parkplatz-zwieslerwaldhaus-nord-1','scheidt-bachmann-parkplatz-1',
                                 'skiwanderzentrum-zwieslerwaldhaus-2'],
-                     'properties':['Occupancy', 'Capacity', 'Occupancy Rate'],},
+                     'properties':['occupancy', 'capacity', 'occupancy rate'],},
         "visitor occupancy"  : {'sensors':["Bayerisch Eisenstein", "Brechhäuslau", "Deffernik", "Diensthüttenstraße", "Felswandergebiet", "Ferdinandsthal", "Fredenbrücke", "Gfäll", "Gsenget", "Klingenbrunner Wald",
                               "Klosterfilz", "Racheldiensthütte", "Schillerstraße", "Scheuereck", "Schwarzbachbrücke", "Falkenstein 2", "Lusen 2","Lusen 3", "Waldhausreibe", "Waldspielgelände", "Wistlberg",
                               "Bucina", "Falkenstein 1", "Lusen 1", "Trinkwassertalsperre"],
@@ -99,9 +111,100 @@ def select_filters(category):
         selected_properties = None
         selected_sensors = None
 
-    return months, seasons, selected_properties
+    return months, seasons, selected_properties, selected_sensors, year
 
-def generate_queries(category, start_date, end_date, months, seasons, selected_properties):
+def get_queries_for_parking(start_date, end_date, months, seasons, selected_properties, selected_sensors, year):
+    queries = {}
+
+    if selected_sensors:
+        for sensor in selected_sensors:
+            # Queries for the start_date and end_date range
+            for property in selected_properties:
+                queries.setdefault("type1", []).append(
+                    f"What is the {property} value for the sensor {sensor} from {start_date} to {end_date}?"
+                )
+
+            # Queries for each selected month and year
+            if months:
+                for month in months:
+                    for property in selected_properties:
+                        queries.setdefault("type2", []).append(
+                            f"What is the {property} value for the sensor {sensor} for the month of {month} ({year})?"
+                        )
+
+            # Queries for each selected season and year
+            if seasons:
+                for season in seasons:
+                    for property in selected_properties:
+                        queries.setdefault("type3", []).append(
+                            f"What is the {property} value for the sensor {sensor} for the season of {season} ({year})?"
+                        )
+
+    return queries
+
+def get_queries_for_weather(start_date, end_date, months, seasons, selected_properties, year):
+    queries = {}
+
+    # Queries for the date range (type1)
+    for property in selected_properties:
+        queries.setdefault("type4", []).append(
+            f"What is the {property} value from {start_date} to {end_date}?"
+        )
+
+    # Queries for the selected months and year (type2)
+    if months:
+        for month in months:
+            for property in selected_properties:
+                queries.setdefault("type5", []).append(
+                    f"What is the {property} value for the month of {month} for the year {year}?"
+                )
+
+    # Queries for the selected seasons and year (type3)
+    if seasons:
+        for season in seasons:
+            for property in selected_properties:
+                queries.setdefault("type6", []).append(
+                    f"What is the {property} value for the season of {season} for the year {year}?"
+                )
+
+    return queries
+
+
+
+
+def get_queries_for_visitor_occupancy(start_date, end_date, months, seasons, selected_properties, selected_sensors, year):
+    queries = {}
+
+    # Queries for the date range (type1)
+    if selected_sensors:
+        for sensor in selected_sensors:
+            for property in selected_properties:
+                queries.setdefault("type1", []).append(
+                    f"What is the {property} value for the sensor {sensor} from {start_date} to {end_date}?"
+                )
+
+    # Queries for the selected months and year (type2)
+    if months:
+        for month in months:
+            for sensor in selected_sensors:
+                for property in selected_properties:
+                    queries.setdefault("type2", []).append(
+                        f"What is the {property} value for the sensor {sensor} for the month of {month} for the year {year}?"
+                    )
+
+    # Queries for the selected seasons and year (type3)
+    if seasons:
+        for season in seasons:
+            for sensor in selected_sensors:
+                for property in selected_properties:
+                    queries.setdefault("type3", []).append(
+                        f"What is the {property} value for the sensor {sensor} for the season of {season} for the year {year}?"
+                    )
+
+    return queries
+
+
+def generate_queries(category, start_date, end_date, months, seasons, selected_properties, selected_sensors, year):
     """
     Generate queries based on the selected category, date range, months, and seasons.
     assign the queries to a dictionary with type 1 query is "What is the {category} value from the {start_date} to the {end_date}?"
@@ -109,19 +212,12 @@ def generate_queries(category, start_date, end_date, months, seasons, selected_p
 
     """
 
-    queries = {}
-
-    queries["type1"] = f"What is the {category} value from the {start_date} to the {end_date}?"
-
-    if months:
-        for month in months:
-            queries["type2"] = (f"What is the {category} value for the month of {month}?")
-    if seasons:
-        for season in seasons:
-            queries["type3"] = (f"What is the {category} value for the season of {season}?")
-    if selected_properties:
-        for property in selected_properties:
-            queries["type4"] = (f"What is the {property} {category} value from the {start_date} to the {end_date}?")
+    if category == 'parking':
+        queries = get_queries_for_parking(start_date, end_date, months, seasons, selected_properties, selected_sensors, year)
+    if category == 'weather':
+        queries = get_queries_for_weather(start_date, end_date, months, seasons, selected_properties, year)
+    if category == 'visitor occupancy':
+        queries = get_queries_for_visitor_occupancy(start_date, end_date, months, seasons, selected_properties, selected_sensors, year)
 
     return queries
 
@@ -143,25 +239,33 @@ def get_query_section():
 
         with col2:
             start_date, end_date = select_date()
-
-        months, seasons, selected_properties = select_filters(selected_category)
+            
+        months, seasons, selected_properties, selected_sensors, year = select_filters(selected_category)
         
         # Give options to select your queries in form of a dropdown
-        queries_dict = generate_queries(selected_category, start_date, end_date, months, seasons, selected_properties)
+        queries_dict = generate_queries(selected_category, start_date, end_date, months, seasons, selected_properties,selected_sensors,year)
 
         # get all the values of the all the keys in the dictionary queries
 
-        queries = list(queries_dict.values())
+        queries = [query for query_list in queries_dict.values() for query in query_list]
 
         selected_query = st.selectbox("Select a query", queries)
-    
-        # Every form must have a submit button.
+        
+        # get the type of the selected query from the queries dictionary
+        for key, value in queries_dict.items():
+            if selected_query in value:
+                selected_query_type = key
+
         submitted = st.form_submit_button("Run Query")
         if submitted:
-
-            get_data_from_query(queries_dict, selected_query, selected_category)
+            # get_data_from_query(selected_query,selected_query_type,selected_category)
+            queried_df = get_data_from_query(selected_category,selected_query,selected_query_type)
             st.write("Query executed successfully!")
-            get_visualization_section()
 
+            # get visualization for the queried data
+            get_visualization_section(queried_df)
+    
+
+  
 
 
