@@ -40,6 +40,104 @@ bucket = "dssgx-munich-2024-bavarian-forest"
 output_data_folder = "preprocessed_data"
 output_file_name = "preprocessed_visitor_sensor_data.csv"
 
+# needed columns across all dfs 
+common_columns = ['Time',
+ 'Bayerisch Eisenstein IN',
+ 'Bayerisch Eisenstein OUT',
+ 'Bayerisch Eisenstein Fußgänger IN',
+ 'Bayerisch Eisenstein Fußgänger OUT',
+ 'Bayerisch Eisenstein Fahrräder IN',
+ 'Bayerisch Eisenstein Fahrräder OUT',
+ 'Brechhäuslau IN',
+ 'Brechhäuslau OUT',
+ 'Brechhäuslau Fußgänger IN',
+ 'Brechhäuslau Fußgänger OUT',
+ 'Bucina IN',
+ 'Bucina OUT',
+ 'Bucina_Multi OUT',
+ 'Bucina_Multi Fußgänger IN',
+ 'Bucina_Multi Fahrräder IN',
+ 'Bucina_Multi Fahrräder OUT',
+ 'Bucina_Multi Fußgänger OUT',
+ 'Deffernik IN',
+ 'Deffernik OUT',
+ 'Deffernik Fahrräder IN',
+ 'Deffernik Fahrräder OUT',
+ 'Deffernik Fußgänger IN',
+ 'Deffernik Fußgänger OUT',
+ 'Diensthüttenstraße Fußgänger IN',
+ 'Diensthüttenstraße Fußgänger OUT',
+ 'Felswandergebiet IN',
+ 'Felswandergebiet OUT',
+ 'Ferdinandsthal IN',
+ 'Ferdinandsthal OUT',
+ 'Fredenbrücke Fußgänger IN',
+ 'Fredenbrücke Fußgänger OUT',
+ 'Gfäll Fußgänger IN',
+ 'Gfäll Fußgänger OUT',
+ 'Gsenget IN',
+ 'Gsenget OUT',
+ 'Gsenget IN.1',
+ 'Gsenget OUT.1',
+ 'Gsenget Fahrräder IN',
+ 'Gsenget Fahrräder OUT',
+ 'Klingenbrunner Wald IN',
+ 'Klingenbrunner Wald OUT',
+ 'Klingenbrunner Wald Fußgänger IN',
+ 'Klingenbrunner Wald Fußgänger OUT',
+ 'Klingenbrunner Wald Fahrräder IN',
+ 'Klingenbrunner Wald Fahrräder OUT',
+ 'Klosterfilz IN',
+ 'Klosterfilz OUT',
+ 'Klosterfilz Fußgänger IN',
+ 'Klosterfilz Fußgänger OUT',
+ 'Klosterfilz Fahrräder IN',
+ 'Klosterfilz Fahrräder OUT',
+ 'NPZ_Falkenstein IN',
+ 'NPZ_Falkenstein OUT',
+ 'Racheldiensthütte IN',
+ 'Racheldiensthütte OUT',
+ 'Racheldiensthütte Fahrräder IN',
+ 'Racheldiensthütte Cyclist OUT',
+ 'Racheldiensthütte Pedestrian IN',
+ 'Racheldiensthütte Pedestrian OUT',
+ 'Sagwassersäge Fußgänger IN',
+ 'Sagwassersäge Fußgänger OUT',
+ 'Scheuereck IN',
+ 'Scheuereck OUT',
+ 'Schillerstraße IN',
+ 'Schillerstraße OUT',
+ 'Schwarzbachbrücke Fußgänger IN',
+ 'Schwarzbachbrücke Fußgänger OUT',
+ 'TFG_Falkenstein_1 Fußgänger zum Parkplatz',
+ 'TFG_Falkenstein_1 Fußgänger zum HZW',
+ 'TFG_Falkenstein_2 Fußgänger In Richtung Parkplatz',
+ 'TFG_Falkenstein_2 Fußgänger In Richtung TFG',
+ 'TFG_Lusen IN',
+ 'TFG_Lusen OUT',
+ 'TFG_Lusen_1 Fußgänger Richtung TFG',
+ 'TFG_Lusen_1 Fußgänger Richtung Parkplatz',
+ 'TFG_Lusen_2 Fußgänger Richtung Vögel am Waldrand',
+ 'TFG_Lusen_2 Fußgänger Richtung Parkplatz',
+ 'TFG_Lusen_3 TFG Lusen 3 IN',
+ 'TFG_Lusen_3 TFG Lusen 3 OUT',
+ 'Trinkwassertalsperre IN',
+ 'Trinkwassertalsperre OUT',
+ 'Trinkwassertalsperre_MULTI IN',
+ 'Trinkwassertalsperre_MULTI OUT',
+ 'Trinkwassertalsperre_MULTI Fußgänger IN',
+ 'Trinkwassertalsperre_MULTI Fußgänger OUT',
+ 'Trinkwassertalsperre_MULTI Fahrräder IN',
+ 'Trinkwassertalsperre_MULTI Fahrräder OUT',
+ 'Waldhausreibe IN',
+ 'Waldhausreibe OUT',
+ 'Waldhausreibe Channel 1 IN',
+ 'Waldhausreibe Channel 2 OUT',
+ 'Waldspielgelände_1 IN',
+ 'Waldspielgelände_1 OUT',
+ 'Wistlberg Fußgänger IN',
+ 'Wistlberg Fußgänger OUT']
+
 ##############################################################################################
 
 # Setting up AWS
@@ -64,21 +162,6 @@ def load_csv_files_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
 
     df = wr.s3.read_csv(path=path, **kwargs)
     return df
-
-def get_common_columns_across_historic_visitor_counts():
-    df_2016 = load_csv_files_from_aws_s3("s3://dssgx-munich-2024-bavarian-forest/raw-data/hourly-historic-visitor-counts-all-sensors/visitor_counts_2016.csv", skiprows=2)
-
-
-
-    historic_visitor_counts = load_csv_files_from_aws_s3(
-    path=f"s3://{bucket}/{raw_data_folder}/hourly-historic-visitor-counts-all-sensors/export*.csv", skiprows=2)
-
-    col_2016 = df_2016.columns
-    col_export = historic_visitor_counts.columns
-
-    common_cols = [col for col in col_2016 if col in col_export]
-    
-    return common_cols
 
 ##############################################################################################
         
@@ -480,12 +563,12 @@ def write_csv_file_to_aws_s3(df: pd.DataFrame, path: str, **kwargs) -> pd.DataFr
     wr.s3.to_csv(df, path=path, **kwargs)
     return
 
-def main():
+def source_and_preprocess_visitor_count_data():
 
     visitor_counts = load_csv_files_from_aws_s3(
     path=f"s3://{bucket}/{raw_data_folder}/{visitor_counts_folder}/*.csv",
     skiprows=2,
-    usecols = get_common_columns_across_historic_visitor_counts())
+    usecols = common_columns)
 
     visitor_counts_parsed_dates = parse_german_dates(df=visitor_counts, date_column_name="Time")
     # Remove data before 2016-05-10 03:00:00 as there were no sensors installed
@@ -515,5 +598,3 @@ def main():
     df=df_traffic_metrics,
     path=f"s3://{bucket}/{output_data_folder}/{output_file_name}",
     )"""
-        
-    #print("Preprocessed visitor counts data uploaded to AWS succesfully!")

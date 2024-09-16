@@ -214,13 +214,15 @@ def source_and_process_weather_data():
     # Fill missing values in the weather data
     imputed_data = fill_missing_values(load_sourced_weather_data, parameters)
 
+    return imputed_data
+
     # # Uncomment the following line to save the processed data to a CSV file
     # # Save the processed data to a CSV file
     # save_data_to_csv(imputed_data, 'outputs/weather_data_final/processed_weather_data_2016-24_forecasted_imputed.csv')
 
-    write_csv_file_to_aws_s3(
+    """write_csv_file_to_aws_s3(
     df=imputed_data,
-    path=f"s3://{bucket}/{preprocessed_data_folder}/processed_weather_data_2016-24_forecasted_imputed.csv",)
+    path=f"s3://{bucket}/{preprocessed_data_folder}/processed_weather_data_2016-24_forecasted_imputed.csv",)"""
 
-    print('Processed hourly data saved successfully to AWS S3!')
+    #print('Processed hourly data saved successfully to AWS S3!')
 
