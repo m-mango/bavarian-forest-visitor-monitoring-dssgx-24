@@ -1,17 +1,13 @@
 """
-Clean historic sensor data from 2016 to 2024
+Clean historic sensor data from 2016 to 2024. In the docstring of every function you can check what it does and the assumptions that were made.
 
 Usage:
 - Change the global variables section if needed
     - Fill your AWS credentiales
-    - Change the data paths or output directories
 
-- Run the script:
-
-  $ python cleaning_historic_visitor_count.py
 
 Output:
-- The preprocessed data is saved as 'preprocessed_visitor_sensor_data.csv' in the 'preprocessed_data' directory in AWS.
+- Returns the preprocessed data
 """
 
 
