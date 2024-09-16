@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import boto3
 import awswrangler as wr
 import re
 
