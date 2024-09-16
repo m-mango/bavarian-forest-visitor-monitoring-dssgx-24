@@ -5,3 +5,5 @@ openpyxl
 prettytable
 plotly
 pycaret
+pyarrow
+numpy
