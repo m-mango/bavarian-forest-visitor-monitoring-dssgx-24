@@ -11,36 +11,9 @@ def get_visualization_section(retrieved_df):
     """
     st.markdown("# Data visualization")
 
-    # # get the data from the query
-    # retrieved_df = get_data_from_query(selected_category='weather')
-
-    # # display the data
-    # st.write(retrieved_df)
-
-    # display the visualization
-    # Do a very basic line plot of the dataframe with maiking the time column as the index
-    # retrieved_df["time"] = pd.to_datetime(retrieved_df["time"])
-    # retrieved_df.set_index("time", inplace=True)
-
     st.line_chart(retrieved_df)
-
-
-    # # add a download button and add two options to download the data in csv or excel format
-    # if st.button("Download Options"):
-    #     st.markdown("## Download the data")
-    #     st.markdown("Click below to download the data.")
-    #     st.markdown("### Download as CSV")
-    #     csv = retrieved_df.to_csv(index=False)
-    #     st.markdown(f'<a href="data:file/csv;base64,{csv}" download="data.csv">Download CSV File</a>', unsafe_allow_html=True)
 
     # Generate Pandas Profiling report
     # pr = retrieved_df.profile_report()
     pr = ProfileReport(retrieved_df,minimal=True)
     st_profile_report(pr)
-
-    # export=pr.to_html()
-    # st.download_button(label="Download Full Report", data=export, file_name='report.html')
-
-
-    # st.write("### Profiling Report")
-    # st_profile_report(profile)
