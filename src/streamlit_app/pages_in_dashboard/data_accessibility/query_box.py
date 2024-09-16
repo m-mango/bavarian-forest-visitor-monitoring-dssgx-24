@@ -58,21 +58,19 @@ def select_filters(category):
     st.markdown("### More Filters")
     year = None
     # Select month(s)
-    months = st.multiselect(
+    selected_months = st.multiselect(
         "Select month(s)",
-        options=["January", "February", "March", "April", "May", "June", 
-                 "July", "August", "September", "October", "November", "December"],
-        default=None
+        ["January", "February", "March", "April", "May", "June", 
+                 "July", "August", "September", "October", "November", "December"], None,
     )
     # Select season(s)
-    seasons = st.multiselect(
+    selected_seasons = st.multiselect(
         "Select season(s)",
         options=["Winter", "Spring", "Summer", "Fall"],
         default=None
     )
-
     # Only show the year selection if a month or a season is selected
-    if months or seasons:
+    if selected_months or selected_seasons:
         # Get the current year
         current_year = datetime.datetime.now().year
         
@@ -82,10 +80,14 @@ def select_filters(category):
         # Streamlit selectbox for year
         year = st.selectbox("Select year", options=years, index=0)
 
+    else:
+        year = None
+        st.write("Please select a month or season to choose a year.")
+
         
     # Select the sensors or weather values or parking values
     category_based_filters = {
-        "weather" : ['temperature', 'humidity', 'wind speed', 'precipitation', 'sunshine duration'],
+        "weather" : ['Temperature (°C)', 'Precipitation (mm)', 'Wind Speed (km/h)', 'Relative Humidity (%)', 'Sunshine Duration (min'],
         "parking" : {'sensors':['p-r-spiegelau-1','parkplatz-fredenbruecke-1','parkplatz-graupsaege-1',
                                 'parkplatz-nationalparkzentrum-falkenstein-2','parkplatz-nationalparkzentrum-lusen-p2'
                                 'parkplatz-skisportzentrum-finsterau-1','parkplatz-waldhaeuser-ausblick-1',
@@ -111,7 +113,7 @@ def select_filters(category):
         selected_properties = None
         selected_sensors = None
 
-    return months, seasons, selected_properties, selected_sensors, year
+    return selected_months, selected_seasons, selected_properties, selected_sensors, year
 
 def get_queries_for_parking(start_date, end_date, months, seasons, selected_properties, selected_sensors, year):
     queries = {}
@@ -227,27 +229,31 @@ def get_query_section():
     """
 
     # display the query box
+    st.markdown("## Data query")
+
+    col1, col2 = st.columns((1,1))
+
+    with col1:
+        selected_category = select_category()
+        print(selected_category)
+
+    with col2:
+        start_date, end_date = select_date()
+        print(start_date, end_date)
 
     # add a more filters section to select months seasons etc
-    with st.form("More filters"):
-        st.markdown("## Data query")
+    # with st.form("More filters"):
+       
+    months, seasons, selected_properties, selected_sensors, year = select_filters(selected_category)
+    
+    # Give options to select your queries in form of a dropdown
+    queries_dict = generate_queries(selected_category, start_date, end_date, months, seasons, selected_properties,selected_sensors,year)
 
-        col1, col2 = st.columns((1,1))
+    # get all the values of the all the keys in the dictionary queries
 
-        with col1:
-            selected_category = select_category()
+    queries = [query for query_list in queries_dict.values() for query in query_list]
 
-        with col2:
-            start_date, end_date = select_date()
-            
-        months, seasons, selected_properties, selected_sensors, year = select_filters(selected_category)
-        
-        # Give options to select your queries in form of a dropdown
-        queries_dict = generate_queries(selected_category, start_date, end_date, months, seasons, selected_properties,selected_sensors,year)
-
-        # get all the values of the all the keys in the dictionary queries
-
-        queries = [query for query_list in queries_dict.values() for query in query_list]
+    with st.form("Select a query"):
 
         selected_query = st.selectbox("Select a query", queries)
         
@@ -257,14 +263,20 @@ def get_query_section():
                 selected_query_type = key
 
         submitted = st.form_submit_button("Run Query")
-        if submitted:
-            # get_data_from_query(selected_query,selected_query_type,selected_category)
-            queried_df = get_data_from_query(selected_category,selected_query,selected_query_type)
+    if submitted:
+        # get_data_from_query(selected_query,selected_query_type,selected_category)
+        queried_df = get_data_from_query(selected_category,selected_query,selected_query_type)
+        
+        # handle error if the queried df is an empty dataframe
+        if queried_df.empty:
+            st.error("Error: The query returned an empty dataframe. Please try again.")
+            st.stop()
+        else:
             st.write("Query executed successfully!")
 
             # get visualization for the queried data
             get_visualization_section(queried_df)
-    
+
 
   
 
