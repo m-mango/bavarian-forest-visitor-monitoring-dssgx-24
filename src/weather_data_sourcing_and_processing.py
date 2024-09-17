@@ -24,7 +24,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from meteostat import Point, Hourly
 import awswrangler as wr
-from src.models.pre_processing.impute_missing_weather_values import fill_missing_values
+from prediction_pipeline.pre_processing.impute_missing_weather_values import fill_missing_values
 
 # Ignore warnings
 warnings.filterwarnings('ignore')
