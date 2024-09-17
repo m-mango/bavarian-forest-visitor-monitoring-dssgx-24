@@ -3,7 +3,66 @@ This repo includes the code developed during DSSGx Munich 2024 for a project tha
 
 ## How to run the code
 
-### Create a virtual environment
+### Option 1: Run the pipeline and dashboard via Docker container
+
+1. Install Docker to your local machine. Follow tutorials/guidelines online.
+
+2. Verify your local Docker installation by running the following command and check whether you receive back an installed version number:
+
+```
+docker --version
+```
+
+3. Initiate the Docker Engine (e.g., start the Docker app - running in the background).
+
+5. Log into your AWS account with Single-Sign-On (SSO):
+
+In case you have not yet configured AWS locally on your machine, make sure to set it up (see Slack or ping TM Julie).
+
+```
+aws sso login
+```
+
+5. Make enables us to easily execute mutliple CLI commands in one. First, make sure you have Make installed on your local machine and follow tutorial/guidelines online (e.g. for MacOS, run `brew install make`).
+
+6. Run the `Makefile` from the root in this repository. You have the following options:
+
+    a. Only build the Docker container (TODO: Update the initially defined variables as needed):
+
+    ```
+    make build
+    ```
+    b. Only run the Docker container based on a previously built image (TODO: Update the initially defined variables as needed):
+
+    ```
+    make run
+    ```
+
+    c. Build and run the Docker container in unified step (TODO: Update the initially defined variables as needed):
+
+    ```
+    make all
+    ```
+
+
+
+Optional:
+
+In order to not use the entrypoint specified in the `Dockerfile`, run the Docker container in bash mode to jump into the terminal of the Docker (more flexibility for execution). Go into the Makefile and adjust the `docker run` command as following:
+
+```
+docker run \
+		-v $(REPO_PATH):/app \
+		-v $(AWS_CREDENTIALS_PATH):/root/.aws \
+		-e BAYERN_CLOUD_API_KEY=$(BAYERN_CLOUD_API_KEY) \
+		-e AWS_PROFILE=$(AWS_PROFILE) \
+		-p 8501:8501 \
+        -it --entrypoint /bin/bash
+		-t $(IMAGE_NAME)
+```
+
+
+### Option 2: Run code in a local a virtual environment
 
 Choose a virtual environment of your choice and install the dependencies of the `requirements.txt` in the root of the repository. In the following, you see the steps to create a virtual environment with a particularly, specified Python version with `pyenv` and the plugin `pyenv-virtualenv`.
 
