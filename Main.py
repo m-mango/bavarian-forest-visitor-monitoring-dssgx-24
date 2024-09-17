@@ -1,20 +1,4 @@
-"""
-This is the main file for the Bavarian Forest National Park dashboard.
-
-This script has the following functionalities:
-    - Source and process all data (pipeline())
-    - Create the dashboard - create_dashboard()
-    - Run the streamlit app - create_dashboard()
-
-This script files pulls the sourced data from `source_data.py` and processes the data using the functions in the `pre_processing` folder and 
-then creates the dashboard using the modules in the `streamlit_app` folder.
-
-"""
-
-
-# import libraries
 import streamlit as st
-from src.streamlit_app.source_data import source_all_data
 
 # get the streamlit app modules
 import src.streamlit_app.pages_in_dashboard.visitors.page_layout_config as page_layout_config
@@ -28,12 +12,12 @@ import src.streamlit_app.pages_in_dashboard.visitors.other_information as other_
 # get the process data functions
 import src.streamlit_app.pre_processing.process_forecast_weather_data as pwd
 import src.streamlit_app.pre_processing.process_real_time_parking_data as prtpd
+from src.streamlit_app.source_data import source_all_data
 
 from PIL import Image
 
 # Set the page layout - it is a two column layout
 col1, col2 = page_layout_config.get_page_layout()
-
 
 def create_dashboard_main_page(processed_weather_data, processed_parking_data):
 

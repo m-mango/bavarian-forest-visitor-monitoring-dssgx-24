@@ -8,11 +8,29 @@ def get_fixed_size():
     """
     Get a fixed size value for the map markers.
     """
-    return 100  
+    return 300  
 
 def calculate_color(occupancy_rate):
-    # Use a simple green-red color map
-    return [int(255 * occupancy_rate), int(255 * (1 - occupancy_rate)), 0]
+    """
+    Calculate the color of the marker based on the occupancy rate.
+
+    Args:
+        occupancy_rate (float): The occupancy rate of the parking section.
+
+    Returns:
+        list: A list of RGB values representing the color of the marker.
+    """
+    occupancy_rate = float(occupancy_rate)
+
+    if occupancy_rate >= 80:
+        return [230, 39, 39] #red
+
+    elif occupancy_rate >= 60:
+        return [244, 251, 81] #yellow
+    
+    else:
+        return [109, 249, 2] #green
+
 
 def get_parking_section(processed_parking_data):
     """
@@ -44,7 +62,7 @@ def get_parking_section(processed_parking_data):
     view_state = pdk.ViewState(
         latitude=avg_latitude,  # Center map at the average latitude
         longitude=avg_longitude,  # Center map at the average longitude
-        zoom=15,  # Zoom level increased for a closer view
+        zoom=10,  # Zoom level increased for a closer view
         pitch=50
     )
 
@@ -62,7 +80,8 @@ def get_parking_section(processed_parking_data):
         initial_view_state=view_state,
         tooltip={
             "text": "{location}\nAvailable Spaces: {current_availability} cars\nOccupancy Rate: {current_occupancy_rate}%"
-        }  # Updated tooltip text with two decimal points for occupancy rate
+        },  # Updated tooltip text with two decimal points for occupancy rate
+        map_style="road"
     )
     st.pydeck_chart(deck)
 
