@@ -94,7 +94,7 @@ def select_filters(category):
                                 'parkplatz-waldhaeuser-kirche-1','parkplatz-zwieslerwaldhaus-1',
                                 'parkplatz-zwieslerwaldhaus-nord-1','scheidt-bachmann-parkplatz-1',
                                 'skiwanderzentrum-zwieslerwaldhaus-2'],
-                     'properties':['occupancy', 'capacity', 'occupancy rate'],},
+                     'properties':['occupancy', 'capacity', 'occupancy_rate'],},
         "visitor occupancy"  : {'sensors':["Bayerisch Eisenstein", "Brechhäuslau", "Deffernik", "Diensthüttenstraße", "Felswandergebiet", "Ferdinandsthal", "Fredenbrücke", "Gfäll", "Gsenget", "Klingenbrunner Wald",
                               "Klosterfilz", "Racheldiensthütte", "Schillerstraße", "Scheuereck", "Schwarzbachbrücke", "Falkenstein 2", "Lusen 2","Lusen 3", "Waldhausreibe", "Waldspielgelände", "Wistlberg",
                               "Bucina", "Falkenstein 1", "Lusen 1", "Trinkwassertalsperre"],
@@ -273,8 +273,6 @@ def get_query_section():
             st.stop()
         else:
             st.write("Query executed successfully!")
-            get_visualization_section()
-
 
             # get visualization for the queried data
             get_visualization_section(queried_df)
