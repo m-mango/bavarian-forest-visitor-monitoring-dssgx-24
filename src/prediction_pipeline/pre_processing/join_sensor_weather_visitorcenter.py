@@ -16,7 +16,7 @@ from functools import reduce
 import awswrangler as wr
 from src.prediction_pipeline.pre_processing.cleaning_historic_visitor_count import source_and_preprocess_visitor_count_data
 # add import for visitorcenterdata
-from prediction_pipeline.pre_processing.weather_data_sourcing_and_processing import source_and_process_weather_data
+from ...weather_data_sourcing_and_processing import source_and_process_weather_data
 from src.prediction_pipeline.pre_processing.join_sensor_weather_visitorcenter import create_datetimeindex, join_dataframes
 
 
