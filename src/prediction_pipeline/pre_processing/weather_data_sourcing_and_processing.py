@@ -24,7 +24,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from meteostat import Point, Hourly
 import awswrangler as wr
-from pre_processing.models.impute_missing_weather_values import fill_missing_values
+from impute_missing_weather_values import fill_missing_values
 
 # Ignore warnings
 warnings.filterwarnings('ignore')
@@ -177,7 +177,7 @@ def load_csv_files_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
     return df
 
 
-def main():
+def source_and_process_weather_data():
     """
     This function creates a point over the Bavarian Forest National Park, retrieves hourly weather data
     for the specified time period, processes the data to extract necessary weather parameters,
@@ -214,16 +214,15 @@ def main():
     # Fill missing values in the weather data
     imputed_data = fill_missing_values(load_sourced_weather_data, parameters)
 
+    return imputed_data
+
     # # Uncomment the following line to save the processed data to a CSV file
     # # Save the processed data to a CSV file
     # save_data_to_csv(imputed_data, 'outputs/weather_data_final/processed_weather_data_2016-24_forecasted_imputed.csv')
 
-    write_csv_file_to_aws_s3(
+    """write_csv_file_to_aws_s3(
     df=imputed_data,
-    path=f"s3://{bucket}/{preprocessed_data_folder}/processed_weather_data_2016-24_forecasted_imputed.csv",)
+    path=f"s3://{bucket}/{preprocessed_data_folder}/processed_weather_data_2016-24_forecasted_imputed.csv",)"""
 
-    print('Processed hourly data saved successfully to AWS S3!')
+    #print('Processed hourly data saved successfully to AWS S3!')
 
-# Execute the main function if the script is run directly
-if __name__ == "__main__":
-    main()
