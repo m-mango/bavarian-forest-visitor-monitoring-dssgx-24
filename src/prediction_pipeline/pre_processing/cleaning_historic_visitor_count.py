@@ -29,7 +29,7 @@ pd.options.mode.chained_assignment = None
 #GLOBAL VARIABLES
 ###########################################################################################
 
-aws_profile = "patricio_ferreira_fellow_dssgx_24" #add here your credentials
+aws_profile = "aisha_younas_fellow_dssgx_24" #add here your credentials
 raw_data_folder = "raw-data"
 visitor_counts_folder = "hourly-historic-visitor-counts-all-sensors"
 bucket = "dssgx-munich-2024-bavarian-forest"

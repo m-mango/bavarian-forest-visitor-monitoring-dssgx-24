@@ -14,7 +14,7 @@ bucket = "dssgx-munich-2024-bavarian-forest"
 raw_data_folder = "raw-data"
 preprocessed_data_folder = "preprocessed_data"
 joined_data_aws_path = "s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/joined_sensor_weather_visitorcenter_2016-2024.csv"
-aws_credentials='patricio_ferreira_fellow_dssgx_24'
+aws_credentials='aisha_younas_fellow_dssgx_24'
 output_file_name = "holidays_deltaweather_features_df.csv"
 output_data_folder = "preprocessed_data"
 
@@ -23,7 +23,8 @@ weather_columns = [ #define the columns that will be used to calculate z-scores
     'Relative Humidity (%)',
     'Precipitation (mm)',
     'Wind Speed (km/h)',
-    'Sunshine Duration (min)'
+    'Sunshine Duration (min)',
+    'Snow Depth (mm)'
 ]
 
 window_size = 120 # Define the window size in hours that you wish to use to calculate z-scores

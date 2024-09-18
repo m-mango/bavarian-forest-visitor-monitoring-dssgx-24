@@ -16,8 +16,12 @@ from functools import reduce
 import awswrangler as wr
 from src.prediction_pipeline.pre_processing.cleaning_historic_visitor_count import source_and_preprocess_visitor_count_data
 # add import for visitorcenterdata
-from ...weather_data_sourcing_and_processing import source_and_process_weather_data
-from src.prediction_pipeline.pre_processing.join_sensor_weather_visitorcenter import create_datetimeindex, join_dataframes
+from src.weather_data_sourcing_and_processing import source_and_process_weather_data
+#from src.prediction_pipeline.pre_processing.join_sensor_weather_visitorcenter import create_datetimeindex, join_dataframes
+
+output_file_name = "joined_sensor_weather_visitorcenter_2016-2024.csv"
+output_bucket = "dssgx-munich-2024-bavarian-forest"
+output_data_folder = "preprocessed_data"
 
 
 ###########################################################################################
@@ -59,6 +63,17 @@ def join_dataframes(df_list):
     """
     return reduce(lambda left, right: pd.concat([left, right], axis=1, join='outer'), df_list)
 
+def write_csv_file_to_aws_s3(df: pd.DataFrame, path: str, **kwargs) -> pd.DataFrame:
+    """Writes an individual CSV file to AWS S3.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to write.
+        path (str): The path to the CSV files on AWS S3.
+        **kwargs: Additional arguments to pass to the to_csv function.
+    """
+
+    wr.s3.to_csv(df, path=path, **kwargs)
+    return
 
 def main():
     """
@@ -83,6 +98,15 @@ def main():
         create_datetimeindex(df)
 
     joined_data = join_dataframes(df_list)
+
+
+    ## saving this joined dataset into aws in the form of csv 
+    write_csv_file_to_aws_s3(
+    df=joined_data,
+    path=f"s3://{output_bucket}/{output_data_folder}/{output_file_name}",
+    )
+    
+    print("Joined data uploaded to AWS succesfully!")
 
     return joined_data
 

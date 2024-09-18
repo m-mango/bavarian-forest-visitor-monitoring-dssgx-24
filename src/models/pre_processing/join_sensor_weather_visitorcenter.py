@@ -20,6 +20,8 @@ Output:
 import pandas as pd
 from functools import reduce
 import awswrangler as wr
+from src.weather_data_sourcing_and_processing import source_and_process_weather_data
+from src.prediction_pipeline.pre_processing.join_sensor_weather_visitorcenter import create_datetimeindex, join_dataframes
 
 ###########################################################################################
 #GLOBAL VARIABLES
@@ -98,7 +100,6 @@ def main():
     sensor_df = load_csv_files_from_aws_s3(sensor_aws_path)
     weather_df = load_csv_files_from_aws_s3(weather_aws_path)
     visitorcenter_df = load_csv_files_from_aws_s3(visitorcenter_aws_path)
-
     df_list = [sensor_df, weather_df, visitorcenter_df]
 
     # Iterate over list of df to create datetime index

@@ -2,7 +2,7 @@
 """
 Weather Data Sourcing
 
-This script retrieves hourly weather data (Precipitation, Temperature, Wind Speed, Relative Humidity, and Sunshine Duration) for the Bavarian Forest region from the Meteostat API, and saves the processed data to a CSV file.
+This script retrieves hourly weather data (Precipitation, Temperature, Wind Speed, Relative Humidity, Sunshine Duration, and Snow Depth) for the Bavarian Forest region from the Meteostat API, and saves the processed data to a CSV file.
 
 Usage:
 - To run this script, simply execute it using Python:
@@ -24,7 +24,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from meteostat import Point, Hourly
 import awswrangler as wr
-from prediction_pipeline.pre_processing.impute_missing_weather_values import fill_missing_values
+from impute_missing_weather_values import fill_missing_values
 
 # Ignore warnings
 warnings.filterwarnings('ignore')
@@ -110,7 +110,7 @@ def process_hourly_data(data):
             - Relative Humidity (%): Relative humidity in percent.
     """
     # Drop unnecessary columns
-    data = data.drop(columns=['dwpt', 'snow', 'wdir', 'wpgt', 'pres', 'coco'])
+    data = data.drop(columns=['dwpt', 'wdir', 'wpgt', 'pres', 'coco'])
 
     # Rename columns for clarity
     data = data.rename(columns={
@@ -119,7 +119,8 @@ def process_hourly_data(data):
         'prcp': 'Precipitation (mm)',
         'wspd': 'Wind Speed (km/h)',
         'tsun': 'Sunshine Duration (min)',
-        'rhum': 'Relative Humidity (%)'
+        'rhum': 'Relative Humidity (%)',
+        'snow': 'Snow Depth (mm)'
     })
 
     # Convert the 'Time' column to datetime format
@@ -213,16 +214,17 @@ def source_and_process_weather_data():
 
     # Fill missing values in the weather data
     imputed_data = fill_missing_values(load_sourced_weather_data, parameters)
-
-    return imputed_data
-
     # # Uncomment the following line to save the processed data to a CSV file
     # # Save the processed data to a CSV file
     # save_data_to_csv(imputed_data, 'outputs/weather_data_final/processed_weather_data_2016-24_forecasted_imputed.csv')
 
-    """write_csv_file_to_aws_s3(
+    write_csv_file_to_aws_s3(
     df=imputed_data,
-    path=f"s3://{bucket}/{preprocessed_data_folder}/processed_weather_data_2016-24_forecasted_imputed.csv",)"""
+    path=f"s3://{bucket}/{preprocessed_data_folder}/processed_weather_data_2016-24_forecasted_imputed.csv",)
 
     #print('Processed hourly data saved successfully to AWS S3!')
+
+    return imputed_data
+
+
 
