@@ -139,3 +139,20 @@ In both the Jupyter UI and the notebook in VS Code, you need to select the speci
 #### Run the notebook
 
 Now go ahead and run the notebook! :)
+
+
+## Build the Technical Documentation
+
+The technical documentation website is available [here](https://dssgxmunich.github.io/bavarian-forest-visitor-monitoring-dssgx-24/). In order to update the information, follow the following steps:
+
+You want to locally test the documentation and see changes live reflected? Run the following command from the root of the repository:
+
+```
+mkdocs serve
+```
+
+You are satisfied with your results and updates to the technical documentation, you have inspected it locally, and now want to make the information available to all users? Run the following command from the root of the repository:
+
+```
+mkdocs gh-deploy
+```
