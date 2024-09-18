@@ -3,6 +3,9 @@ site_name: Docs for the Bavarian Forest National Park Project
 theme:
   name: "material"
 
+plugins:
+  - mkdocstrings
+
 nav:
   - index.md
   - executive-summary.md
