@@ -2,7 +2,7 @@
 """
 Weather Data Sourcing
 
-This script retrieves hourly weather data (Precipitation, Temperature, Wind Speed, Relative Humidity, Sunshine Duration, and Snow Depth) for the Bavarian Forest region from the Meteostat API, and saves the processed data to a CSV file.
+This script retrieves hourly weather data (Precipitation, Temperature, Wind Speed, Relative Humidity, Sunshine Duration, and coco) for the Bavarian Forest region from the Meteostat API, and saves the processed data to a CSV file.
 
 Usage:
 - To run this script, simply execute it using Python:
@@ -160,7 +160,7 @@ def process_hourly_data(data):
 
     # Drop unnecessary columns
     data = data.drop(columns=['dwpt', 'wdir', 'wpgt', 'pres', 'coco','snow'])
-    
+
     return data
 
 
