@@ -14,7 +14,7 @@ def select_category():
     """
     # select the dropdown for the category
     category = st.selectbox("Select data category", 
-                            ["weather", "visitor occupancy", "parking"],
+                            ["weather", "visitor_sensors", "parking"],
                             index=0)
     
     return category
