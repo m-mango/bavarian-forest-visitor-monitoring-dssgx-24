@@ -218,7 +218,7 @@ def generate_queries(category, start_date, end_date, months, seasons, selected_p
         queries = get_queries_for_parking(start_date, end_date, months, seasons, selected_properties, selected_sensors, year)
     if category == 'weather':
         queries = get_queries_for_weather(start_date, end_date, months, seasons, selected_properties, year)
-    if category == 'visitor occupancy':
+    if category == 'visitor_sensors':
         queries = get_queries_for_visitor_sensors(start_date, end_date, months, seasons, selected_properties, selected_sensors, year)
 
     return queries

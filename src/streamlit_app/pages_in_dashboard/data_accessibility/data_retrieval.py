@@ -195,9 +195,12 @@ def get_data_from_query(selected_category,selected_query,selected_query_type):
     """
     if selected_query_type == 'type1' or selected_query_type == 'type2' or selected_query_type == 'type3':
         selected_sensor = re.search(r'for the sensor (.+?) ', selected_query).group(1)
+        selected_property = re.search(r'What is the (.+?) ', selected_query).group(1)
+        selected_variable = f"{selected_sensor} {selected_property}"
+
     else:
-        selected_sensor = 'None'
-    print(selected_sensor)
+        selected_variable = 'None'
+    print(selected_variable)
     get_values = extract_values_according_to_type(selected_query,selected_query_type)
     if selected_category == 'parking':
        objects = get_files_from_aws(selected_category)
