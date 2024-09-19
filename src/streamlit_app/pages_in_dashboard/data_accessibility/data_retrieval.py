@@ -146,7 +146,7 @@ def get_queried_df(processed_category_df, get_values,type):
     queried_df = queried_df[[property_value]]
     return queried_df
 
-def process_extracted_parking_df_for_querying(parking_df):
+def create_temporal_columns_for_querying(parking_df):
 
     parking_df.index = pd.to_datetime(parking_df.index)
 
@@ -170,6 +170,13 @@ def process_extracted_parking_df_for_querying(parking_df):
     # print(parking_df.head(5))
 
     return parking_df
+
+def get_sensors_data(objects):
+    # if there are multiple objects get the last mostfied one
+    object_to_be_queried = objects[-1]
+    # Read the parquet file from S3
+    df = wr.s3.read_parquet(f"{object_to_be_queried}")
+    return df
 
 def get_weather_data(objects):
     # if there are multiple objects get the last mostfied one
@@ -197,6 +204,8 @@ def get_data_from_query(selected_category,selected_query,selected_query_type):
         selected_sensor = re.search(r'for the sensor (.+?) ', selected_query).group(1)
         selected_property = re.search(r'What is the (.+?) ', selected_query).group(1)
         selected_variable = f"{selected_sensor} {selected_property}"
+        objects = get_files_from_aws(selected_category)
+        category_df = get_sensors_data(objects)
 
     else:
         selected_variable = 'None'
@@ -210,7 +219,7 @@ def get_data_from_query(selected_category,selected_query,selected_query_type):
         objects = get_files_from_aws(selected_category)
         category_df = get_weather_data(objects)
 
-    processed_category_df = process_extracted_parking_df_for_querying(category_df)
+    processed_category_df = create_temporal_columns_for_querying(category_df)
     queried_df = get_queried_df(processed_category_df, get_values,selected_query_type)
 
     return queried_df
