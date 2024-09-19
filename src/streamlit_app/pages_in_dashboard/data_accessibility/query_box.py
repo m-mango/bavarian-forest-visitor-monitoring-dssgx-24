@@ -174,7 +174,7 @@ def get_queries_for_weather(start_date, end_date, months, seasons, selected_prop
 
 
 
-def get_queries_for_visitor_occupancy(start_date, end_date, months, seasons, selected_properties, selected_sensors, year):
+def get_queries_for_visitor_sensors(start_date, end_date, months, seasons, selected_properties, selected_sensors, year):
     queries = {}
 
     # Queries for the date range (type1)
@@ -219,7 +219,7 @@ def generate_queries(category, start_date, end_date, months, seasons, selected_p
     if category == 'weather':
         queries = get_queries_for_weather(start_date, end_date, months, seasons, selected_properties, year)
     if category == 'visitor occupancy':
-        queries = get_queries_for_visitor_occupancy(start_date, end_date, months, seasons, selected_properties, selected_sensors, year)
+        queries = get_queries_for_visitor_sensors(start_date, end_date, months, seasons, selected_properties, selected_sensors, year)
 
     return queries
 
