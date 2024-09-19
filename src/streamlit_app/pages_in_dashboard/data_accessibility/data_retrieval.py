@@ -45,11 +45,11 @@ def extract_values_according_to_type(selected_query,type):
     """
 
     if type == 'type1':
-        property_value = re.search(r'What is the (.+?) value', selected_query).group(1)
+        property = re.search(r'What is the (.+?) value', selected_query).group(1)
         sensor_value = re.search(r'for the sensor (.+?) from', selected_query).group(1)
         start_date = re.search(r'from (.+?) to', selected_query).group(1)
         end_date = re.search(r'to (.+?)\?', selected_query).group(1)
-        extracted_values = [property_value, sensor_value, start_date, end_date]
+        extracted_values = [property, sensor_value, start_date, end_date]
     elif type == 'type2':
         property = re.search(r'What is the (.+?) value', selected_query).group(1)
         sensor = re.search(r'for the sensor (.+?) for the month of', selected_query).group(1)
