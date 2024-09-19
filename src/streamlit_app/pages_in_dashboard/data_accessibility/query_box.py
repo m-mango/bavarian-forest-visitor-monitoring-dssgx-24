@@ -95,7 +95,7 @@ def select_filters(category):
                                 'parkplatz-zwieslerwaldhaus-nord-1','scheidt-bachmann-parkplatz-1',
                                 'skiwanderzentrum-zwieslerwaldhaus-2'],
                      'properties':['occupancy', 'capacity', 'occupancy_rate'],},
-        "visitor occupancy"  : {'sensors':["Bayerisch Eisenstein", "Brechhäuslau", "Deffernik", "Diensthüttenstraße", "Felswandergebiet", "Ferdinandsthal", "Fredenbrücke", "Gfäll", "Gsenget", "Klingenbrunner Wald",
+        "visitor_sensors"  : {'sensors':["Bayerisch Eisenstein", "Brechhäuslau", "Deffernik", "Diensthüttenstraße", "Felswandergebiet", "Ferdinandsthal", "Fredenbrücke", "Gfäll", "Gsenget", "Klingenbrunner Wald",
                               "Klosterfilz", "Racheldiensthütte", "Schillerstraße", "Scheuereck", "Schwarzbachbrücke", "Falkenstein 2", "Lusen 2","Lusen 3", "Waldhausreibe", "Waldspielgelände", "Wistlberg",
                               "Bucina", "Falkenstein 1", "Lusen 1", "Trinkwassertalsperre"],
                               'properties':['IN','OUT','TOTAL']}
@@ -106,9 +106,9 @@ def select_filters(category):
     elif category == "parking":
         selected_properties = st.multiselect("Select the parking values", category_based_filters[category]['properties'], default=None)  
         selected_sensors = st.multiselect("Select the parking sensor you want to find the values for?", category_based_filters[category]['sensors'], default=None)
-    elif category == "visitor occupancy":
-        selected_properties = st.multiselect("Select the visitor sensor you want to find the occupancy for?", category_based_filters[category]['properties'], default=None)
-        selected_sensors = st.multiselect("Select the visitor sensor you want to find the occupancy for?", category_based_filters[category]['sensors'], default=None)
+    elif category == "visitor_sensors":
+        selected_sensors = st.multiselect("Select the visitor sensor you want to find the count for?", category_based_filters[category]['sensors'], default=None)
+        selected_properties = st.multiselect("Select the property of the sensor you want to find the count for?", category_based_filters[category]['properties'], default=None)
     else:
         selected_properties = None
         selected_sensors = None
