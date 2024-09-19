@@ -46,10 +46,10 @@ def extract_values_according_to_type(selected_query,type):
 
     if type == 'type1':
         property = re.search(r'What is the (.+?) value', selected_query).group(1)
-        sensor_value = re.search(r'for the sensor (.+?) from', selected_query).group(1)
+        sensor = re.search(r'for the sensor (.+?) from', selected_query).group(1)
         start_date = re.search(r'from (.+?) to', selected_query).group(1)
         end_date = re.search(r'to (.+?)\?', selected_query).group(1)
-        extracted_values = [property, sensor_value, start_date, end_date]
+        extracted_values = [property, sensor, start_date, end_date]
     elif type == 'type2':
         property = re.search(r'What is the (.+?) value', selected_query).group(1)
         sensor = re.search(r'for the sensor (.+?) for the month of', selected_query).group(1)
@@ -94,6 +94,9 @@ def extract_values_according_to_type(selected_query,type):
 def get_queried_df(processed_category_df, get_values,type):
     # get the property value from the get values dictionary
     property_value = get_values['property']
+    #get the sensor name from the get_values dictionary
+    if sensor in get_values['sensor']:
+        sensor = get_values['sensor']
 
     if type == 'type1':
         start_date = pd.to_datetime(get_values['start_date'])
@@ -102,23 +105,29 @@ def get_queried_df(processed_category_df, get_values,type):
             (processed_category_df.index.date >= start_date.date()) &
             (processed_category_df.index.date <= end_date.date())
         ]
-
+        queried_df = queried_df[[f'{sensor} {property_value}']]
+        return queried_df  
+      
     if type == 'type2':
         month = get_values['month']
         year = int(get_values['year'])
         queried_df = processed_category_df[
             (processed_category_df['month'] == month) &
             (processed_category_df['year'] == year)
-
         ]
+        queried_df = queried_df[[f'{sensor} {property_value}']]
+        return queried_df
+            
     if type == 'type3':
         season = get_values['season']
         year = int(get_values['year'])
         queried_df = processed_category_df[
             (processed_category_df['season'] == season) &
             (processed_category_df['year'] == year)
-
         ]
+        queried_df = queried_df[[f'{sensor} {property_value}']]
+        return queried_df
+    
     if type == 'type4':
         start_date = pd.to_datetime(get_values['start_date'])
         end_date = pd.to_datetime(get_values['end_date'])
@@ -126,25 +135,28 @@ def get_queried_df(processed_category_df, get_values,type):
             (processed_category_df.index.date >= start_date.date()) &
             (processed_category_df.index.date <= end_date.date())
         ]
+        queried_df = queried_df[[property_value]]
+        return queried_df
+    
     if type == 'type5':
         month = get_values['month']
         year = int(get_values['year'])
         queried_df = processed_category_df[
             (processed_category_df['month'] == month) &
             (processed_category_df['year'] == year)
-
         ]
+        queried_df = queried_df[[property_value]]
+        return queried_df
+
     if type == 'type6':
         season = get_values['season']
         year = int(get_values['year'])
         queried_df = processed_category_df[
             (processed_category_df['season'] == season) &
             (processed_category_df['year'] == year)
-
         ]
-    # Return only the column corresponding to the property value
-    queried_df = queried_df[[property_value]]
-    return queried_df
+        queried_df = queried_df[[property_value]]
+        return queried_df
 
 def create_temporal_columns_for_querying(parking_df):
 
