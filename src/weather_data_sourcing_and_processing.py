@@ -51,6 +51,37 @@ LONGITUDE = 12.711573421032
 bucket = "dssgx-munich-2024-bavarian-forest"
 preprocessed_data_folder = "preprocessed_data"
 
+# Define weather condition code mapping
+coco_to_coco_2_mapping = {
+    1: 1,  # Clear
+    2: 1,  # Fair
+    3: 2,  # Cloudy
+    4: 2,  # Overcast
+    5: 2,  # Fog
+    6: 5,  # Freezing Fog
+    7: 3,  # Light Rain
+    8: 3,  # Rain
+    9: 3,  # Heavy Rain
+    10: 5, # Freezing Rain
+    11: 5, # Heavy Freezing Rain
+    12: 5, # Sleet
+    13: 5, # Heavy Sleet
+    14: 4, # Light Snowfall
+    15: 4, # Snowfall
+    16: 4, # Heavy Snowfall
+    17: 3, # Rain Shower
+    18: 3, # Heavy Rain Shower
+    19: 3, # Sleet Shower
+    20: 5, # Heavy Sleet Shower
+    21: 4, # Snow Shower
+    22: 4, # Heavy Snow Shower
+    23: 6, # Lightning
+    24: 6, # Hail
+    25: 6, # Thunderstorm
+    26: 6, # Heavy Thunderstorm
+    27: 6  # Storm
+}
+
 ############################################################################################################
 # Define functions
 ############################################################################################################
@@ -109,8 +140,7 @@ def process_hourly_data(data):
             - Sunshine Duration (min): Duration of sunshine in minutes.
             - Relative Humidity (%): Relative humidity in percent.
     """
-    # Drop unnecessary columns
-    data = data.drop(columns=['dwpt', 'wdir', 'wpgt', 'pres', 'coco'])
+    
 
     # Rename columns for clarity
     data = data.rename(columns={
@@ -120,11 +150,17 @@ def process_hourly_data(data):
         'wspd': 'Wind Speed (km/h)',
         'tsun': 'Sunshine Duration (min)',
         'rhum': 'Relative Humidity (%)',
-        'snow': 'Snow Depth (mm)'
+        #'snow': 'Snow Depth (mm)'
     })
 
     # Convert the 'Time' column to datetime format
     data['Time'] = pd.to_datetime(data['Time'])
+    # Map weather condition codes to new codes
+    data['coco_2'] = data['coco'].map(coco_to_coco_2_mapping)
+
+    # Drop unnecessary columns
+    data = data.drop(columns=['dwpt', 'wdir', 'wpgt', 'pres', 'coco','snow'])
+    
     return data
 
 

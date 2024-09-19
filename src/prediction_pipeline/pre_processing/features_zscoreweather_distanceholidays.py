@@ -23,8 +23,7 @@ weather_columns = [ #define the columns that will be used to calculate z-scores
     'Relative Humidity (%)',
     'Precipitation (mm)',
     'Wind Speed (km/h)',
-    'Sunshine Duration (min)',
-    'Snow Depth (mm)'
+    'Sunshine Duration (min)'
 ]
 
 window_size = 120 # Define the window size in hours that you wish to use to calculate z-scores
