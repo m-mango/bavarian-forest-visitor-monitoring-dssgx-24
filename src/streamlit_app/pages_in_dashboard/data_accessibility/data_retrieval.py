@@ -108,7 +108,6 @@ def get_queried_df(processed_category_df, get_values,type, selected_category):
                 (processed_category_df.index.date <= end_date.date())
             ]
             queried_df = queried_df[[f'{sensor_name} {property_value}']]
-            print(queried_df.describe())
             return queried_df  
         
         if type == 'type2':
@@ -141,7 +140,6 @@ def get_queried_df(processed_category_df, get_values,type, selected_category):
                 (processed_category_df.index.date <= end_date.date())
             ]
             queried_df = queried_df[[property_value]]
-            print(queried_df.describe())
             return queried_df  
         
         if type == 'type2':
@@ -291,7 +289,7 @@ def get_data_from_query(selected_category,selected_query,selected_query_type):
         selected_variable = f"{selected_sensor} {selected_property}"
         objects = get_files_from_aws(selected_category)
         category_df = get_sensors_data(objects)
-        #totals_df = create_total_columns_for_sensors(category_df)
+        #totals_df = create_total_columns_for_sensors(category_df)  needs to be worked on
         processed_category_df = create_temporal_columns_for_sensors(category_df)
 
     if selected_category == 'parking':
@@ -305,10 +303,8 @@ def get_data_from_query(selected_category,selected_query,selected_query_type):
         category_df = get_weather_data(objects)
         processed_category_df = create_temporal_columns_for_parking(category_df)
 
-    
-    #print(processed_category_df.head())
     queried_df = get_queried_df(processed_category_df, get_values,selected_query_type, selected_category)
-    #print(queried_df.head())
+
     return queried_df
 
 
