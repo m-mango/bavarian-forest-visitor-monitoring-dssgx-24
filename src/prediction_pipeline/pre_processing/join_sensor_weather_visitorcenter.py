@@ -98,13 +98,11 @@ def main():
         create_datetimeindex(df)
 
     joined_data = join_dataframes(df_list)
-
-
     ## saving this joined dataset into aws in the form of csv 
-    write_csv_file_to_aws_s3(
-    df=joined_data,
-    path=f"s3://{output_bucket}/{output_data_folder}/{output_file_name}",
-    )
+    # write_csv_file_to_aws_s3(
+    # df=joined_data,
+    # path=f"s3://{output_bucket}/{output_data_folder}/{output_file_name}",
+    # )
     
     print("Joined data uploaded to AWS succesfully!")
 

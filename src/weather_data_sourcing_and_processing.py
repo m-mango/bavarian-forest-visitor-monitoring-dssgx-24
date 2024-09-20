@@ -39,8 +39,8 @@ warnings.filterwarnings('ignore')
 # END_TIME = (START_TIME + pd.Timedelta(days=7))
 
 # Set time period for sourcing the data
-START_TIME = datetime(2016, 1, 1)
-END_TIME = datetime(2024, 9, 3)
+START_TIME = datetime(2023, 1, 1)
+END_TIME = datetime(2024, 7, 22 )
 
 # Coordinates of the Bavarian Forest (Haselbach)
 # These coordinates are based on the weather recommendation by Google for a Bavarian Forest Weather search
