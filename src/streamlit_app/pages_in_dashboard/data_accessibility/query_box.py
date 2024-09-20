@@ -87,18 +87,36 @@ def select_filters(category):
         
     # Select the sensors or weather values or parking values
     category_based_filters = {
-        "weather" : ['Temperature (°C)', 'Precipitation (mm)', 'Wind Speed (km/h)', 'Relative Humidity (%)', 'Sunshine Duration (min'],
-        "parking" : {'sensors':['p-r-spiegelau-1','parkplatz-fredenbruecke-1','parkplatz-graupsaege-1',
+        "weather" : [
+            'Temperature (°C)', 'Precipitation (mm)', 'Wind Speed (km/h)', 'Relative Humidity (%)', 'Sunshine Duration (min'
+            ],
+        "parking" : {'sensors':[
+                                'p-r-spiegelau-1','parkplatz-fredenbruecke-1','parkplatz-graupsaege-1',
                                 'parkplatz-nationalparkzentrum-falkenstein-2','parkplatz-nationalparkzentrum-lusen-p2'
                                 'parkplatz-skisportzentrum-finsterau-1','parkplatz-waldhaeuser-ausblick-1',
                                 'parkplatz-waldhaeuser-kirche-1','parkplatz-zwieslerwaldhaus-1',
                                 'parkplatz-zwieslerwaldhaus-nord-1','scheidt-bachmann-parkplatz-1',
                                 'skiwanderzentrum-zwieslerwaldhaus-2'],
-                     'properties':['occupancy', 'capacity', 'occupancy_rate'],},
-        "visitor_sensors"  : {'sensors':["Bayerisch Eisenstein", "Brechhäuslau", "Deffernik", "Diensthüttenstraße", "Felswandergebiet", "Ferdinandsthal", "Fredenbrücke", "Gfäll", "Gsenget", "Klingenbrunner Wald",
-                              "Klosterfilz", "Racheldiensthütte", "Schillerstraße", "Scheuereck", "Schwarzbachbrücke", "Falkenstein 2", "Lusen 2","Lusen 3", "Waldhausreibe", "Waldspielgelände", "Wistlberg",
-                              "Bucina", "Falkenstein 1", "Lusen 1", "Trinkwassertalsperre"],
-                              'properties':['IN','OUT','TOTAL']}
+
+                     'properties':[
+                         'occupancy', 'capacity', 'occupancy_rate'],
+                    },
+
+        'visitor_sensors'  : {'sensors':[
+                                "Bayerisch Eisenstein", "Brechhäuslau", "Deffernik", "Diensthüttenstraße", "Felswandergebiet", "Ferdinandsthal", "Fredenbrücke", "Gfäll", "Gsenget", "Klingenbrunner Wald",
+                                "Klosterfilz", "Racheldiensthütte", "Schillerstraße", "Scheuereck", "Schwarzbachbrücke", "Falkenstein 2", "Lusen 2","Lusen 3", "Waldhausreibe", "Waldspielgelände", "Wistlberg",
+                                "Bucina", "Falkenstein 1", "Lusen 1", "Trinkwassertalsperre"
+                                ],
+
+                              'properties':[
+                                  'IN','OUT','TOTAL'
+                                  ],
+                              },    
+        'visitor_centers' : [
+                            'Besuchszahlen_HEH',
+                            'Besuchszahlen_HZW', 'Besuchszahlen_WGM', 'Parkpl_HEH_PKW',
+                            'Parkpl_HEH_BUS', 'Parkpl_HZW_PKW', 'Parkpl_HZW_BUS'
+                            ]
     }
     if category == "weather":
         selected_properties = st.multiselect("Select the weather properties", category_based_filters[category], default=None)
