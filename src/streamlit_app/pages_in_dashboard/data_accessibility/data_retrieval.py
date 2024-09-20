@@ -93,7 +93,8 @@ def extract_values_according_to_type(selected_query,type):
 
 def get_queried_df(processed_category_df, get_values,type, selected_category):
     # get the property value from the get values dictionary
-    property_value = get_values['property']
+    if 'property' in get_values:
+        property_value = get_values['property']
     #get the sensor name from the get_values dictionary
     if 'sensor' in get_values:
         sensor_name = get_values['sensor']
@@ -162,37 +163,68 @@ def get_queried_df(processed_category_df, get_values,type, selected_category):
             queried_df = queried_df[[property_value]]
             return queried_df
         
+    if selected_category == 'weather':
+        if type == 'type4':
+            start_date = pd.to_datetime(get_values['start_date'])
+            end_date = pd.to_datetime(get_values['end_date'])
+            queried_df = processed_category_df[
+                (processed_category_df.index.date >= start_date.date()) &
+                (processed_category_df.index.date <= end_date.date())
+            ]
+            queried_df = queried_df[[property_value]]
+            return queried_df
+        
+        if type == 'type5':
+            month = get_values['month']
+            year = int(get_values['year'])
+            queried_df = processed_category_df[
+                (processed_category_df['month'] == month) &
+                (processed_category_df['year'] == year)
+            ]
+            queried_df = queried_df[[property_value]]
+            return queried_df
 
-    if type == 'type4':
-        start_date = pd.to_datetime(get_values['start_date'])
-        end_date = pd.to_datetime(get_values['end_date'])
-        queried_df = processed_category_df[
-            (processed_category_df.index.date >= start_date.date()) &
-            (processed_category_df.index.date <= end_date.date())
-        ]
-        queried_df = queried_df[[property_value]]
-        return queried_df
-    
-    if type == 'type5':
-        month = get_values['month']
-        year = int(get_values['year'])
-        queried_df = processed_category_df[
-            (processed_category_df['month'] == month) &
-            (processed_category_df['year'] == year)
-        ]
-        queried_df = queried_df[[property_value]]
-        return queried_df
+        if type == 'type6':
+            season = get_values['season']
+            year = int(get_values['year'])
+            queried_df = processed_category_df[
+                (processed_category_df['season'] == season) &
+                (processed_category_df['year'] == year)
+            ]
+            queried_df = queried_df[[property_value]]
+            return queried_df
 
-    if type == 'type6':
-        season = get_values['season']
-        year = int(get_values['year'])
-        queried_df = processed_category_df[
-            (processed_category_df['season'] == season) &
-            (processed_category_df['year'] == year)
-        ]
-        queried_df = queried_df[[property_value]]
-        return queried_df
+    if selected_category == 'visitor_centers':
+        if type == 'type4':
+            start_date = pd.to_datetime(get_values['start_date'])
+            end_date = pd.to_datetime(get_values['end_date'])
+            queried_df = processed_category_df[
+                (processed_category_df.index.date >= start_date.date()) &
+                (processed_category_df.index.date <= end_date.date())
+            ]
+            queried_df = queried_df[[property_value]]
+            return queried_df
+        
+        if type == 'type5':
+            month = get_values['month']
+            year = int(get_values['year'])
+            queried_df = processed_category_df[
+                (processed_category_df['month'] == month) &
+                (processed_category_df['year'] == year)
+            ]
+            queried_df = queried_df[[property_value]]
+            return queried_df
 
+        if type == 'type6':
+            season = get_values['season']
+            year = int(get_values['year'])
+            queried_df = processed_category_df[
+                (processed_category_df['season'] == season) &
+                (processed_category_df['year'] == year)
+            ]
+            queried_df = queried_df[[property_value]]
+            return queried_df
+        
 def create_temporal_columns_for_parking(parking_df):
 
     parking_df.index = pd.to_datetime(parking_df.index)
@@ -258,6 +290,13 @@ def get_sensors_data(objects):
     df = wr.s3.read_parquet(f"{object_to_be_queried}")
     return df
 
+def get_visitor_centers_data(objects):
+    # if there are multiple objects get the last mostfied one
+    object_to_be_queried = objects[-1]
+    # Read the parquet file from S3
+    df = wr.s3.read_parquet(f"{object_to_be_queried}")
+    return df
+
 def get_weather_data(objects):
     # if there are multiple objects get the last mostfied one
     object_to_be_queried = objects[-1]
@@ -300,6 +339,12 @@ def get_data_from_query(selected_category,selected_query,selected_query_type):
     if selected_category == 'weather':
         objects = get_files_from_aws(selected_category)
         category_df = get_weather_data(objects)
+        processed_category_df = create_temporal_columns_for_parking(category_df)
+
+    if selected_category == 'visitor_centers':
+        objects = get_files_from_aws(selected_category)
+        category_df = get_visitor_centers_data(objects)
+        category_df = category_df.set_index('Datum')
         processed_category_df = create_temporal_columns_for_parking(category_df)
 
     queried_df = get_queried_df(processed_category_df, get_values,selected_query_type, selected_category)

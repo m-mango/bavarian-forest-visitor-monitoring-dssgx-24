@@ -131,7 +131,8 @@ def select_filters(category):
         selected_properties = st.multiselect("Select the property of the sensor you want to find the count for?", category_based_filters[category]['properties'], default=None)
 
     elif category == "visitor_centers":
-        selected_sensors = st.multiselect("Select the visitor center you want to find the count for?", category_based_filters[category]['sensors'], default=None)
+        selected_sensors = st.multiselect("Select the visitor center you want to find the count for?", category_based_filters[category], default=None)
+        selected_properties = None
 
     else:
         selected_properties = None
@@ -201,7 +202,7 @@ def get_queries_for_visitor_centers(start_date, end_date, months, seasons, selec
     # Queries for the date range (type1)
     for sensor in selected_sensors:
         queries.setdefault("type4", []).append(
-            f"What is the {sensor} count from {start_date} to {end_date}?"
+            f"What is the {sensor} value from {start_date} to {end_date}?"
         )
 
     # Queries for the selected months and year (type2)
@@ -209,7 +210,7 @@ def get_queries_for_visitor_centers(start_date, end_date, months, seasons, selec
         for month in months:
             for sensor in selected_sensors:
                 queries.setdefault("type5", []).append(
-                    f"What is the {sensor} count for the month of {month} for the year {year}?"
+                    f"What is the {sensor} value for the month of {month} for the year {year}?"
                 )
 
     # Queries for the selected seasons and year (type3)
@@ -270,7 +271,7 @@ def generate_queries(category, start_date, end_date, months, seasons, selected_p
     if category == 'visitor_sensors':
         queries = get_queries_for_visitor_sensors(start_date, end_date, months, seasons, selected_properties, selected_sensors, year)
     if category == 'visitor_centers':
-        queries = get_queries_for_visitor_centers(start_date, end_date, months, seasons, selected_properties, selected_sensors, year)
+        queries = get_queries_for_visitor_centers(start_date, end_date, months, seasons, selected_sensors, year)
     return queries
 
 def get_query_section():
