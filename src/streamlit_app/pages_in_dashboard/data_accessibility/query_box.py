@@ -14,7 +14,7 @@ def select_category():
     """
     # select the dropdown for the category
     category = st.selectbox("Select data category", 
-                            ["weather", "visitor_sensors", "parking"],
+                            ["weather", "visitor_sensors", "parking", "visitor_centers"],
                             index=0)
     
     return category
@@ -121,12 +121,18 @@ def select_filters(category):
     if category == "weather":
         selected_properties = st.multiselect("Select the weather properties", category_based_filters[category], default=None)
         selected_sensors = None
+
     elif category == "parking":
         selected_properties = st.multiselect("Select the parking values", category_based_filters[category]['properties'], default=None)  
         selected_sensors = st.multiselect("Select the parking sensor you want to find the values for?", category_based_filters[category]['sensors'], default=None)
+
     elif category == "visitor_sensors":
         selected_sensors = st.multiselect("Select the visitor sensor you want to find the count for?", category_based_filters[category]['sensors'], default=None)
         selected_properties = st.multiselect("Select the property of the sensor you want to find the count for?", category_based_filters[category]['properties'], default=None)
+
+    elif category == "visitor_centers":
+        selected_sensors = st.multiselect("Select the visitor center you want to find the count for?", category_based_filters[category]['sensors'], default=None)
+
     else:
         selected_properties = None
         selected_sensors = None
@@ -189,7 +195,32 @@ def get_queries_for_weather(start_date, end_date, months, seasons, selected_prop
 
     return queries
 
+def get_queries_for_visitor_centers(start_date, end_date, months, seasons, selected_sensors, year):
+    queries = {}
 
+    # Queries for the date range (type1)
+    for sensor in selected_sensors:
+        queries.setdefault("type4", []).append(
+            f"What is the {sensor} count from {start_date} to {end_date}?"
+        )
+
+    # Queries for the selected months and year (type2)
+    if months:
+        for month in months:
+            for sensor in selected_sensors:
+                queries.setdefault("type5", []).append(
+                    f"What is the {sensor} count for the month of {month} for the year {year}?"
+                )
+
+    # Queries for the selected seasons and year (type3)
+    if seasons:
+        for season in seasons:
+            for sensor in selected_sensors:
+                queries.setdefault("type6", []).append(
+                    f"What is the {sensor} value for the season of {season} for the year {year}?"
+                )
+
+    return queries
 
 
 def get_queries_for_visitor_sensors(start_date, end_date, months, seasons, selected_properties, selected_sensors, year):
@@ -238,7 +269,8 @@ def generate_queries(category, start_date, end_date, months, seasons, selected_p
         queries = get_queries_for_weather(start_date, end_date, months, seasons, selected_properties, year)
     if category == 'visitor_sensors':
         queries = get_queries_for_visitor_sensors(start_date, end_date, months, seasons, selected_properties, selected_sensors, year)
-
+    if category == 'visitor_centers':
+        queries = get_queries_for_visitor_centers(start_date, end_date, months, seasons, selected_properties, selected_sensors, year)
     return queries
 
 def get_query_section():
