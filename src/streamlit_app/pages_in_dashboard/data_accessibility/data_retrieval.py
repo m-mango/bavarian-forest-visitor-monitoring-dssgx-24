@@ -239,7 +239,7 @@ def create_temporal_columns_for_sensors(sensors_df):
 
     return sensors_df
 
-"""def create_total_columns_for_sensors(sensors_df):
+def create_total_columns_for_sensors(sensors_df):
 
     sensors_list = ["Bayerisch Eisenstein", "Brechhäuslau", "Deffernik", "Diensthüttenstraße", "Felswandergebiet",
                     "Ferdinandsthal", "Fredenbrücke", "Gfäll", "Gsenget", "Klingenbrunner Wald","Klosterfilz", "Racheldiensthütte", "Schillerstraße", "Scheuereck", "Schwarzbachbrücke", "Falkenstein 2", "Lusen 2","Lusen 3", "Waldhausreibe", "Waldspielgelände", "Wistlberg", "Bucina", "Falkenstein 1", "Lusen 1", "Trinkwassertalsperre"]
@@ -250,8 +250,7 @@ def create_temporal_columns_for_sensors(sensors_df):
 
     # For each sensor, create the 'TOTAL' column
     for sensor in sensors_list:
-        sensors_df[f'{sensor} TOTAL'] = sensors_df[f'{sensor} IN'] + sensors_df[f'{sensor} OUT']"""
-
+        sensors_df[f'{sensor} TOTAL'] = sensors_df[f'{sensor} IN'] + sensors_df[f'{sensor} OUT']
 def get_sensors_data(objects):
     # if there are multiple objects get the last mostfied one
     object_to_be_queried = objects[-1]
@@ -289,7 +288,7 @@ def get_data_from_query(selected_category,selected_query,selected_query_type):
         selected_variable = f"{selected_sensor} {selected_property}"
         objects = get_files_from_aws(selected_category)
         category_df = get_sensors_data(objects)
-        #totals_df = create_total_columns_for_sensors(category_df)  needs to be worked on
+        totals_df = create_total_columns_for_sensors(category_df)  #needs to be worked on
         processed_category_df = create_temporal_columns_for_sensors(category_df)
 
     if selected_category == 'parking':
