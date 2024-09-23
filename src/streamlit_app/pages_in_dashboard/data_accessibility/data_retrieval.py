@@ -301,66 +301,45 @@ def get_queried_df(processed_category_df, get_values, type, selected_category):
             queried_df = queried_df[[property_value]]
             return queried_df
         
-def create_temporal_columns_for_parking(parking_df):
+def create_temporal_columns(df):
 
-    parking_df.index = pd.to_datetime(parking_df.index)
+    """Create temporal columns from the DataFrame index.
 
-    # make a new column called 'month' from the index
-    parking_df['month'] = parking_df.index.month
+    This function takes a DataFrame with a datetime index and creates additional
+    columns for month names, year, and season based on the index.
 
-    # convert the numbers in the months column to the month names from the
-    parking_df['month'] = parking_df['month'].apply(convert_number_to_month_name)
+    Args:
+        df (pd.DataFrame): The input DataFrame with a datetime index.
 
-    # make a new column called 'year' from the index
-    parking_df['year'] = parking_df.index.year
+    Returns:
+        pd.DataFrame: The original DataFrame with added columns:
+            - 'month': The name of the month corresponding to the index.
+            - 'year': The year extracted from the index.
+            - 'season': The name of the season corresponding to the index.
 
-    # make a new column called 'season' from the index
-    parking_df['season'] = (parking_df.index.month%12 + 3)//3
-    # convert the numbers in the season column to the season names
+    Raises:
+        ValueError: If the index of the DataFrame cannot be converted to datetime.
+    """
 
-    parking_df['season'] = parking_df['season'].apply(convert_number_to_season_name)
-
-
-    # # print random 5 rows of the dataframe
-    # print(parking_df.head(5))
-
-    return parking_df
-
-    # assign index in main function and then just use the parking temporal
-"""def create_temporal_columns_for_sensors(sensors_df):
-
-    sensors_df.index = pd.to_datetime(sensors_df['Time'])
+    df.index = pd.to_datetime(df.index)
 
     # make a new column called 'month' from the index
-    sensors_df['month'] = sensors_df.index.month
+    df['month'] = df.index.month
 
     # convert the numbers in the months column to the month names from the
-    sensors_df['month'] = sensors_df['month'].apply(convert_number_to_month_name)
+    df['month'] = df['month'].apply(convert_number_to_month_name)
 
     # make a new column called 'year' from the index
-    sensors_df['year'] = sensors_df.index.year
+    df['year'] = df.index.year
 
     # make a new column called 'season' from the index
-    sensors_df['season'] = (sensors_df.index.month%12 + 3)//3
+    df['season'] = (df.index.month%12 + 3)//3
     # convert the numbers in the season column to the season names
 
-    sensors_df['season'] = sensors_df['season'].apply(convert_number_to_season_name)
+    df['season'] = df['season'].apply(convert_number_to_season_name)
 
-    return sensors_df"""
+    return df
 
-"""def create_total_columns_for_sensors(sensors_df):
-
-    sensors_list = ["Bayerisch Eisenstein", "Brechhäuslau", "Deffernik", "Diensthüttenstraße", "Felswandergebiet",
-                    "Ferdinandsthal", "Fredenbrücke", "Gfäll", "Gsenget", "Klingenbrunner Wald","Klosterfilz", "Racheldiensthütte", "Schillerstraße", "Scheuereck", "Schwarzbachbrücke", "Falkenstein 2", "Lusen 2","Lusen 3", "Waldhausreibe", "Waldspielgelände", "Wistlberg", "Bucina", "Falkenstein 1", "Lusen 1", "Trinkwassertalsperre"]
-
-    if sensors_df.columns.str.contains('MERGED').any():
-        sensors_df.columns = sensors_df.columns.str.replace('MERGED', '')
-        sensors_df.columns = sensors_df.columns.str.replace('  ', ' ')
-
-    # For each sensor, create the 'TOTAL' column
-    for sensor in sensors_list:
-        sensors_df[f'{sensor} TOTAL'] = sensors_df[f'{sensor} IN'] + sensors_df[f'{sensor} OUT']
-        """
 def get_sensors_data(objects):
     # if there are multiple objects get the last mostfied one
     object_to_be_queried = objects[-1]
@@ -445,9 +424,31 @@ def parse_german_dates_regex(
     return df
 
 def get_data_from_query(selected_category,selected_query,selected_query_type):
+
+    """Retrieve data based on the selected category and query.
+
+    This function extracts values from the provided query, retrieves data from
+    AWS based on the selected category, processes the data, and returns a DataFrame
+    containing the queried information.
+
+    Args:
+        selected_category (str): The category of data to retrieve. Options include:
+            - 'visitor_sensors'
+            - 'parking'
+            - 'weather'
+            - 'visitor_centers'
+        selected_query (str): The query string used to extract specific values.
+        selected_query_type (str): The type of the query, which determines the 
+            format of the expected values.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the filtered data based on the query.
+
+    Raises:
+        ValueError: If the selected category is not recognized.
+        KeyError: If the expected values are not found in the query.
     """
-    Get the data from the query.
-    """
+    
     get_values = extract_values_according_to_type(selected_query,selected_query_type)
 
     if selected_category == 'visitor_sensors':
@@ -460,25 +461,25 @@ def get_data_from_query(selected_category,selected_query,selected_query_type):
         print(parsed_df.tail())
         #totals_df = create_total_columns_for_sensors(category_df) 
         parsed_df = parsed_df.set_index('Time') 
-        processed_category_df = create_temporal_columns_for_parking(parsed_df)
+        processed_category_df = create_temporal_columns(parsed_df)
         print(processed_category_df.tail())
         
     if selected_category == 'parking':
        selected_sensor = re.search(r'for the sensor (.+?) ', selected_query).group(1)
        objects = get_files_from_aws(selected_category)
        category_df = get_parking_data_for_selected_sensor(objects, selected_sensor)
-       processed_category_df = create_temporal_columns_for_parking(category_df)
+       processed_category_df = create_temporal_columns(category_df)
 
     if selected_category == 'weather':
         objects = get_files_from_aws(selected_category)
         category_df = get_weather_data(objects)
-        processed_category_df = create_temporal_columns_for_parking(category_df)
+        processed_category_df = create_temporal_columns(category_df)
 
     if selected_category == 'visitor_centers':
         objects = get_files_from_aws(selected_category)
         category_df = get_visitor_centers_data(objects)
         category_df = category_df.set_index('Datum')
-        processed_category_df = create_temporal_columns_for_parking(category_df)
+        processed_category_df = create_temporal_columns(category_df)
 
     queried_df = get_queried_df(processed_category_df, get_values,selected_query_type, selected_category)
 
