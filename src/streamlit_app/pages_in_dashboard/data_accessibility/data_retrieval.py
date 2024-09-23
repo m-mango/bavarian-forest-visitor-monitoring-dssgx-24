@@ -2,10 +2,11 @@ import streamlit as st
 import pandas as pd
 import awswrangler as wr
 import re
-#import locale
+
 
 bucket = "dssgx-munich-2024-bavarian-forest"
 
+# Types of queries that the functions will use to know what data to retrieve
 query_types = {'type1': ['What is the property value for the sensor sensor from start_date to end_date?' , ['property','sensor','start_date','end_date']],
                'type2': ['What is the property value for the sensor sensor for the month of month (year)?', ['property','sensor','month','year']],
                'type3': ['What is the property value for the sensor sensor for the season of season (year)?', ['property','sensor','season','year']],
@@ -23,9 +24,21 @@ def get_files_from_aws(selected_category):
     return objects
 
 def convert_number_to_month_name(month):
+
+    """
+    Convert a month number (1-12) to its corresponding month name.
+
+    Parameters:
+        month (int): The month number.
+
+    Returns:
+        str: The name of the month.
+    """
+
     month_dict = {1: 'January', 2: 'February', 3: 'March', 4: 'April',
                    5: 'May', 6: 'June', 7: 'July', 8: 'August', 
                    9: 'September', 10: 'October', 11: 'November', 12: 'December'}
+    
     return month_dict[month]
 
 def convert_number_to_season_name(season):
