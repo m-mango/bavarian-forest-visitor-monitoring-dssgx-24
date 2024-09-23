@@ -145,6 +145,8 @@ Now go ahead and run the notebook! :)
 
 The technical documentation website is available [here](https://dssgxmunich.github.io/bavarian-forest-visitor-monitoring-dssgx-24/). In order to update the information, follow the following steps:
 
+First, make sure you have the needed libraries to setup Mkdocs. For that, you need to install `requirements-mkdocs.txt`.
+
 You want to locally test the documentation and see changes live reflected? Run the following command from the root of the repository:
 
 ```
