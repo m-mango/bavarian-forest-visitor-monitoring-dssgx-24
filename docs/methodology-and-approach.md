@@ -175,6 +175,39 @@ This systematic approach to preprocessing and feature engineering sets a solid f
 ### Modeling
 We have sliced the data from January 1, 2023, to July 22, 2024, for training purposes. During our experimentation phase, we explored various forecasting models to identify the most effective approach for predicting visitor traffic in the Bavarian Forest National Park. Ultimately, the ExtraTree Regressor and LSTM (Long Short-Term Memory) models demonstrated superior performance compared to other models.
 
+### ExtraTree Regressor
+
+The ExtraTree Regressor (Extremely Randomized Trees) is a powerful ensemble learning algorithm that constructs multiple decision trees during training. Unlike traditional decision trees, where splits are chosen based on the best criteria, Extra Trees randomly select cut points in the features. This approach often reduces variance without significantly increasing bias, making Extra Trees particularly well-suited for datasets with complex patterns and large feature spaces.
+
+#### Why ExtraTree Regressor is Ideal for Our Use Case
+
+- **Robustness to Overfitting**: Due to the random nature of tree splits, ExtraTree Regressor is less likely to overfit the training data, especially in cases where the data has high dimensionality or contains noise.
+
+- **Efficiency**: ExtraTree Regressor requires less computational effort compared to other ensemble methods like Random Forests, making it an efficient choice for large-scale data.
+
+- **Interpretability**: While still complex, the decision-tree-based structure of the ExtraTree Regressor provides a level of interpretability, allowing us to understand which features contribute most significantly to the model’s predictions.
+
+- **Handling of Various Feature Types**: The model can handle both numerical and categorical features, which is crucial for our dataset, containing a mix of these feature types.
+
+#### Model Implementation
+
+**Data Preparation**: The data is split into training (January 1, 2023, to April 30, 2024) and testing (May 1, 2024, to July 22, 2024) sets based on specific date ranges, ensuring the temporal structure of the data is preserved.
+
+**Model Setup**: PyCaret is used for setting up the model, where we define numeric and categorical features, ensure no data shuffling, and use 90% of the data for training with a 5-fold cross-validation.
+
+**Model Training**: The Extra Trees Regressor is trained on the defined training set, and predictions are made on the test set to evaluate performance.
+
+**Model Saving**: The trained models are saved for each target variable, ensuring reproducibility and facilitating later use in inference tasks.
+
+This approach allowed us to capture the complexities in the data and produce reliable forecasts for visitor traffic in the Bavarian Forest National Park.
+
+
+### LSTM (Long Short-Term Memory)
+
+Long Short-Term Memory (LSTM) networks are a type of recurrent neural network (RNN) specifically designed to model sequential data and capture long-term dependencies. LSTMs are highly effective for time series forecasting due to their ability to retain information over extended periods, which is crucial for predicting visitor traffic based on past patterns.
+
+
+
 #### ExtraTree Regressor vs LSTM
 - Comparison of models:
     - Model architectures and configurations
