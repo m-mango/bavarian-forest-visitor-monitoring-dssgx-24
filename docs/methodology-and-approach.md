@@ -1,4 +1,4 @@
-# III. Methodology and Approach
+#  Methodology and Approach
 
 ## Repository Overview
 - Explanation of the code structure:
@@ -117,7 +117,7 @@ We joined the preprocessed datasets—visitor counts, weather, and visitor cente
 
 The resulting joined dataset encompasses all relevant features from each source, providing a robust foundation for our predictive modeling efforts. This approach allows us to leverage the combined insights from different datasets, enhancing the accuracy and effectiveness of our forecasts.
 
-### Data Preprocessing and Feature Engineering
+### Feature Selection and Feature Engineering
 
 After joining the data, we conducted various tasks, including feature selection and feature engineering. Below are the relevant aspects of this process:
 
@@ -154,9 +154,9 @@ We integrated additional features, including:
 - Z-scores for daily maximum temperature, relative humidity, and wind speed.
 - Distance to the nearest holidays for both Bayern and Czech Republic.
 
-#### Data Preprocessing
+#### Data Transformation
 
-#### Handling Numerical, Cyclic, and Categorical Features
+Handling Numerical, Cyclic, and Categorical Features
 
 1. **Cyclic Features**: We transformed cyclical features (e.g., hour, day) using sine and cosine transformations to maintain the cyclic nature.
 
@@ -206,11 +206,57 @@ This approach allowed us to capture the complexities in the data and produce rel
 
 Long Short-Term Memory (LSTM) networks are a type of recurrent neural network (RNN) specifically designed to model sequential data and capture long-term dependencies. LSTMs are highly effective for time series forecasting due to their ability to retain information over extended periods, which is crucial for predicting visitor traffic based on past patterns.
 
+#### Why LSTM is Ideal for Our Use Case
 
+- **Handling Sequential Data**: LSTMs are designed to process sequences of data, which is critical for our task of predicting future visitor counts based on historical patterns.
 
-#### ExtraTree Regressor vs LSTM
-- Comparison of models:
-    - Model architectures and configurations
-    - Performance evaluation on test data
-    - Strengths and weaknesses of each approach
-    - Decision rationale for choosing LSTM or ExtraTree Regressor
+- **Capturing Long-Term Dependencies**: The LSTM architecture effectively captures long-term dependencies, which is crucial for understanding visitor trends that may span over days or weeks.
+
+- **Flexibility in Architecture**: LSTMs allow for various architectural adjustments (e.g., bidirectional layers, stacking) that enable the model to capture more complex visitor traffic patterns.
+
+- **Robustness to Temporal Patterns**: LSTMs are capable of learning and adapting to the temporal structure of the data, making them ideal for forecasting tasks where the order and timing of data points are important.
+
+#### Model Implementation
+
+**Sequence Creation**: To train the LSTM, the data is prepared by creating sequences. Each sequence represents a window of 168 hours (7 days). This approach ensures that the model is trained on weekly patterns, which are crucial for accurate forecasting.
+
+- **Training Sequences**: The training data is split into sequences of 168 hours, with each sequence used to predict the following hour. This ensures that the model learns from both short-term fluctuations and longer-term trends.
+
+**Model Architecture**: The LSTM model architecture is designed to capture complex temporal patterns in the data. Key components of the architecture include:
+
+- **Bidirectional LSTM Layers**: These layers process the sequence data in both forward and backward directions, allowing the model to learn from both past and future contexts within each sequence.
+
+- **Dropout Layers**: Dropout layers are included to prevent overfitting by randomly dropping units during training, encouraging the model to learn more robust features.
+
+- **Dense Layer**: The final Dense layer outputs predictions for the target variable, leveraging the features learned by the preceding LSTM layers.
+
+**Training and Evaluation**: The LSTM model is trained on the prepared sequences with a validation split to monitor performance. Early stopping is implemented to prevent overfitting, stopping the training if the validation loss does not improve for several consecutive epochs.
+
+- **Optimizer**: The Adam optimizer is used, which is effective for handling the complexity of LSTM networks.
+
+- **Loss Function**: The Mean Squared Error (MSE) loss function is employed to minimize large errors by focusing on the difference between predicted and actual values.
+
+- **Early Stopping**: This technique monitors validation loss and restores the best weights if overfitting is detected.
+
+**Model Saving**: After training, the model is saved for each target variable. This ensures that the trained models can be reused for inference and further fine-tuning, making the forecasting process more efficient and scalable.
+
+The LSTM model, with its ability to model complex sequential data, has proven to be a powerful tool in our visitor traffic forecasting pipeline, particularly for capturing the temporal dynamics of visitor flows across different regions of the Bavarian Forest National Park.
+
+### Model Selection for Real-Time Inference
+
+After experimenting with both the LSTM and Extra Tree Regressor models, we found that both performed admirably in terms of forecasting visitor traffic. However, our final choice of model for real-time inference was influenced by several key factors:
+
+- **Limited Dataset Size**: Given the relatively small size of our dataset, we needed a model that could deliver reliable performance without requiring large amounts of data. While LSTM models are powerful for capturing complex temporal dependencies, they often require larger datasets to fully realize their potential.
+
+- **Model Simplicity and Interpretability**: The Extra Tree Regressor, being an ensemble learning method based on decision trees, offers a straightforward and interpretable approach to forecasting. Its simplicity means that it is less prone to overfitting on smaller datasets and provides easily understandable results, which is advantageous for real-time applications where quick insights are needed.
+
+- **Computational Efficiency**: In real-time inference scenarios, the computational cost and speed of model predictions are critical. The Extra Tree Regressor is computationally efficient compared to LSTM models, which can be resource-intensive due to their sequential nature and complex architecture. This efficiency makes the Extra Tree Regressor a more suitable choice for deploying in a real-time environment where low latency is essential.
+
+- **Robustness to Overfitting**: With fewer data points, there is a higher risk of overfitting, especially with more complex models like LSTM. The Extra Tree Regressor, with its inherent randomness and use of multiple decision trees, is more robust against overfitting, ensuring that the model generalizes better on unseen data.
+
+- **Scalability for Future Datasets**: As more data becomes available over time, the simplicity of the Extra Tree Regressor allows for easier retraining and updating of the model. This scalability is critical as the system evolves and more historical data is collected.
+
+- **Consistency in Performance**: During our model evaluation, the Extra Tree Regressor consistently delivered strong performance across various metrics, making it a reliable choice for ongoing operations.
+
+Based on these considerations, we selected the Extra Tree Regressor as the model for real-time inference. This decision balances the need for accurate predictions with the practical constraints of our current dataset and computational resources, ensuring that we can provide reliable visitor traffic forecasts in the Bavarian Forest National Park.
+
