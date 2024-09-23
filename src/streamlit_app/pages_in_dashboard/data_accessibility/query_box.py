@@ -247,7 +247,7 @@ def get_queries_for_parking(start_date, end_date, months, seasons, selected_prop
                 for month in months:
                     for property in selected_properties:
                         queries.setdefault("type2", []).append(
-                            f"What is the {property} value for the sensor {sensor} for the month of {month} ({year})?"
+                            f"What is the {property} value for the sensor {sensor} for the month of {month} for the year {year}?"
                         )
 
             # Queries for each selected season and year
@@ -255,7 +255,7 @@ def get_queries_for_parking(start_date, end_date, months, seasons, selected_prop
                 for season in seasons:
                     for property in selected_properties:
                         queries.setdefault("type3", []).append(
-                            f"What is the {property} value for the sensor {sensor} for the season of {season} ({year})?"
+                            f"What is the {property} value for the sensor {sensor} for the season of {season} for the year {year}?"
                         )
 
     return queries

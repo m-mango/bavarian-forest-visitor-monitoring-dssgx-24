@@ -44,12 +44,15 @@ Usage:
 """
 
 query_types = {
+    'type1': ['What is the property value for the sensor sensor from start_date to end_date?' ,
+             ['property','sensor','start_date','end_date']
+    ],
     'type2': [
-        'What is the property value for the sensor sensor for the month of month (year)?',
+        'What is the property value for the sensor sensor for the month of month for the year year?',
         ['property', 'sensor', 'month', 'year']
     ],
     'type3': [
-        'What is the property value for the sensor sensor for the season of season (year)?',
+        'What is the property value for the sensor sensor for the season of season for the year year?',
         ['property', 'sensor', 'season', 'year']
     ],
     'type4': [
@@ -138,15 +141,15 @@ def extract_values_according_to_type(selected_query,type):
     elif type == 'type2':
         property = re.search(r'What is the (.+?) value', selected_query).group(1)
         sensor = re.search(r'for the sensor (.+?) for the month of', selected_query).group(1)
-        month = re.search(r'for the month of (.+?) for', selected_query).group(1)
-        year = re.search(r'(\S+)\?', selected_query).group(1)
+        month = re.search(r'for the month of (.+?) ', selected_query).group(1)
+        year = re.search(r'for the year (.+?)\?', selected_query).group(1)
         extracted_values = [property, sensor, month, year]
         
     elif type == 'type3':
         property = re.search(r'What is the (.+?) value', selected_query).group(1)
         sensor = re.search(r'for the sensor (.+?) for the season of', selected_query).group(1)
         season = re.search(r'for the season of (.+?) for', selected_query).group(1)
-        year = re.search(r'(\S+)\?', selected_query).group(1)
+        year = re.search(r'for the year (.+?)\?', selected_query).group(1)
         extracted_values = [property, sensor, season, year]
 
     elif type == 'type4':
