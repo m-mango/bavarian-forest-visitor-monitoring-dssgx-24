@@ -117,14 +117,63 @@ We joined the preprocessed datasets—visitor counts, weather, and visitor cente
 
 The resulting joined dataset encompasses all relevant features from each source, providing a robust foundation for our predictive modeling efforts. This approach allows us to leverage the combined insights from different datasets, enhancing the accuracy and effectiveness of our forecasts.
 
+### Data Preprocessing and Feature Engineering
+
+After joining the data, we conducted various tasks, including feature selection and feature engineering. Below are the relevant aspects of this process:
+
+#### Region-wise Mapping
+
+The Bavarian Forest National Park is divided into six regions, and we grouped the sensors accordingly. For each region, we aggregated the IN and OUT values based on the specific sensors that belong to that region:
+
+> **Falkenstein-Schwellhäusl**  
+> Sensors: Bayerisch Eisenstein, Brechhäuslau, Deffernik, Ferdinandsthal, Schillerstraße  
+>
+> **Nationalparkzentrum Falkenstein**  
+> Sensors: Falkenstein 1, Falkenstein 2  
+>
+> **Scheuereck-Schachten-Trinkwassertalsperre**  
+> Sensors: Gsenget, Scheuereck, Trinkwassertalsperre  
+>
+> **Lusen-Mauth-Finsterau**  
+> Sensors: Bucina, Felswandergebiet, Fredenbrücke, Schwarzbachbrücke, Waldhausreibe, Wistlberg, Sagwassersäge  
+>
+> **Rachel-Spiegelau**  
+> Sensors: Diensthüttenstraße, Gfäll, Klingenbrunner Wald, Klosterfilz, Racheldiensthütte, Waldspielgelände  
+>
+> **Nationalparkzentrum Lusen**  
+> Sensors: Lusen 1, Lusen 2, Lusen 3  
+
+
+The readings from these sensors were combined to provide the total IN and OUT values for the region.
+
+
+#### Feature Engineering
+
+We integrated additional features, including:
+
+- Z-scores for daily maximum temperature, relative humidity, and wind speed.
+- Distance to the nearest holidays for both Bayern and Czech Republic.
+
+#### Data Preprocessing
+
+#### Handling Numerical, Cyclic, and Categorical Features
+
+1. **Cyclic Features**: We transformed cyclical features (e.g., hour, day) using sine and cosine transformations to maintain the cyclic nature.
+
+2. **Numerical Features**: Z-score normalization was applied to standardize numerical features, ensuring they have a mean of 0 and a standard deviation of 1.
+
+3. **Categorical Features**: Categorical columns were converted to string types for proper processing and analysis.
+
+#### Additional Steps
+
+- **Datetime Conversion**: The 'Time' column was converted to a datetime format for easier time-based indexing and analysis.
+- **Summation of IN and OUT Values**: We summed the IN and OUT values for each region based on the defined mappings.
+- **Data Type Changes**: Data types were adjusted according to predefined specifications to ensure consistency and optimize performance.
+
+This systematic approach to preprocessing and feature engineering sets a solid foundation for subsequent modeling and analysis.
+
 ### Modeling
-#### Explanation of the Feature Engineering Process
-- Feature selection:
-    - Important features used in the model
-    - Methods for feature engineering
-    - Handling temporal features
-- Creation of input sequences for modeling:
-    - Techniques used for different models
+We have sliced the data from January 1, 2023, to July 22, 2024, for training purposes. During our experimentation phase, we explored various forecasting models to identify the most effective approach for predicting visitor traffic in the Bavarian Forest National Park. Ultimately, the ExtraTree Regressor and LSTM (Long Short-Term Memory) models demonstrated superior performance compared to other models.
 
 #### ExtraTree Regressor vs LSTM
 - Comparison of models:
