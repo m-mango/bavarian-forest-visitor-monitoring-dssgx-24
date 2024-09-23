@@ -85,16 +85,35 @@ def convert_number_to_season_name(season):
     return season_dict[season]
 
 def extract_values_according_to_type(selected_query,type):
-    """
-    Extract the values from the query according to the type.
-    
+    """Extract values from a query string based on the specified query type.
+
+    This function uses regular expressions to extract relevant values from the 
+    `selected_query` string according to the specified `type`. The extracted values
+    may include properties, sensors, dates, months, seasons, and years, depending on the type.
+
     Args:
-    selected_query : str : The selected query.
-    type : str : The type of the query.
+        selected_query (str): The selected query string from which to extract values.
+        type (str): The type of the query. Options include:
+            - 'type1': Query for date range.
+            - 'type2': Query for month and year.
+            - 'type3': Query for season and year.
+            - 'type4': Query for date range (weather category).
+            - 'type5': Query for month and year (weather category).
+            - 'type6': Query for season and year (weather category).
 
     Returns:
-    dict : The extracted values from the selected query like month, season, year, property, sensor, start_date, end_date.
+        dict: A dictionary containing the extracted values, where keys are based on
+              the field names specified in `query_types`, including:
+              - 'property'
+              - 'sensor'
+              - 'month'
+              - 'season'
+              - 'year'
+              - 'start_date'
+              - 'end_date'
 
+    Raises:
+        AttributeError: If the expected regex match is not found in the selected_query.
     """
 
     if type == 'type1':
@@ -144,46 +163,50 @@ def extract_values_according_to_type(selected_query,type):
 
     return result
 
-def get_queried_df(processed_category_df, get_values,type, selected_category):
+
+def get_queried_df(processed_category_df, get_values, type, selected_category):
+   
+    """Retrieve a filtered DataFrame based on the selected category and query type.
+
+    This function filters the input DataFrame `processed_category_df` according to the
+    specified `selected_category` and `type`. It uses values provided in the `get_values`
+    dictionary to perform the filtering.
+
+    Args:
+        processed_category_df (pd.DataFrame): The DataFrame containing processed data.
+        get_values (dict): A dictionary containing values for filtering, including:
+            - 'property' (str): The property to select from the DataFrame.
+            - 'start_date' (str): Start date for filtering (format: 'YYYY-MM-DD').
+            - 'end_date' (str): End date for filtering (format: 'YYYY-MM-DD').
+            - 'month' (int): Month for filtering.
+            - 'year' (int): Year for filtering.
+            - 'season' (str): Season for filtering (e.g., 'spring', 'summer').
+        type (str): The type of query to perform. Options include:
+            - 'type1': Filter by date range.
+            - 'type2': Filter by month and year.
+            - 'type3': Filter by season and year.
+            - 'type4': Filter by date range (weather category).
+            - 'type5': Filter by month and year (weather category).
+            - 'type6': Filter by season and year (weather category).
+        selected_category (str): The category to filter by. Options include:
+            - 'parking'
+            - 'weather'
+            - 'visitor_centers'
+            - 'visitor_sensors'
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the filtered data for the specified property.
+
+    Raises:
+        KeyError: If 'property' is not in `get_values`.
+        ValueError: If an invalid type or selected_category is provided.
+    """
     # get the property value from the get values dictionary
     if 'property' in get_values:
         property_value = get_values['property']
-    #get the sensor name from the get_values dictionary
-    #if 'sensor' in get_values:
-        #sensor_name = get_values['sensor']
-        # this part changed to incorporate latest format data
-    """if selected_category == 'visitor_sensors':
+    
+    # Implement filtering logic based on selected_category and type
 
-        if type == 'type1':
-            start_date = pd.to_datetime(get_values['start_date'])
-            end_date = pd.to_datetime(get_values['end_date'])
-            queried_df = processed_category_df[
-                (processed_category_df.index.date >= start_date.date()) &
-                (processed_category_df.index.date <= end_date.date())
-            ]
-            queried_df = queried_df[[f'{sensor_name} {property_value}']]
-            return queried_df  
-        
-        if type == 'type2':
-            month = get_values['month']
-            year = int(get_values['year'])
-            queried_df = processed_category_df[
-                (processed_category_df['month'] == month) &
-                (processed_category_df['year'] == year)
-            ]
-            queried_df = queried_df[[f'{sensor_name} {property_value}']]
-            return queried_df
-                
-        if type == 'type3':
-            season = get_values['season']
-            year = int(get_values['year'])
-            queried_df = processed_category_df[
-                (processed_category_df['season'] == season) &
-                (processed_category_df['year'] == year)
-            ]
-            queried_df = queried_df[[f'{sensor_name} {property_value}']]
-            return queried_df
-    """
     if selected_category == 'parking':
         
         if type == 'type1':
