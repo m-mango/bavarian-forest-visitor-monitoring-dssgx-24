@@ -7,13 +7,52 @@ import re
 bucket = "dssgx-munich-2024-bavarian-forest"
 
 # Types of queries that the functions will use to know what data to retrieve
-query_types = {'type1': ['What is the property value for the sensor sensor from start_date to end_date?' , ['property','sensor','start_date','end_date']],
-               'type2': ['What is the property value for the sensor sensor for the month of month (year)?', ['property','sensor','month','year']],
-               'type3': ['What is the property value for the sensor sensor for the season of season (year)?', ['property','sensor','season','year']],
-               'type4': ['What is the property value from start_date to end_date?', ['property','start_date','end_date']],
-               'type5': ['What is the property value for the month of month for the year year?', ['property','month','year']],
-               'type6': ['What is the property value for the season of season for the year year?',['property','season','year']]
-                }
+
+"""
+Dictionary: query_types
+
+Purpose:
+This dictionary serves as a template for generating and extracting values from different types of queries related to data retrieval.
+
+Structure:
+- Each key represents a type of query (e.g., 'type2', 'type3').
+- Each value is a list containing:
+    1. A string template that outlines the query format, with placeholders for dynamic values.
+    2. A list of field names corresponding to the placeholders in the string template, indicating the order of extracted values.
+
+Usage:
+- When generating a query, refer to the corresponding template string and replace the placeholders with actual values.
+- When extracting values from a generated query, use the list of field names to identify and retrieve the required information.
+
+Example:
+For 'type2':
+Template: "What is the property value for the sensor sensor for the month of month (year)?"
+Field names: ['property', 'sensor', 'month', 'year']
+"""
+
+query_types = {
+    'type2': [
+        'What is the property value for the sensor sensor for the month of month (year)?',
+        ['property', 'sensor', 'month', 'year']
+    ],
+    'type3': [
+        'What is the property value for the sensor sensor for the season of season (year)?',
+        ['property', 'sensor', 'season', 'year']
+    ],
+    'type4': [
+        'What is the property value from start_date to end_date?',
+        ['property', 'start_date', 'end_date']
+    ],
+    'type5': [
+        'What is the property value for the month of month for the year year?',
+        ['property', 'month', 'year']
+    ],
+    'type6': [
+        'What is the property value for the season of season for the year year?',
+        ['property', 'season', 'year']
+    ]
+}
+
 
 def get_files_from_aws(selected_category):
 
