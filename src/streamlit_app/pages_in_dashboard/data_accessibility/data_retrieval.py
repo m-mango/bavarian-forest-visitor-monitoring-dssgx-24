@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import awswrangler as wr
 import re
+#import locale
 
 bucket = "dssgx-munich-2024-bavarian-forest"
 
@@ -96,10 +97,10 @@ def get_queried_df(processed_category_df, get_values,type, selected_category):
     if 'property' in get_values:
         property_value = get_values['property']
     #get the sensor name from the get_values dictionary
-    if 'sensor' in get_values:
-        sensor_name = get_values['sensor']
-
-    if selected_category == 'visitor_sensors':
+    #if 'sensor' in get_values:
+        #sensor_name = get_values['sensor']
+        # this part changed to incorporate latest format data
+    """if selected_category == 'visitor_sensors':
 
         if type == 'type1':
             start_date = pd.to_datetime(get_values['start_date'])
@@ -130,7 +131,7 @@ def get_queried_df(processed_category_df, get_values,type, selected_category):
             ]
             queried_df = queried_df[[f'{sensor_name} {property_value}']]
             return queried_df
-    
+    """
     if selected_category == 'parking':
         
         if type == 'type1':
@@ -194,7 +195,7 @@ def get_queried_df(processed_category_df, get_values,type, selected_category):
             queried_df = queried_df[[property_value]]
             return queried_df
 
-    if selected_category == 'visitor_centers':
+    if selected_category == 'visitor_centers' or selected_category == 'visitor_sensors':
         if type == 'type4':
             start_date = pd.to_datetime(get_values['start_date'])
             end_date = pd.to_datetime(get_values['end_date'])
@@ -250,7 +251,8 @@ def create_temporal_columns_for_parking(parking_df):
 
     return parking_df
 
-def create_temporal_columns_for_sensors(sensors_df):
+    # assign index in main function and then just use the parking temporal
+"""def create_temporal_columns_for_sensors(sensors_df):
 
     sensors_df.index = pd.to_datetime(sensors_df['Time'])
 
@@ -269,9 +271,9 @@ def create_temporal_columns_for_sensors(sensors_df):
 
     sensors_df['season'] = sensors_df['season'].apply(convert_number_to_season_name)
 
-    return sensors_df
+    return sensors_df"""
 
-def create_total_columns_for_sensors(sensors_df):
+"""def create_total_columns_for_sensors(sensors_df):
 
     sensors_list = ["Bayerisch Eisenstein", "Brechhäuslau", "Deffernik", "Diensthüttenstraße", "Felswandergebiet",
                     "Ferdinandsthal", "Fredenbrücke", "Gfäll", "Gsenget", "Klingenbrunner Wald","Klosterfilz", "Racheldiensthütte", "Schillerstraße", "Scheuereck", "Schwarzbachbrücke", "Falkenstein 2", "Lusen 2","Lusen 3", "Waldhausreibe", "Waldspielgelände", "Wistlberg", "Bucina", "Falkenstein 1", "Lusen 1", "Trinkwassertalsperre"]
@@ -283,11 +285,12 @@ def create_total_columns_for_sensors(sensors_df):
     # For each sensor, create the 'TOTAL' column
     for sensor in sensors_list:
         sensors_df[f'{sensor} TOTAL'] = sensors_df[f'{sensor} IN'] + sensors_df[f'{sensor} OUT']
+        """
 def get_sensors_data(objects):
     # if there are multiple objects get the last mostfied one
     object_to_be_queried = objects[-1]
     # Read the parquet file from S3
-    df = wr.s3.read_parquet(f"{object_to_be_queried}")
+    df = wr.s3.read_csv(f"{object_to_be_queried}", skiprows=2)
     return df
 
 def get_visitor_centers_data(objects):
@@ -314,6 +317,57 @@ def get_parking_data_for_selected_sensor(objects, selected_sensor):
     # Read the parquet file from S3
     df = wr.s3.read_parquet(f"{object_to_be_queried}")
     return df
+import re
+
+def parse_german_dates_regex(
+    df: pd.DataFrame,
+    date_column_name: str
+) -> pd.DataFrame:
+    """
+    Parses German dates in the specified date column of the DataFrame using regex,
+    including hours and minutes if available.
+
+    Args:
+        df (pd.DataFrame): The DataFrame containing the date column.
+        date_column_name (str): The name of the date column.
+
+    Returns:
+        pd.DataFrame: The DataFrame with parsed German dates.
+    """
+    
+    # Define a mapping of German month names to their numeric values
+    month_map = {
+        "Jan.": "01",
+        "Feb.": "02",
+        "März": "03",
+        "Apr.": "04",
+        "Mai": "05",
+        "Juni": "06",
+        "Juli": "07",
+        "Aug.": "08",
+        "Sep.": "09",
+        "Okt.": "10",
+        "Nov.": "11",
+        "Dez.": "12"
+    }
+
+    # Create a regex pattern for replacing months and capturing time
+    pattern = re.compile(r'(\d{1,2})\.\s*(' + '|'.join(month_map.keys()) + r')\s*(\d{4})\s*(\d{2}):(\d{2})')
+
+    # Function to replace the month in the matched string and keep the time part
+    def replace_month(match):
+        day = match.group(1)
+        month = month_map[match.group(2)]
+        year = match.group(3)
+        hour = match.group(4)
+        minute = match.group(5)
+        return f"{year}-{month}-{day} {hour}:{minute}:00"
+
+    # Apply regex replacement and convert to datetime
+    df[date_column_name] = df[date_column_name].apply(lambda x: replace_month(pattern.search(x)) if pattern.search(x) else x)
+    df[date_column_name] = pd.to_datetime(df[date_column_name], errors='coerce')
+
+    return df
 
 def get_data_from_query(selected_category,selected_query,selected_query_type):
     """
@@ -322,14 +376,18 @@ def get_data_from_query(selected_category,selected_query,selected_query_type):
     get_values = extract_values_according_to_type(selected_query,selected_query_type)
 
     if selected_category == 'visitor_sensors':
-        selected_sensor = re.search(r'for the sensor (.+?) ', selected_query).group(1)
-        selected_property = re.search(r'What is the (.+?) ', selected_query).group(1)
-        selected_variable = f"{selected_sensor} {selected_property}"
+        #selected_sensor = re.search(r'for the sensor (.+?) ', selected_query).group(1)
+        #selected_property = re.search(r'What is the (.+?) ', selected_query).group(1)
         objects = get_files_from_aws(selected_category)
         category_df = get_sensors_data(objects)
-        totals_df = create_total_columns_for_sensors(category_df)  #needs to be worked on
-        processed_category_df = create_temporal_columns_for_sensors(category_df)
-
+        print(category_df.tail())
+        parsed_df = parse_german_dates_regex(category_df, 'Time')
+        print(parsed_df.tail())
+        #totals_df = create_total_columns_for_sensors(category_df) 
+        parsed_df = parsed_df.set_index('Time') 
+        processed_category_df = create_temporal_columns_for_parking(parsed_df)
+        print(processed_category_df.tail())
+        
     if selected_category == 'parking':
        selected_sensor = re.search(r'for the sensor (.+?) ', selected_query).group(1)
        objects = get_files_from_aws(selected_category)
