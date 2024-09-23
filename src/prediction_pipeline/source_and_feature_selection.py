@@ -171,12 +171,22 @@ dtype_dict = {
     ]
 }
 
-numeric_features = ['Tag', 'Monat', 'Hour', 'Wochentag',
-                    'Temperature (°C)', 'Relative Humidity (%)', 'Precipitation (mm)', 'Wind Speed (km/h)', 
-                    'Sunshine Duration (min)', 'ZScore_Daily_Max_Temperature (°C)', 
-                    'ZScore_Daily_Max_Relative Humidity (%)','ZScore_Daily_Max_Precipitation (mm)',
-                    'ZScore_Daily_Max_Wind Speed (km/h)','ZScore_Daily_Max_Sunshine Duration (min)',
-                    'Distance_to_Nearest_Holiday_Bayern','Distance_to_Nearest_Holiday_CZ']
+numeric_features_for_modelling = ['Temperature (°C)', 'Relative Humidity (%)', 'Wind Speed (km/h)', 'ZScore_Daily_Max_Temperature (°C)', 
+                    'ZScore_Daily_Max_Relative Humidity (%)','ZScore_Daily_Max_Wind Speed (km/h)',
+                    'Distance_to_Nearest_Holiday_Bayern','Distance_to_Nearest_Holiday_CZ','Tag_sin', 'Tag_cos', 'Monat_sin', 'Monat_cos',
+                    'Hour_sin', 'Hour_cos','Wochentag_sin', 'Wochentag_cos']
+
+categorical_features_for_modelling = ['Wochenende','Laubfärbung', 'Schulferien_Bayern', 'Schulferien_CZ', 
+                        'Feiertag_Bayern', 'Feiertag_CZ', 'HEH_geoeffnet', 'HZW_geoeffnet', 'WGM_geoeffnet', 
+                        'Lusenschutzhaus_geoeffnet', 'Racheldiensthuette_geoeffnet', 'Falkensteinschutzhaus_geoeffnet', 
+                        'Schwellhaeusl_geoeffnet','sunny', 'cloudy', 'rainy', 'snowy', 'extreme','stormy','Frühling',
+                        'Sommer', 'Herbst', 'Winter']
+
+target_vars_et = ['traffic_abs', 'sum_IN_abs', 'sum_OUT_abs', 'Lusen-Mauth-Finsterau IN', 'Lusen-Mauth-Finsterau OUT', 
+               'Nationalparkzentrum Lusen IN', 'Nationalparkzentrum Lusen OUT', 'Rachel-Spiegelau IN', 'Rachel-Spiegelau OUT', 
+               'Falkenstein-Schwellhäusl IN', 'Falkenstein-Schwellhäusl OUT', 
+               'Scheuereck-Schachten-Trinkwassertalsperre IN', 'Scheuereck-Schachten-Trinkwassertalsperre OUT', 
+               'Nationalparkzentrum Falkenstein IN', 'Nationalparkzentrum Falkenstein OUT']
 
 coco_mapping = {
     1: [1, 2],       # Clear, Fair
@@ -290,6 +300,7 @@ def apply_cliclic_tranformations(df: pd.DataFrame,cyclic_features: list) -> pd.D
     # Drop the original columns
     columns_to_drop = ['Tag', 'Monat', 'Wochentag', 'Hour']
     df = df.drop(columns=columns_to_drop)
+
     return df
 
 def standardize_numeric_features(df: pd.DataFrame, standardize_features: list) -> pd.DataFrame: 
@@ -307,35 +318,16 @@ def standardize_numeric_features(df: pd.DataFrame, standardize_features: list) -
 
     return df
 
-def process_categorical_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Convert specified categorical columns to string type."""
-    # Ensure the dataframe is not None and contains the expected columns
-    if df is None or df.empty:
-        raise ValueError("The dataframe is None or empty.")
-    
-    # List of categorical features to be converted to string type
-    categorical_features = [
-        'Wochenende', 'Jahreszeit', 'Laubfärbung', 'Schulferien_Bayern', 'Schulferien_CZ', 
-        'Feiertag_Bayern', 'Feiertag_CZ', 'HEH_geoeffnet', 'HZW_geoeffnet', 'WGM_geoeffnet', 
-        'Lusenschutzhaus_geoeffnet', 'Racheldiensthuette_geoeffnet', 'Falkensteinschutzhaus_geoeffnet', 
-        'Schwellhaeusl_geoeffnet','coco_2'
-    ]
-    
-    # Ensure each column exists in the dataframe before processing
-    for catfeature in categorical_features:
-        if catfeature in df.columns:
-            df[catfeature] = df[catfeature].astype(str)
-        else:
-            raise KeyError(f"Column '{catfeature}' not found in dataframe.")
 
-    return df
 
        
 def get_dummy_encodings(df: pd.DataFrame, columns_to_use: list) -> pd.DataFrame:
     # Create a copy of the original dataframe
     df_copy = df.copy()
 
-    # Dummy encode the columns specified in columns_to_use
+    ################ Get dummy encodings for the coco_2 column ####################
+    
+    # Dummy encode the column *coco_2*
     dummies = pd.get_dummies(df[columns_to_use[1]], drop_first=False)
 
     # check if the dummy columns are created  and if not fill the column with False
@@ -352,23 +344,33 @@ def get_dummy_encodings(df: pd.DataFrame, columns_to_use: list) -> pd.DataFrame:
                                       6.0: 'stormy'})
     df_copy = pd.concat([df_copy, dummies], axis=1)
 
+    # 
+
+    ################### dummy encodings for the Jahreszeit column ####################
+    # Dummy encode the columns *Jahreszeit*
+    season_dummies = pd.get_dummies(df[columns_to_use[0]], drop_first=False)
+    
+    for col in ['Frühling', 'Sommer', 'Herbst', 'Winter']:
+        if col not in season_dummies.columns:
+            dummies[col] = False
+    
+    df_copy = pd.concat([df_copy, season_dummies], axis=1)
+
+    # remove the original columns
+    df_copy = df_copy.drop(columns=columns_to_use)
     
     # Return the dataframe with original and new dummy-encoded columns
     return df_copy
 
 def handle_binary_values(df: pd.DataFrame) -> pd.DataFrame:
 
-    cat_columns = ['Wochenende', 'Jahreszeit', 'Laubfärbung', 'Schulferien_Bayern', 'Schulferien_CZ', 
-                        'Feiertag_Bayern', 'Feiertag_CZ', 'HEH_geoeffnet', 'HZW_geoeffnet', 'WGM_geoeffnet', 
-                        'Lusenschutzhaus_geoeffnet', 'Racheldiensthuette_geoeffnet', 'Falkensteinschutzhaus_geoeffnet', 
-                        'Schwellhaeusl_geoeffnet']
-   
     # convert the columns with True and False to 1 and 0 and convert the int64 datatype to category
-    df = df.replace({True: 1, False: 0, 'True': 1, 'False': 0})
+    df = df.replace({True: 1, False: 0})
     # convert the int64 datatype to category
     boolean_columns = df.select_dtypes(include=['int64']).columns
     # Convert these columns to categorical
     df[boolean_columns] = df[boolean_columns].astype('category')
+
     return df
 
 def remove_merge_from_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -378,40 +380,43 @@ def remove_merge_from_columns(df: pd.DataFrame) -> pd.DataFrame:
         df.columns = df.columns.str.replace('MERGED', '')
         df.columns = df.columns.str.replace('  ', ' ')
     
-    # print(df.columns)
     return df
 
 def process_transformations(df: pd.DataFrame) -> pd.DataFrame:
     """Process the transformations on the DataFrame."""
-    df = apply_cliclic_tranformations(df, cyclic_features = ['Tag', 'Monat', 'Wochentag'])
+    df = apply_cliclic_tranformations(df, cyclic_features = ['Tag','Hour', 'Monat', 'Wochentag'])
     df = standardize_numeric_features(df, standardize_features = ['Temperature (°C)', 'Relative Humidity (%)', 'Wind Speed (km/h)',
                                                                   'Distance_to_Nearest_Holiday_Bayern','Distance_to_Nearest_Holiday_CZ'])
     df = get_dummy_encodings(df, columns_to_use = ['Jahreszeit', 'coco_2'])
-    df = process_categorical_features(df)
     df = handle_binary_values(df)
 
     return df
+
+def filter_features_for_modelling(df: pd.DataFrame) -> pd.DataFrame:
+    """Filter the features for modelling."""
+    # Filter the features for modelling
+    df = df[numeric_features_for_modelling + categorical_features_for_modelling + target_vars_et]
+
+    return df
+
 
 
 def get_features():
 
     sourced_df = load_csv_files_from_aws_s3(path=source_train_path) 
     sliced_df = sourced_df[(sourced_df['Time'] >= start_date) & (sourced_df['Time'] <= end_date)]
-
     removed_merged_df = remove_merge_from_columns(sliced_df)
     regionwise_df = get_regionwise_IN_and_OUT_columns(removed_merged_df)
     df_delta_newfeatures = load_csv_files_from_aws_s3(path=delta_calculations_path)
     merged_df = merge_new_features(regionwise_df, df_delta_newfeatures)
     changed_datatypes_df = change_datatypes(merged_df, dtype_dict)
     processed_features_df = process_transformations(changed_datatypes_df)
+    filtered_features_df = filter_features_for_modelling(processed_features_df)
 
-    # # save the processed features as csc in local
-    # processed_features_df.to_csv('processed_features.csv')
+    # # save the filtered_df as csv
+    # filtered_features_df.to_csv('processed_new_features.csv')
 
-    return processed_features_df
-
-if __name__ == "__main__":
-    get_features()
+    return filtered_features_df
 
 
 
