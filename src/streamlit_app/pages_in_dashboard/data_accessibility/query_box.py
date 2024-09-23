@@ -5,39 +5,6 @@ import datetime
 from src.streamlit_app.pages_in_dashboard.data_accessibility.data_retrieval import get_data_from_query
 from src.streamlit_app.pages_in_dashboard.data_accessibility.query_viz_and_download import get_visualization_section
 
-"""
-Module for creating a Streamlit application that allows users to query environmental data.
-
-This module provides functionality for users to select data categories, date ranges, 
-and various filters. It generates specific queries based on user input and retrieves 
-data from a data source. Additionally, it visualizes the retrieved data.
-
-Functions:
-- select_category: Allows users to select a data category from a dropdown.
-- select_date: Enables users to select start and end dates for data retrieval.
-- select_filters: Provides options for selecting additional filters such as months, seasons, 
-  properties, and sensors based on the selected category.
-- get_queries_for_parking: Generates queries for parking data based on user selections.
-- get_queries_for_weather: Generates queries for weather data based on user selections.
-- get_queries_for_visitor_centers: Generates queries for visitor center data based on user selections.
-- get_queries_for_visitor_sensors: Generates queries for visitor sensor data based on user selections.
-- generate_queries: Central function to generate queries based on the selected category and filters.
-- get_query_section: Displays the user interface for querying data and executing selected queries.
-
-Usage:
-1. The user interface is created using Streamlit, allowing users to select categories, dates, 
-   and filters through dropdowns and input fields.
-2. The `get_query_section()` function integrates the querying process and handles user input.
-3. Users can execute selected queries to retrieve data and visualize the results.
-
-Dependencies:
-- streamlit: For building the web application interface.
-- awswrangler: For data retrieval from AWS S3.
-- datetime: For handling date-related operations.
-
-Note:
-Ensure that necessary AWS credentials and permissions are configured to access the required data sources.
-"""
 
 def select_category():
     """
@@ -440,7 +407,7 @@ def generate_queries(category, start_date, end_date, months, seasons, selected_p
     return queries
 
 def get_query_section():
-
+    
     """
     Get the query section for data selection and execution.
 
