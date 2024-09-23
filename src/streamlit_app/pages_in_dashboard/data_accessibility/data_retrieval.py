@@ -351,7 +351,7 @@ def get_visitor_centers_data(objects):
     # if there are multiple objects get the last mostfied one
     object_to_be_queried = objects[-1]
     # Read the parquet file from S3
-    df = wr.s3.read_parquet(f"{object_to_be_queried}")
+    df = wr.s3.read_excel(f"{object_to_be_queried}", skipfooter=1)
     return df
 
 def get_weather_data(objects):
@@ -448,7 +448,7 @@ def get_data_from_query(selected_category,selected_query,selected_query_type):
         ValueError: If the selected category is not recognized.
         KeyError: If the expected values are not found in the query.
     """
-    
+
     get_values = extract_values_according_to_type(selected_query,selected_query_type)
 
     if selected_category == 'visitor_sensors':
