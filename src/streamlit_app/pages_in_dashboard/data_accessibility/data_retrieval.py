@@ -1,8 +1,26 @@
+
+# import the required libraries
 import streamlit as st
 import pandas as pd
 import awswrangler as wr
 import re
 
+################################################################################################################
+"""
+This script retrieves and processes various types of environmental and visitor-related data
+from AWS S3 using the AWS Wrangler library. It defines multiple functions to handle
+data extraction, transformation, and querying based on user-defined queries.
+
+Functions include:
+- Fetching data for visitor sensors, parking, weather, and visitor centers.
+- Converting numerical month representations to names.
+- Extracting values from queries based on defined types.
+- Creating additional temporal columns (month, year, season) in DataFrames.
+- Creating a DataFrame containing processed data and filtering it based on user-defined queries.
+
+Note: Ensure the necessary AWS credentials and permissions are configured to access the S3 bucket.
+"""
+################################################################################################################
 
 bucket = "dssgx-munich-2024-bavarian-forest"
 
@@ -23,11 +41,6 @@ Structure:
 Usage:
 - When generating a query, refer to the corresponding template string and replace the placeholders with actual values.
 - When extracting values from a generated query, use the list of field names to identify and retrieve the required information.
-
-Example:
-For 'type2':
-Template: "What is the property value for the sensor sensor for the month of month (year)?"
-Field names: ['property', 'sensor', 'month', 'year']
 """
 
 query_types = {
@@ -341,20 +354,66 @@ def create_temporal_columns(df):
     return df
 
 def get_sensors_data(objects):
-    # if there are multiple objects get the last mostfied one
+    """Fetches sensor data from the most recently modified object.
+
+    This function retrieves the sensor data from a specified object
+    in S3 by reading a CSV file. It selects the last object from
+    the provided list of objects, assuming this is the most recently
+    modified.
+
+    Args:
+        objects (list): A list of S3 object paths, where the last
+            object is the most recently modified.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing the sensor data read
+        from the CSV file.
+    """
+    # if there are multiple objects get the last modified one
     object_to_be_queried = objects[-1]
-    # Read the parquet file from S3
+    # Read the csv file from S3. Skips the first two rows, which are headers
     df = wr.s3.read_csv(f"{object_to_be_queried}", skiprows=2)
     return df
-
 def get_visitor_centers_data(objects):
-    # if there are multiple objects get the last mostfied one
+    """Fetches visitor centers data from the most recently modified object.
+
+    This function retrieves visitor centers data from a specified object
+    in S3 by reading an Excel file. It selects the last object from
+    the provided list of objects, assuming this is the most recently
+    modified.
+
+    Args:
+        objects (list): A list of S3 object paths, where the last
+            object is the most recently modified.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing the visitor centers
+        data read from the Excel file.
+    """
+    # if there are multiple objects get the last modified one
     object_to_be_queried = objects[-1]
-    # Read the parquet file from S3
+    # Read the excel file from S3 skipping the last row which is a NaN row. Probably this would have to be dropped if data quality check is implemented
     df = wr.s3.read_excel(f"{object_to_be_queried}", skipfooter=1)
     return df
 
 def get_weather_data(objects):
+
+    """Fetches weather data from the most recently modified object.
+
+    This function retrieves weather data from a specified object
+    in S3 by reading an Parquet file. It selects the last object from
+    the provided list of objects, assuming this is the most recently
+    modified.
+
+    Args:
+        objects (list): A list of S3 object paths, where the last
+            object is the most recently modified.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing the weather
+        data read from the Parquet file.
+    """
+
     # if there are multiple objects get the last mostfied one
     object_to_be_queried = objects[-1]
     # Read the parquet file from S3
@@ -362,16 +421,40 @@ def get_weather_data(objects):
     return df
 
 def get_parking_data_for_selected_sensor(objects, selected_sensor):
+
+    """Fetches parking data for a specified sensor from S3.
+
+    This function searches through a list of S3 object paths to find
+    the most relevant object that contains the specified sensor name.
+    It then retrieves the parking data from the corresponding Parquet file.
+
+    Args:
+        objects (list): A list of S3 object paths to search for the
+            selected sensor.
+        selected_sensor (str): The name of the sensor to filter the
+            objects.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing the parking data read
+        from the Parquet file.
+
+    Raises:
+        ValueError: If the selected sensor is not found in any object.
+    """
     object_to_be_queried = None
     for obj in objects:
         # check if the selected sensor string is in the chosen object
         if selected_sensor in obj:
             object_to_be_queried = obj
+            break  # Exit loop after finding the first match
+
+    if object_to_be_queried is None:
+        raise ValueError(f"Selected sensor '{selected_sensor}' not found in any objects.")
 
     # Read the parquet file from S3
     df = wr.s3.read_parquet(f"{object_to_be_queried}")
     return df
-import re
+
 
 def parse_german_dates_regex(
     df: pd.DataFrame,
@@ -452,17 +535,12 @@ def get_data_from_query(selected_category,selected_query,selected_query_type):
     get_values = extract_values_according_to_type(selected_query,selected_query_type)
 
     if selected_category == 'visitor_sensors':
-        #selected_sensor = re.search(r'for the sensor (.+?) ', selected_query).group(1)
-        #selected_property = re.search(r'What is the (.+?) ', selected_query).group(1)
+
         objects = get_files_from_aws(selected_category)
         category_df = get_sensors_data(objects)
-        print(category_df.tail())
         parsed_df = parse_german_dates_regex(category_df, 'Time')
-        print(parsed_df.tail())
-        #totals_df = create_total_columns_for_sensors(category_df) 
         parsed_df = parsed_df.set_index('Time') 
         processed_category_df = create_temporal_columns(parsed_df)
-        print(processed_category_df.tail())
         
     if selected_category == 'parking':
        selected_sensor = re.search(r'for the sensor (.+?) ', selected_query).group(1)
