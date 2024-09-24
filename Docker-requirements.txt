@@ -9,3 +9,4 @@ ydata-profiling
 pyarrow
 toml
 pycaret
+openpyxl
