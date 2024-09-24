@@ -463,9 +463,6 @@ def preprocess_visitor_count_data(visitor_counts: pd.DataFrame) -> pd.DataFrame:
 
     df_traffic_metrics.reset_index(inplace=True)
 
-    # save the dataframe as a csv
-    df_traffic_metrics.to_csv('test_preprocess.csv', index=True)
-
     print("\nVisitor sensors data is preprocessed and overall traffic metrics were created! \n")
 
     return df_traffic_metrics
