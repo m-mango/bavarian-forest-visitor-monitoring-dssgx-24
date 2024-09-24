@@ -23,6 +23,7 @@ The result is a processed DataFrame ready for further analysis or modeling.
 """
 
 weather_columns_for_zscores = ['Temperature (°C)', 'Relative Humidity (%)', 'Wind Speed (km/h)']
+window_size_for_zscores = 5
 
 def join_inference_data(weather_data_inference, visitor_centers_data):
 
@@ -62,8 +63,8 @@ def source_preprocess_inference_data():
     Returns:
         pd.DataFrame: DataFrame containing preprocessed inference data.
     """
-
-    weather_data_inference = source_weather_data(start_time = datetime.now() - pd.Timedelta(days=10), #get 5 days before now to calculate zscores
+    #get weather for previous 10 days to calculate zscores
+    weather_data_inference = source_weather_data(start_time = datetime.now() - pd.Timedelta(days=10), 
                                                  end_time = datetime.now() + pd.Timedelta(days=7))
 
     visitor_center_data = source_visitor_center_data()
@@ -75,8 +76,12 @@ def source_preprocess_inference_data():
 
     inference_data_with_daily_max = add_daily_max_values(inference_data_with_distances, weather_columns_for_zscores)
 
-    inference_data_with_new_features = add_moving_z_scores(inference_data_with_daily_max, weather_columns_for_zscores, 5)
+    inference_data_with_new_features = add_moving_z_scores(inference_data_with_daily_max, 
+                                                           weather_columns_for_zscores, 
+                                                           window_size_for_zscores)
 
-    inference_data_with_new_features = inference_data_with_new_features[inference_data_with_new_features["Time"] >= datetime.now()]
+    inference_data_with_new_features = inference_data_with_new_features[
+                                        inference_data_with_new_features["Time"] >= datetime.now()
+                                        ]
 
     return inference_data_with_new_features
