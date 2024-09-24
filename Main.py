@@ -35,8 +35,8 @@ def create_dashboard_main_page(processed_weather_data, processed_parking_data):
     with col1:
 
         # Display the logo and title of the column
-        logo = Image.open("src/streamlit_app/assets/bf_logo2.png")
-        st.image(logo, width=100)
+        logo = Image.open("src/streamlit_app/assets/logo-bavarian-forest-national-park.png")
+        st.image(logo, width=300)
         st.title("Plan Your Trip to the Bavarian Forest 🌲")
 
         # Get the visitor count section
