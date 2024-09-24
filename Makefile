@@ -20,7 +20,7 @@ run:
 		-t $(IMAGE_NAME)
 
 # Run the Docker container
-run bash:
+bash:
 	docker run \
 		-v $(REPO_PATH):/app \
 		-v $(AWS_CREDENTIALS_PATH):/root/.aws \
@@ -30,4 +30,7 @@ run bash:
 		-it --entrypoint /bin/bash $(IMAGE_NAME)
 
 # Combined build and run
-all: build run
+streamlit: build run
+
+# Combined build and bash
+container: build bash
