@@ -5,10 +5,11 @@ from pycaret.time_series import *
 from pycaret.regression import *
 import os
 import awswrangler as wr
+import uuid
 
 
-save_path_models = 'models/models_trained/'
-save_path_predictions = 'models/inference_data_outputs/'
+save_path_models = 'models/models_trained'
+save_path_predictions = 'models/test_data_predictions'
 local_path = os.path.join('outputs','models_trained')
 bucket_name = 'dssgx-munich-2024-bavarian-forest'
 
@@ -30,25 +31,44 @@ categorical_features = ['Wochenende','Laubfärbung', 'Schulferien_Bayern', 'Schu
                         'Schwellhaeusl_geoeffnet','sunny', 'cloudy', 'rainy', 'snowy', 'extreme','stormy','Frühling',
                         'Sommer', 'Herbst', 'Winter']
 
+def create_uuid() -> str:
+    """Creates a unique identifier string.
 
+    Returns:
+        str: A unique identifier string.
+    """
+    unique_id = str(uuid.uuid4())
 
-def save_predictions_to_aws_s3(df: pd.DataFrame, save_path_predictions: str, filename: str) -> pd.DataFrame:
+    return unique_id
+
+def save_predictions_to_aws_s3(df: pd.DataFrame, save_path_predictions: str, filename: str, uuid: str) -> None:
     """Writes an individual CSV file to AWS S3.
 
     Args:
         df (pd.DataFrame): The DataFrame to write.
-        path (str): The path to the CSV files on AWS S3.
-        **kwargs: Additional arguments to pass to the to_csv function.
+        save_path_predictions (str): The path to the CSV files on AWS S3.
+        filename (str): The name of the CSV file.
+        uuid (str): The unique identifier string.
+
+    Returns:
+        None
     """
 
-    wr.s3.to_parquet(df, path=f"s3://{bucket_name}/{save_path_predictions}{filename}",index= True)
+    aws_s3_path = f"s3://{bucket_name}/{save_path_predictions}/{uuid}/{filename}"
+
+    wr.s3.to_parquet(df, path=aws_s3_path,index= True)
+    print(f"Predictions for test data saved in AWS S3 under {aws_s3_path}")
     return
 
-def save_models_to_aws_s3(model, save_path_models, model_name, local_path):
-    """Save the model to AWS S3
+def save_models_to_aws_s3(model, save_path_models: str, model_name: str, local_path: str, uuid: str) -> None:
+    """Save the model to AWS S3.
 
     Args:
-        model: The model to save
+        model: The model to save.
+        save_path_models (str): The path to the CSV files on AWS S3.
+        model_name (str): The name of the model.
+        local_path (str): The local path to the model.
+        uuid (str): The unique identifier string.
 
     Returns:
         None
@@ -61,12 +81,16 @@ def save_models_to_aws_s3(model, save_path_models, model_name, local_path):
     save_model_path = os.path.join(local_path, model_name)
     save_model(model, save_model_path)
 
-    save_path_aws = os.path.join(f"s3://{bucket_name}/", save_path_models, f"{model_name}.pkl")
+    save_path_aws = f"s3://{bucket_name}/{save_path_models}/{uuid}/{model_name}.pkl"
 
     wr.s3.upload(f"{save_model_path}.pkl",save_path_aws)
+    print(f"Model saved in AWS S3 under {save_path_aws}")
     return
 
 def train_regressor():
+
+    uuid = create_uuid()
+    print(f"Training Regressor with Run ID: {uuid}")
 
     feature_dataframe = get_features()
 
@@ -105,12 +129,12 @@ def train_regressor():
             
             # save the model in aws s3
             save_models_to_aws_s3(extra_trees_model, save_path_models, 
-                                  f"extra_trees_{target}",local_path)
+                                  f"extra_trees_{target}",local_path, uuid)
             print(f"Model with {target} saved to AWS S3")
             
             # save predictions to aws s3
-            file_name = f"predictions_{target}.parquet"
-            save_predictions_to_aws_s3(predictions, save_path_predictions,file_name)
+            file_name = f"y_test_predicted_{target}.parquet"
+            save_predictions_to_aws_s3(predictions, save_path_predictions,file_name, uuid)
             print(f"Predictions with {target} saved to AWS S3")
     return
 if __name__ == "__main__":
