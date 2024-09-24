@@ -92,7 +92,7 @@ def train_regressor():
                             numeric_features=numeric_features, 
                             categorical_features=categorical_features,
                             fold=5,
-                            preprocess=False,
+                            preprocess=True,
                             data_split_shuffle=False,  # Do not shuffle data to maintain date order
                             session_id=123,
                             train_size=0.9)  # Use 90% of data for training 
