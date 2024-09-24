@@ -261,11 +261,37 @@ By carefully processing the weather data, we ensured it was well-prepared for in
 
 #### Visitor Center Data Preprocessing
 
-*(Placeholder: Add details about the cleaning and preprocessing steps for visitor center data here.)*
+The uncleaned administrative file, “national-park-vacation-times-houses-opening-
+times.xlsx,” was loaded for cleaning. First, the data types of each column were 
+adjusted to their appropriate types for modeling at a later stage. For instance, 
+columns with true/false values were converted to 0s and 1s, then transformed to 
+‘category’ type.
 
-#### Parking Data Preprocessing
+Next, additional columns for temporal features were created. This included 
+generating columns for the month, day, and year using the date index, updating the
+day of the week (Wochentag) column to fill in missing values, and creating columns
+to indicate whether the day falls on a weekend (Wochenende) and the season 
+(Jahreszeit).
 
-*(Placeholder: Add details about the cleaning and preprocessing steps for parking data here.)*
+After additional variables were created, each column was scanned for clerical 
+errors from manual data entry. During this process, a duplicate date  was identified
+and corrected (two instances of 9/29/2021 in the Datum column, with one changed 
+to 9/29/2023). The school holiday binary variable (Schulferien_Bayern) had a value 
+of ‘10,’ which was changed to ‘0’ after verifying the date of this holiday. 
+
+Similarly, the WGM_geoffnet binary variable (indicating whether the visitor center was open 
+or closed) had a value of ‘11,’ which was adjusted to 1. Some visitor counts in the 
+Besuchszahlen_HEH column contained decimals after a certain date, and these 
+counts were rounded up to the nearest whole number. Extreme outliers were 
+addressed by identifying visitor counts at the centers that were +/- 7 standard 
+deviations from the column mean, which were replaced with NaN values. Finally, 
+the very last row was removed from the data frame, as the row only contained 
+missing values.
+
+Two cleaned versions of the visitor center data were then saved—one at the daily 
+level and another at the hourly level. The hourly-level visitor center data was 
+eventually joined with other datasets that had temporal granularity at the hourly 
+level for modeling.
 
 ### Data Integration
 
