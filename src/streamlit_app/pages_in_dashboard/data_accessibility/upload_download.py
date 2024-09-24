@@ -164,7 +164,7 @@ def get_upload_and_download_section():
             with col_upload:
                 # Confirm button (aligned to the right side, bigger size)
                 upload_confirm = st.button(
-                    label="Confirm Upload",
+                    label=":green[Confirm Upload]",
                     disabled=not uploaded_file,
                     help="Review the data before confirming upload",
                 )
@@ -207,7 +207,7 @@ def get_upload_and_download_section():
             if selected_file:
                 # Preview button (enabled only when a file is selected)
                 preview_confirm = st.button(
-                    label="Preview Data",
+                    label=":green[Preview Data]",
                     disabled=not selected_file,
                     help="Preview the data before confirming download"
                 )

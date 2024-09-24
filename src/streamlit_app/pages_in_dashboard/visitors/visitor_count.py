@@ -45,7 +45,7 @@ def get_visitor_counts_section():
     days_list = predicted_df['day_date'].unique()
 
     # Add a note that this is forecasted data
-    st.markdown("*The following data represents forecasted visitor traffic.*")
+    st.markdown(":green[*The following data represents forecasted visitor traffic.*].")
 
     # Get radio button for selecting the day
     day_selected = st.radio(
