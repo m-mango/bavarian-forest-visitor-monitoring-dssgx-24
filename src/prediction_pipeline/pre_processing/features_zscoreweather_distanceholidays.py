@@ -1,9 +1,7 @@
 
 # Import libraries
 import pandas as pd
-import matplotlib.pyplot as plt
 import awswrangler as wr
-import boto3
 import numpy as np
 
 ##############################################################################################
@@ -11,29 +9,11 @@ import numpy as np
 # GLOBAL VARIABLES
 
 bucket = "dssgx-munich-2024-bavarian-forest"
-raw_data_folder = "raw-data"
-preprocessed_data_folder = "preprocessed_data"
-joined_data_aws_path = "s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/joined_sensor_weather_visitorcenter_2016-2024.csv"
-aws_credentials='aisha_younas_fellow_dssgx_24'
 output_file_name = "holidays_deltaweather_features_df.csv"
 output_data_folder = "preprocessed_data"
 
-weather_columns = [ #define the columns that will be used to calculate z-scores
-    'Temperature (°C)',
-    'Relative Humidity (%)',
-    'Precipitation (mm)',
-    'Wind Speed (km/h)',
-    'Sunshine Duration (min)'
-]
-
 window_size = 120 # Define the window size in hours that you wish to use to calculate z-scores
 
-##############################################################################################
-
-# Set up AWS credentials
-boto3.setup_default_session(profile_name=aws_credentials)
-
-##############################################################################################
 
 # Functions
 def load_csv_files_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
@@ -217,29 +197,30 @@ def write_csv_file_to_aws_s3(df: pd.DataFrame, path: str, **kwargs) -> pd.DataFr
 
 ##############################################################################################
 
-def main():
+def get_zscores_and_nearest_holidays(df,columns_for_zscores):
 
-    df = load_csv_files_from_aws_s3(
-        path=joined_data_aws_path)
-    
+        # Reset the index, converting the index back into a 'Time' column
+    df.reset_index(inplace=True)
+
+    # Optionally, rename the index column to 'Time' if it's not automatically renamed
+    df.rename(columns={'index': 'Time'}, inplace=True)
+ 
     df_no_null = slice_at_first_non_null(df)
 
     df_holidays = add_nearest_holiday_distance(df_no_null)
 
-    df_daily_max = add_daily_max_values(df_holidays, weather_columns)
+    df_daily_max = add_daily_max_values(df_holidays, columns_for_zscores)
 
-    df_zscores = add_moving_z_scores(df_daily_max, weather_columns, window_size)
+    df_zscores_and_nearest_holidays = add_moving_z_scores(df_daily_max, columns_for_zscores, window_size)
  
     write_csv_file_to_aws_s3(
-    df=df_zscores,
-    path=f"s3://{bucket}/{output_data_folder}/{output_file_name}",
-    index=False
+                        df=df_zscores_and_nearest_holidays,
+                        path=f"s3://{bucket}/{output_data_folder}/{output_file_name}",
+                        index=False
     )
 
     print("Dataset with new features (distance to holidays, weather z-scores) uploaded to AWS succesfully!")
     
-if __name__ == "__main__":
-    main()
-
+    return df_zscores_and_nearest_holidays
 
 
