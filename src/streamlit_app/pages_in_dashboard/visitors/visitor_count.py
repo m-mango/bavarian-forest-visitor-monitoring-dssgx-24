@@ -24,7 +24,7 @@ def get_visitor_counts_section():
     Returns:
         None
     """
-    st.markdown("## Visitor Counts (Forecasted) 🚶🚶‍♀️")
+    st.markdown("## Popular Times")
 
     # Load the predicted data from the AWS S3 bucket
     path = f"s3://{bucket}/{preprocessed_data_folder}/predicted_traffic_for_dashboard.csv"
@@ -47,10 +47,15 @@ def get_visitor_counts_section():
     # Add a note that this is forecasted data
     st.markdown(":green[*The following data represents forecasted visitor traffic.*].")
 
-    # Get radio button for selecting the day
-    day_selected = st.radio(
-        label='Select a day', options=days_list, index=0
-    )
+    col1, col2 = st.columns([1, 3])
+
+    with col1:
+        st.write("")
+        st.write("")
+        # Get radio button for selecting the day
+        day_selected = st.radio(
+            label='Select a day', options=days_list, index=0
+        )
 
     # Extract the selected day for filtering (using date)
     day_df = predicted_df[predicted_df['day_date'] == day_selected]
@@ -104,6 +109,7 @@ def get_visitor_counts_section():
         lambda t: t.update(name={'red': 'Peak Traffic', 'green': 'Low Traffic', 'blue': 'Moderate Traffic'}[t.name])
     )
 
-    # Display the interactive bar chart for relative traffic
-    st.plotly_chart(fig1)
+    with col2:
+        # Display the interactive bar chart for relative traffic
+        st.plotly_chart(fig1)
 
