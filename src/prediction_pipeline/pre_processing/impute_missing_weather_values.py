@@ -119,5 +119,3 @@ def fill_missing_values(data, parameters):
                 print(f'Missing values in {parameter} column filled using linear interpolation')
 
     return data
-
-

@@ -14,7 +14,7 @@ bucket = "dssgx-munich-2024-bavarian-forest"
 raw_data_folder = "raw-data"
 preprocessed_data_folder = "preprocessed_data"
 joined_data_aws_path = "s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/joined_sensor_weather_visitorcenter_2016-2024.csv"
-aws_credentials='patricio_ferreira_fellow_dssgx_24'
+aws_credentials='aisha_younas_fellow_dssgx_24'
 output_file_name = "holidays_deltaweather_features_df.csv"
 output_data_folder = "preprocessed_data"
 
