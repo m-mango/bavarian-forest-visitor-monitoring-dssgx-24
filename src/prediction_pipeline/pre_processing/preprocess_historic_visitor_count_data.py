@@ -15,13 +15,10 @@ Output:
 #import libraries
 
 import pandas as pd
-import locale
-import glob
-import chardet
+import re
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
 import awswrangler as wr
-import boto3
+from src.prediction_pipeline.sourcing_data.source_historic_visitor_count import source_historic_visitor_count
 pd.options.mode.chained_assignment = None  
 
 
@@ -29,147 +26,26 @@ pd.options.mode.chained_assignment = None
 #GLOBAL VARIABLES
 ###########################################################################################
 
-aws_profile = "aisha_younas_fellow_dssgx_24" #add here your credentials
-raw_data_folder = "raw-data"
-visitor_counts_folder = "hourly-historic-visitor-counts-all-sensors"
 bucket = "dssgx-munich-2024-bavarian-forest"
 output_data_folder = "preprocessed_data"
 output_file_name = "preprocessed_visitor_sensor_data.csv"
 
-# needed columns across all dfs 
-common_columns = ['Time',
- 'Bayerisch Eisenstein IN',
- 'Bayerisch Eisenstein OUT',
- 'Bayerisch Eisenstein Fußgänger IN',
- 'Bayerisch Eisenstein Fußgänger OUT',
- 'Bayerisch Eisenstein Fahrräder IN',
- 'Bayerisch Eisenstein Fahrräder OUT',
- 'Brechhäuslau IN',
- 'Brechhäuslau OUT',
- 'Brechhäuslau Fußgänger IN',
- 'Brechhäuslau Fußgänger OUT',
- 'Bucina IN',
- 'Bucina OUT',
- 'Bucina_Multi OUT',
- 'Bucina_Multi Fußgänger IN',
- 'Bucina_Multi Fahrräder IN',
- 'Bucina_Multi Fahrräder OUT',
- 'Bucina_Multi Fußgänger OUT',
- 'Deffernik IN',
- 'Deffernik OUT',
- 'Deffernik Fahrräder IN',
- 'Deffernik Fahrräder OUT',
- 'Deffernik Fußgänger IN',
- 'Deffernik Fußgänger OUT',
- 'Diensthüttenstraße Fußgänger IN',
- 'Diensthüttenstraße Fußgänger OUT',
- 'Felswandergebiet IN',
- 'Felswandergebiet OUT',
- 'Ferdinandsthal IN',
- 'Ferdinandsthal OUT',
- 'Fredenbrücke Fußgänger IN',
- 'Fredenbrücke Fußgänger OUT',
- 'Gfäll Fußgänger IN',
- 'Gfäll Fußgänger OUT',
- 'Gsenget IN',
- 'Gsenget OUT',
- 'Gsenget IN.1',
- 'Gsenget OUT.1',
- 'Gsenget Fahrräder IN',
- 'Gsenget Fahrräder OUT',
- 'Klingenbrunner Wald IN',
- 'Klingenbrunner Wald OUT',
- 'Klingenbrunner Wald Fußgänger IN',
- 'Klingenbrunner Wald Fußgänger OUT',
- 'Klingenbrunner Wald Fahrräder IN',
- 'Klingenbrunner Wald Fahrräder OUT',
- 'Klosterfilz IN',
- 'Klosterfilz OUT',
- 'Klosterfilz Fußgänger IN',
- 'Klosterfilz Fußgänger OUT',
- 'Klosterfilz Fahrräder IN',
- 'Klosterfilz Fahrräder OUT',
- 'NPZ_Falkenstein IN',
- 'NPZ_Falkenstein OUT',
- 'Racheldiensthütte IN',
- 'Racheldiensthütte OUT',
- 'Racheldiensthütte Fahrräder IN',
- 'Racheldiensthütte Cyclist OUT',
- 'Racheldiensthütte Pedestrian IN',
- 'Racheldiensthütte Pedestrian OUT',
- 'Sagwassersäge Fußgänger IN',
- 'Sagwassersäge Fußgänger OUT',
- 'Scheuereck IN',
- 'Scheuereck OUT',
- 'Schillerstraße IN',
- 'Schillerstraße OUT',
- 'Schwarzbachbrücke Fußgänger IN',
- 'Schwarzbachbrücke Fußgänger OUT',
- 'TFG_Falkenstein_1 Fußgänger zum Parkplatz',
- 'TFG_Falkenstein_1 Fußgänger zum HZW',
- 'TFG_Falkenstein_2 Fußgänger In Richtung Parkplatz',
- 'TFG_Falkenstein_2 Fußgänger In Richtung TFG',
- 'TFG_Lusen IN',
- 'TFG_Lusen OUT',
- 'TFG_Lusen_1 Fußgänger Richtung TFG',
- 'TFG_Lusen_1 Fußgänger Richtung Parkplatz',
- 'TFG_Lusen_2 Fußgänger Richtung Vögel am Waldrand',
- 'TFG_Lusen_2 Fußgänger Richtung Parkplatz',
- 'TFG_Lusen_3 TFG Lusen 3 IN',
- 'TFG_Lusen_3 TFG Lusen 3 OUT',
- 'Trinkwassertalsperre IN',
- 'Trinkwassertalsperre OUT',
- 'Trinkwassertalsperre_MULTI IN',
- 'Trinkwassertalsperre_MULTI OUT',
- 'Trinkwassertalsperre_MULTI Fußgänger IN',
- 'Trinkwassertalsperre_MULTI Fußgänger OUT',
- 'Trinkwassertalsperre_MULTI Fahrräder IN',
- 'Trinkwassertalsperre_MULTI Fahrräder OUT',
- 'Waldhausreibe IN',
- 'Waldhausreibe OUT',
- 'Waldhausreibe Channel 1 IN',
- 'Waldhausreibe Channel 2 OUT',
- 'Waldspielgelände_1 IN',
- 'Waldspielgelände_1 OUT',
- 'Wistlberg Fußgänger IN',
- 'Wistlberg Fußgänger OUT']
 
 ##############################################################################################
 
 # Setting up AWS
 
-boto3.setup_default_session(profile_name=aws_profile) 
-
-
-##############################################################################################
-
-# Sourcing
-
-def load_csv_files_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
-    """Loads individual or multiple CSV files from an AWS S3 bucket.
-
-    Args:
-        path (str): The path to the CSV files on AWS S3.
-        **kwargs: Additional arguments to pass to the read_csv function.
-
-    Returns:
-        pd.DataFrame: The DataFrame containing the data from the CSV files.
-    """
-
-    df = wr.s3.read_csv(path=path, **kwargs)
-    return df
-
-##############################################################################################
-        
-
+# boto3.setup_default_session(profile_name=aws_profile) 
+    
 # Functions
 
 def parse_german_dates(
     df: pd.DataFrame,
     date_column_name: str
-    ) -> pd.DataFrame:
+) -> pd.DataFrame:
     """
-    Parses German dates in the specified date column of the DataFrame.
+    Parses German dates in the specified date column of the DataFrame using regex,
+    including hours and minutes if available.
 
     Args:
         df (pd.DataFrame): The DataFrame containing the date column.
@@ -179,31 +55,37 @@ def parse_german_dates(
         pd.DataFrame: The DataFrame with parsed German dates.
     """
     
-    # Set German locale
-    locale.setlocale(locale.LC_TIME, "de_DE.UTF-8")
-    
-    # Mapping of German month names to their English equivalents
+    # Define a mapping of German month names to their numeric values
     month_map = {
-        "Jan.": "Jan",
-        "Feb.": "Feb",
-        "März": "Mar",
-        "Apr.": "Apr",
-        "Mai": "May",
-        "Juni": "Jun",
-        "Juli": "Jul",
-        "Aug.": "Aug",
-        "Sep.": "Sep",
-        "Okt.": "Oct",
-        "Nov.": "Nov",
-        "Dez.": "Dec"
+        "Jan.": "01",
+        "Feb.": "02",
+        "März": "03",
+        "Apr.": "04",
+        "Mai": "05",
+        "Juni": "06",
+        "Juli": "07",
+        "Aug.": "08",
+        "Sep.": "09",
+        "Okt.": "10",
+        "Nov.": "11",
+        "Dez.": "12"
     }
 
-    # Replace German month names with English equivalents
-    for german, english in month_map.items():
-        df[date_column_name] = df[date_column_name].str.replace(german, english)
+    # Create a regex pattern for replacing months and capturing time
+    pattern = re.compile(r'(\d{1,2})\.\s*(' + '|'.join(month_map.keys()) + r')\s*(\d{4})\s*(\d{2}):(\d{2})')
 
-    # Parse the dates
-    df[date_column_name] = pd.to_datetime(df[date_column_name], format="mixed")
+    # Function to replace the month in the matched string and keep the time part
+    def replace_month(match):
+        day = match.group(1)
+        month = month_map[match.group(2)]
+        year = match.group(3)
+        hour = match.group(4)
+        minute = match.group(5)
+        return f"{year}-{month}-{day} {hour}:{minute}:00"
+
+    # Apply regex replacement and convert to datetime
+    df[date_column_name] = df[date_column_name].apply(lambda x: replace_month(pattern.search(x)) if pattern.search(x) else x)
+    df[date_column_name] = pd.to_datetime(df[date_column_name], errors='coerce')
 
     return df
 
@@ -559,12 +441,7 @@ def write_csv_file_to_aws_s3(df: pd.DataFrame, path: str, **kwargs) -> pd.DataFr
     wr.s3.to_csv(df, path=path, **kwargs)
     return
 
-def source_and_preprocess_visitor_count_data():
-
-    visitor_counts = load_csv_files_from_aws_s3(
-    path=f"s3://{bucket}/{raw_data_folder}/{visitor_counts_folder}/*.csv",
-    skiprows=2,
-    usecols = common_columns)
+def preprocess_visitor_count_data(visitor_counts: pd.DataFrame) -> pd.DataFrame:
 
     visitor_counts_parsed_dates = parse_german_dates(df=visitor_counts, date_column_name="Time")
     # Remove data before 2016-05-10 03:00:00 as there were no sensors installed
@@ -586,11 +463,9 @@ def source_and_preprocess_visitor_count_data():
 
     df_traffic_metrics.reset_index(inplace=True)
 
+    # save the dataframe as a csv
+    df_traffic_metrics.to_csv('test_preprocess.csv', index=True)
+
     print("\nVisitor sensors data is preprocessed and overall traffic metrics were created! \n")
 
     return df_traffic_metrics
-
-    """write_csv_file_to_aws_s3(
-    df=df_traffic_metrics,
-    path=f"s3://{bucket}/{output_data_folder}/{output_file_name}",
-    )"""
