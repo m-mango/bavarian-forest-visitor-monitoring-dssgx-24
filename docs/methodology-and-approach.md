@@ -1,11 +1,5 @@
 #  Methodology and Approach
 
-## Repository Overview
-- Explanation of the code structure:
-    - Overview of folders and files
-    - Key scripts and their purposes
-    - Description of helper modules
-
 ## Description of the Data Sources Used & Methods for Data Sourcing
 - List of data sources:
     - **Sensor Data for Visitor Counts**:
@@ -22,35 +16,97 @@
     - Storage and accessibility
 
 ## Streamlit App
-### Description of the Data Preprocessing and Cleaning Steps
-- Visitor count data:
-    - Loading and parsing data
-    - Cleaning and handling missing data
-    - Sensor replacements and mapping
-    - Outlier detection and handling
-    - Traffic metrics calculation
-- Sensor data preprocessing:
-    - Timestamp adjustments
-    - Merging and combining sensor data
-    - Handling overlapping periods
-- Weather data preprocessing:
-    - Imputing missing weather values
-    - Mapping weather categories
-    - Integration with visitor data
-- Visitor center and parking data preprocessing:
-    - Parsing and cleaning visitor center data
-    - Handling missing values in parking data
-    - Merging with sensor and weather data
+### Overview
+We have built an end-to-end solution through our Streamlit app, which features three main dashboards. The Visitor Dashboard enables users to plan their trips effectively, providing tools to enhance their experience at the park. The Administration Dashboard assists park management in making strategic decisions regarding resource allocation, optimizing operational efficiency. Additionally, a dedicated Data Accessibility Point is included, which is exclusively accessible to park administration, allowing them to manage and query important data seamlessly.
 
-### Data Query/Accessibility/Upload Section
-- Explanation of data accessibility:
-    - Querying data from AWS S3
-    - Handling data uploads and user inputs
-    - Data filtering and visualization in the Streamlit app
-- Features and Techniques:
-    - Data filtering options
-    - Visualization techniques used
-    - User interface elements
+---
+
+### Visitor Dashboard
+
+The Visitor Dashboard serves as a comprehensive tool for visitors to the Bavarian Forest National Park, offering real-time data and insights to enhance their experience.
+
+#### Key Features
+
+1. **Real-Time Weather Data**:
+    - We have integrated real-time weather data from Metostat for the upcoming week, ensuring visitors have accurate information about current conditions.
+
+2. **Parking Data**:
+    - Parking availability is monitored using data fetched from Bayern Cloud for 12 parking sensors. Currently, 10 sensors are operational, as 2 are offline.
+    - Visualization of parking occupancy is provided by fetching the coordinates of these sensors, indicating high, medium, and low thresholds for parking availability.
+
+3. **Visitor Traffic Forecast**:
+    - Forecasted visitor traffic is displayed for various regions of the park on an hourly basis for the coming week.
+    - Users can select specific dates and regions to view 'IN' and 'OUT' values for each region, overall traffic across the park, and total incoming and outgoing visitor flows.
+
+4. **Recreational Activities**:
+
+    The dashboard highlights various recreational activities available in the park, including:
+
+    - **Hiking**: 🥾 Explore trails through the scenic wilderness. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/hiking/index.htm)
+    - **Cycling**: 🚴‍♂️ Cycle through picturesque routes. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/bicycling/index.htm)
+    - **Camping**: 🏕️ Relax under the stars at designated camping spots. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/facilities/camping/index.htm)
+    - **Snowshoeing**: 🌨️ Enjoy snowshoeing during the winter months. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/snowshoeing/index.htm)
+    - **Skiing**: 🎿 Ski on the best cross-country trails. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/cross_country_skiing/index.htm)
+
+5. **Language Selection**:
+    - The dashboard supports both German and English languages, making it accessible to a broader audience.
+
+6. **Additional Information**:
+
+    - A section for **Other Information** provides valuable insights to visitors:
+        - **Visitor Centers**: 🏛️ Information about the main visitor centers in the Bavarian Forest. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/facilities/index.htm)
+        - **Popular Entrances to the Park**:
+            - **Entrance 1: Falkenstein**: Access to hiking trails and the Falkenstein mountain. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/facilities/npc_falkenstein/index.htm)
+            - **Entrance 2: Lusen**: Gateway to challenging trails on the Lusen mountain. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/facilities/npc_lusen/index.htm)
+        - **Best Way to Get There**: 🚌 Information on transportation options to reach the Bavarian Forest. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/service/getting_there/index.htm)
+
+---
+
+
+### Administration Dashboard
+
+The Administration Dashboard is designed to assist park management in making strategic decisions based on comprehensive data and analytics. It provides essential insights into visitor counts and parking occupancy to optimize operational efficiency.
+
+#### Key Features
+
+1. **Forecasted Hourly Predictions**:
+    - The dashboard presents the distribution of forecasted visitor traffic across the park for the next seven days, allowing administrators to anticipate visitor flows and plan resources accordingly.
+
+2. **Absolute Visitor Counts**:
+    - Unlike the Visitor Dashboard, the Administration Dashboard provides absolute numbers for visitor counts, enabling precise tracking of park attendance. Visualizations of these counts help in understanding trends and patterns over time.
+
+3. **Real-Time Parking Occupancy**:
+    - Real-time data for parking occupancy is displayed for 10 out of 12 parking sensors. For each selected location, the dashboard shows:
+        - **Available Spaces**: The current number of available parking spaces.
+        - **Capacity**: The total capacity of the selected parking area.
+        - **Occupancy Rate**: The percentage of the parking area currently occupied.
+
+---
+
+### Data Accessibility Point
+
+The Data Accessibility Point provides park administration with a seamless interface for managing and querying important data. It includes features for both uploading and downloading data, ensuring efficient data handling.
+
+#### Key Features
+
+1. **Data Upload Section**:
+    - Administrators can upload data related to:
+
+        - **Visitor Count Sensors**
+        - **Visitor Count Centers**
+        - **Other Data Types**
+
+    - Before uploading, users can preview the entire dataset and generate a data summary report using Pandas Profiling. This allows for a quick assessment of the data quality and structure.
+    - Once reviewed, the uploaded data is stored securely in the system for future access and analysis.
+
+2. **Data Download Section**:
+    - Users can select specific data categories to download, including:
+        - **Visitor Count Sensors**
+        - **Visitor Count Centers**
+        - **Other Categories**
+    - A preview of the selected data will be available, ensuring that users can verify the information before downloading.
+
+---
 
 ## Prediction Pipeline
 ### Description of the Data Preprocessing and Cleaning Steps
