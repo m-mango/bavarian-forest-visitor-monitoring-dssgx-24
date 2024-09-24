@@ -20,7 +20,7 @@ Output:
 import pandas as pd
 from functools import reduce
 import awswrangler as wr
-from src.weather_data_sourcing_and_processing import source_and_process_weather_data
+from src.prediction_pipeline.pre_processing.weather_data_sourcing_and_processing import source_and_process_weather_data
 from src.prediction_pipeline.pre_processing.join_sensor_weather_visitorcenter import create_datetimeindex, join_dataframes
 
 ###########################################################################################
