@@ -23,10 +23,11 @@ with col1:
     st.markdown("## Data Access Point")
 
     # Tabs for Upload and Download
-    tab1, tab2 = st.tabs(["Upload Data", "Download Data"])
-    if tab1:
+    tab1,tab2 = st.tabs(["Upload Data", "Download Data"])
+    
+    with tab1:
         upload_section()
-    if tab2:
+    with tab2:
         download_section()
 
 with col2:
