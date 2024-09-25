@@ -16,6 +16,17 @@ from src.streamlit_app.source_data import source_all_data
 
 from PIL import Image
 
+# imports for the prediction_pipeline
+from src.prediction_pipeline.sourcing_data.source_historic_visitor_count import source_historic_visitor_count 
+from src.prediction_pipeline.pre_processing.preprocess_historic_visitor_count_data import preprocess_visitor_count_data
+from src.prediction_pipeline.sourcing_data.source_visitor_center_data import source_visitor_center_data
+from src.prediction_pipeline.sourcing_data.source_weather import source_weather_data
+from src.prediction_pipeline.pre_processing.preprocess_weather_data import process_weather_data
+from src.prediction_pipeline.pre_processing.join_sensor_weather_visitorcenter import get_joined_dataframe
+from src.prediction_pipeline.pre_processing.features_zscoreweather_distanceholidays import get_zscores_and_nearest_holidays
+from src.prediction_pipeline.pre_processing.preprocess_visitor_center_data import process_visitor_center_data
+from datetime import datetime
+
 # Set the page layout - it is a two column layout
 col1, col2 = page_layout_config.get_page_layout()
 
@@ -84,19 +95,36 @@ def pipeline():
     # process the parking data
     processed_parking_data = prtpd.process_real_time_parking_data(parking_data)
     
-    # # TODO : Add code for getting the prediction data automatically
 
-    # step 1: Source data from aws raw_data folder (source_data.py) - DONE
-    # step 2: Process/filter the data to add the missing values, imputations etc.
-    #  # process_visitor_count_data = prtpd.process_visitor_count_data(historic_visitor_counts)
+    ####################################################################################################
+    # Prediction Pipeline
+    ####################################################################################################
+    
+    # get the historic visitor count data
+    sourced_visitor_count_df = source_historic_visitor_count()
+   
+    processed_visitor_count_df = preprocess_visitor_count_data(sourced_visitor_count_df)
 
-    # step 3: get the processed_weather_data and processed_parking_data and join to the processed_visitor_count_data
-    # # joined_data = join_data(processed_weather_data, processed_parking_data, process_visitor_count_data) # join data script
+    # get the visitor centers data
 
-    # step 4: run the prediction model on the joined data
-    # # prediction_data = run_prediction_modeljoined_data) # prediction model script
+    # source visitor center data
+    sourced_vc_data_df = source_visitor_center_data()
 
-    # step 5: save the prediction data as csv to AWS for streamlit to use - DONE (script already added visitor_count.py)
+    processed_vc_df_hourly,_ = process_visitor_center_data(sourced_vc_data_df)
+
+    # get the weather data
+    weather_data = source_weather_data(start_time = datetime(2023, 1, 1), end_time = datetime(2024, 7, 22) )
+
+    processed_weather_df = process_weather_data(weather_data)
+
+    # join the dataframes
+    joined_df = get_joined_dataframe(processed_weather_df, processed_visitor_count_df, processed_vc_df_hourly)
+
+    #  z score normalization
+    columns_for_zscores = [ 'Temperature (°C)','Relative Humidity (%)','Wind Speed (km/h)']
+    with_zscores_and_nearest_holidays_df = get_zscores_and_nearest_holidays(joined_df, columns_for_zscores)
+
+
 
     return processed_weather_data, processed_parking_data
 
