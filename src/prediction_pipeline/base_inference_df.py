@@ -1,13 +1,15 @@
-from src.prediction_pipeline.sourcing_data.source_weather import source_weather_data
-from src.prediction_pipeline.sourcing_data.source_visitor_center_data import source_visitor_center_data
-from src.prediction_pipeline.pre_processing.features_zscoreweather_distanceholidays import add_nearest_holiday_distance, add_daily_max_values, add_moving_z_scores
-from src.prediction_pipeline.source_and_feature_selection import apply_cliclic_tranformations
+from sourcing_data.source_weather import source_weather_data
+from sourcing_data.source_visitor_center_data import source_visitor_center_data
+from pre_processing.features_zscoreweather_distanceholidays import add_nearest_holiday_distance, add_daily_max_values, add_moving_z_scores
+from source_and_feature_selection import apply_cliclic_tranformations
+from source_and_feature_selection import get_dummy_encodings
+from pre_processing.preprocess_visitor_center_data import process_visitor_center_data
 from datetime import datetime
 import pandas as pd
 
 """
 This script processes and merges weather data with visitor center data to create a comprehensive 
-inference dataset for analysis. It imports necessary functions for sourcing weather and visitor 
+inference dataset for prediction. It imports necessary functions for sourcing and preprocessing weather and visitor 
 center data, as well as functions for feature engineering related to z-scores and holiday distances. 
 
 The main functionalities include:
@@ -39,7 +41,7 @@ def join_inference_data(weather_data_inference, visitor_centers_data):
     """
 
     # Define the columns you want to bring from visitor_centers_data
-    columns_to_add = ['Time','Tag',  'Monat','Wochentag',  'Wochenende',  'Jahreszeit',  'Laubfärbung',
+    columns_to_add = ['Time','Tag', 'Hour', 'Monat','Wochentag',  'Wochenende',  'Jahreszeit',  'Laubfärbung',
                     'Schulferien_Bayern', 'Schulferien_CZ','Feiertag_Bayern',  'Feiertag_CZ',
                     'HEH_geoeffnet',  'HZW_geoeffnet',  'WGM_geoeffnet', 'Lusenschutzhaus_geoeffnet',  'Racheldiensthuette_geoeffnet', 'Falkensteinschutzhaus_geoeffnet', 'Schwellhaeusl_geoeffnet']  
 
@@ -70,9 +72,12 @@ def source_preprocess_inference_data():
 
     # get visitor center data
     visitor_center_data = source_visitor_center_data()
-    visitor_center_data["Time"] = pd.to_datetime(visitor_center_data["Time"])
-
-    join_df = join_inference_data(weather_data_inference, visitor_center_data)
+    processed_visitor_center_data = process_visitor_center_data(visitor_center_data)
+    # process_visitor_center_data() returns a tuple with hourly data and daily data, we just need the first one
+    hourly_visitor_center_data = processed_visitor_center_data[0]
+    #hour column was not being created in process_visitor_center_data()
+    hourly_visitor_center_data['Hour'] = hourly_visitor_center_data['Time'].dt.hour
+    join_df = join_inference_data(weather_data_inference, hourly_visitor_center_data)
 
     #feature engineering
     inference_data_with_distances = add_nearest_holiday_distance(join_df)
@@ -82,12 +87,14 @@ def source_preprocess_inference_data():
     inference_data_with_new_features = add_moving_z_scores(inference_data_with_daily_max, 
                                                            weather_columns_for_zscores, 
                                                            window_size_for_zscores)
-    
+
     inference_data_with_cyclic_features = apply_cliclic_tranformations(inference_data_with_new_features, cyclic_features = ['Tag','Hour', 'Monat', 'Wochentag'])
 
-    #slice from start time = today
-    inference_data_with_cyclic_features = inference_data_with_cyclic_features[
-                                        inference_data_with_cyclic_features["Time"] >= datetime.now()
-                                        ]
+    inference_data_with_coco_enconding = get_dummy_encodings(inference_data_with_cyclic_features, columns_to_use = ['Jahreszeit', 'coco_2'])
 
+    #drop data for any day previous to datetime.now()
+    inference_data_with_coco_enconding = inference_data_with_coco_enconding[
+                                        inference_data_with_coco_enconding["Time"] >= datetime.now()
+                                        ]
+    
     return inference_data_with_cyclic_features
