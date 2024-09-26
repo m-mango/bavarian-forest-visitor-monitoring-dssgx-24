@@ -71,10 +71,10 @@ One key recommendation for BFNP is to relocate the sensor currently positioned a
 
 By reducing this discrepancy, data scientists working on this project in the future could apply calibration or adjustment weights to individual sensors to capture between sensor variability and importance, potentially allowing the park to estimate hourly occupancy instead of tracking relative flows of incoming and outgoing visitors. Furthermore, capturing incoming visitors at Waldhausreibe would enhance the quality of model training data, leading to improved predictions for overall visitor flows, but particularly in the Lusen-Mauth-Finsterau region of the park.
 
-### Experimenting with Other Ways to Train Models - Train on Only Specific Sensors Prior to 2023
-Eight sensors have been actively collecting visitor entries and exits without any gaps in blahblah since January 1, 2021.
+### Model Training Experimentation with Select Sensors: Focusing on Pre-2023 Data
+Since January 2021, sixteen sensors have been consistently collecting visitor entry and exit data without any interruptions. These sensors are located at: Brechhäuslau, Bucina, Deffernik, Falkenstein, Felswandergebiet, Ferdinandsthal, Fredenbrücke, Gfäll, Lusen, Racheldiensthütte, Scheuereck, Schillerstraße, Schwarzbachbrücke, Trinkwassertalsperre, Waldhausreibe, and Waldspielgelände.
 
-The normalized values of visitor flows followed the same pattern as t
+An alternative approach to predicting overall park entries and exits could involve training Extra Trees Regressor models using data from these 16 sensors, rather than all 26 sensors starting from January 1, 2023. By leveraging a smaller but more consistent set of sensors with a longer history, this method may provide more accurate predictions of visitor flows in and out of the Bavarian National Forest. Time constraints prevented us from examining this alternative approach to model training but this approach may be promising to predict overall visitor flows and predictions at the sensor level instead of the region level.
 
 ### Experiment with LSTM Neural Network With More Available Training Data in the Future
 We compared approximately twenty different machine learning models to forecast visitor flows in the Bavarian Forest National Park using the Python package PyCaret. From this comparison, the Extra Trees Regressor emerged as the top candidate based on several model fit indices.
