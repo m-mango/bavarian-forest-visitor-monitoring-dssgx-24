@@ -12,9 +12,9 @@ Sensor data is frequently operationalized as “ground truth” in social and me
 
 - Sensor-specific IN and OUT counts may not correspond one-to-one with individual visitors, as some people might enter the park at one sensor and exit at another or leave through an exit without a sensor.
 
-- The limited number of sensors placed at non-random locations throughout the park introduces potential **bias**:
+- The limited number of sensors placed at non-random locations throughout the park potentially introduces **bias**:
    - The absence of sensors at many other entry and exit points systematically underestimates the total number of visitors, making it difficult to accurately assess park occupancy.
-    - The locations of the installed sensors do not adequately represent all areas of the park, which introduces bias in the visitor count estimates. For example, a popular trail that loops through the park has two entrances and one exit. A sensor is installed at Waldhausreibe, located at one of the entrances—the less frequented one. This resulted in a significant discrepancy between the number of visitors entering (IN) and exiting (OUT) the park, with the IN count for this sensor being notably lower than the OUT count. Below are graphs (Figure 1 and Figure 2) that illustrate this issue.
+    - The locations of the installed sensors do not adequately represent all areas of the park, which introduces bias in the visitor count estimates. For example, a popular trail that loops through the park has two entrances and one exit. A sensor is installed at Waldhausreibe, located at one of the entrances—the less frequented one. This resulted in a significant discrepancy between the number of visitors entering (IN) and exiting (OUT) the park, with the IN count for this sensor being notably lower than the OUT count. Below are graphs (Figures 1 and 2) that illustrate this issue.
     - The absence of sensors at many other entry and exit points systematically underestimates the total number of visitors, making it difficult to accurately assess park occupancy.
     - The sensor data exhibit a "missing not at random" pattern (i.e., bias). Since the collection of visitor sensor data began in 2016, additional sensors have been installed over the years, leading to significant gaps in the dataset. Below is a graph (Figure 3) illustrating this issue: individual sensors are shown on the y-axis, while time (ranging from 2016 to 2024) is represented on the x-axis. In the graph, red indicates periods of missing data, while blue indicates when a sensor was installed, functioning, and actively collecting data.
         - Furthermore, sensors can malfunction and require repairs, while cloud-connected sensors may go offline, contributing to greater error **variance** in the estimates of park visitors.
@@ -64,15 +64,31 @@ To address this issue, we shifted our focus to generating forecasts for differen
 #### **Limited Training Data Years Due to Sensor Installation Gaps**
 Although the Bavarian Forest National Park has been collecting visitor sensor data since 2016, the final number of installed sensors was established in 2023, after which no new sensors will be added. Due to significant gaps in sensor data from previous years, we decided to train our prediction models using visitor counts from sensors that were active starting in 2023 and continuing until the conclusion of our project in July 2024. A greater number of sensors provides better coverage of the park, and this robust data collection allows for more accurate visitor estimates. By focusing on this period, we can enhance the reliability of our predictions and provide the park management with valuable insights for future planning and resource allocation.
 
-## **Recommendations**
+## **Recommendations and Future Directions**
 
-### Data Collection - Moving Specific Sensor
+### A Strategy for Improved Data Collection: Relocating the Waldhausreibe Sensor
+One key recommendation for BFNP is to relocate the sensor currently positioned at the less-frequented entrance of the popular Waldhausreibe trail to its busier entrance. The current placement results in a significant discrepancy between park entries and exits, as this sensor fails to capture visitors using the more popular entrance. Addressing this issue in future data collections is crucial, as it would help narrow the gap between visitor entries and exits over time.
+
+By reducing this discrepancy, data scientists working on this project in the future could apply calibration or adjustment weights to individual sensors to capture between sensor variability and importance, potentially allowing the park to estimate hourly occupancy instead of tracking relative flows of incoming and outgoing visitors. Furthermore, capturing incoming visitors at Waldhausreibe would enhance the quality of model training data, leading to improved predictions for overall visitor flows, but particularly in the Lusen-Mauth-Finsterau region of the park.
 
 ### Experimenting with Other Ways to Train Models - Train on Only Specific Sensors Prior to 2023
+Eight sensors have been actively collecting visitor entries and exits without any gaps in blahblah since January 1, 2021.
+
+The normalized values of visitor flows followed the same pattern as t
 
 ### Experiment with LSTM Neural Network With More Available Training Data in the Future
+We compared approximately twenty different machine learning models to forecast visitor flows in the Bavarian Forest National Park using the Python package PyCaret. From this comparison, the Extra Trees Regressor emerged as the top candidate based on several model fit indices.
 
-## **Futue Directions**
+In addition, we developed a Long Short-Term Memory (LSTM) recurrent neural network. LSTM networks are specifically designed to learn from and retain information in sequences of data, using a unique memory cell structure that enables them to effectively capture long-term dependencies.
 
-### Proposed Future App-Based Diary and Survey Study for Estimating Trail Segments
+While the LSTM models performed similarly to the Extra Trees Regressor, we ultimately chose to implement the Extra Trees Regressor in our final product due to its lower computational demands and ability to perform well with less data. However, we anticipate that as more visitor flow data is collected at the Bavarian Forest National Park, switching to LSTM models may become advantageous, as LSTMs are better equipped to handle large datasets and complex temporal patterns. LSTM and Extra Trees Regressor models should be compared again in the future once more data is available. 
+
+ Additionally, due to time constraints of the fellowship and project timeline, we were unable to test LSTM on the model training strategy outlined in the previous section. Applying LSTM to the eight specific visitor sensors that have been actively collecting data since 2021 may yield more accurate predictions for the park overall compared to those generated by Extra Trees models, which rely on data from sensors installed in 2023 and later.
+
+### Proposed Study: GPS Tracking and Survey Data to Monitor Spatial and Temporal Visitor Behavior in Bavarian Forest National Park
+A future study could address many limitations of the current project by incorporating GPS tracking technology and survey data to analyze the spatial and temporal behavior of visitors in the Bavarian Forest National Park (BFNP) at a detailed level. Questionnaires could be administered to a random sample of park visitors using Stratified Probability Proportional to Size sampling based on random times and locations within different regions of the park. Survey respondents would report on their behaviors at BFNP, along with demographic and other relevant information. They could also be asked for consent to use a GPS tracking device to monitor their movement patterns within the park's trail networks for the duration of their visit to the park, and consent to link their GPS data to their survey responses could also be obtained.
+
+GPS tracking data would be collected over a 12-month period to capture seasonal variations in visitor behavior. This rich dataset could be used to analyze visitor distributions across different trail segments, enabling the park to produce hourly forecasts for specific trail sections. Additionally, the survey data could provide insights into differences between local and tourist visitors, helping BFNP explore how these groups affect the park differently and may require distinct resources.
+
+Currently, the park's sensors cannot distinguish between tourists and local visitors. Future studies could develop classification models to identify these groups more accurately, allowing for more granular predictions. GPS data could also inform the optimal placement of sensors, helping the park detect areas where visitors are missed at entry or exit points. Furthermore, the study could estimate and adjust for double-counting errors at visitor centers, improving the accuracy of future predictive models.
 
