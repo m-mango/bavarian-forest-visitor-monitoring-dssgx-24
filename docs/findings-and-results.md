@@ -167,3 +167,21 @@ Future iterations of the model could benefit from advanced feature engineering. 
 * **Seasonal Variations:** The cyclical patterns captured by "Hour_cos" and "Hour_sin" might indicate seasonal variations in traffic, with higher numbers of visitors during certain months or periods of the year.
 * **Weather Influence:** Favorable weather conditions (e.g., warm and sunny days) might attract more visitors, as evidenced by the importance of temperature and relative humidity.
 * **Special Event Impact:** Holidays and school holidays seem to be significant factors, suggesting that special events or time off from school can drive increased traffic.
+
+
+---
+
+## Final Product
+
+### Visitor Dashboard
+
+The visitor dashboard provides an intuitive interface that enables users to access essential information in real-time. Visitors can effortlessly view current weather conditions, allowing them to prepare for their day effectively. Additionally, the dashboard showcases hourly predictions for the upcoming week, helping users plan their visits with confidence. For those interested in maximizing their experience, links to various recreational activities are readily available, guiding visitors toward enjoyable options within the park. Moreover, real-time parking occupancy data is displayed, ensuring that users are informed about available parking spaces before arriving. This comprehensive flow of information empowers visitors to make informed decisions, enhancing their overall experience.
+
+
+
+<figure style={{ textAlign: "center" }}>
+    <img src="/asset/bf-dashboard-visitor-predictions.gif" alt="Visitor Dashboard visualization"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
+    <span style={{ color: "gray" }}>Visitor Dashboard</span>
+</figure>
+
+
