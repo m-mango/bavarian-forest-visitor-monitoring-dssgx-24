@@ -126,7 +126,7 @@ def pipeline():
 
 
 
-    return processed_weather_data, processed_parking_data
+    return processed_weather_data, processed_parking_data, with_zscores_and_nearest_holidays_df
 
 if __name__ == "__main__":
 
