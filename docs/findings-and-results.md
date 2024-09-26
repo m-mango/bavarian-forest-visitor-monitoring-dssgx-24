@@ -54,7 +54,7 @@ Based on the provided table, here are some observations:
 4. **Regional Disparities**:
     - Some regions, such as **Rachel-Spiegelau** and **Falkenstein-Schwellhäusl**, demonstrated relatively close MAE values (around **5-7** for both IN and OUT),       suggesting similar patterns of visitor behavior. The consistent metrics across these regions may indicate comparable attractions or services that draw visitors in and keep them within these areas.
 
-### Conclusion
+**Conclusion**
 
 The findings illustrate the Extra Trees Regressor's effectiveness in predicting visitor traffic across various regions of the Bavarian Forest National Park. The results indicate strong predictive power, especially for areas with consistent visitor patterns. These insights can aid park management in resource allocation, event planning, and enhancing visitor experience based on anticipated traffic flows.
 
@@ -78,17 +78,17 @@ The graphs presented above show how the model performs on **unseen data** from M
 </figure>
 ---
 
-### Traffic Abs
+**Traffic Abs**
 
 The total park traffic (`traffic_abs`) is consistently overestimated in both low and high-traffic periods. The predicted values follow the general trend of the actual counts but are consistently higher, particularly during low-traffic periods.
 
-### Sum IN and Sum OUT
+**Sum IN and Sum OUT**
 
 For `sum_IN_abs` and `sum_OUT_abs`, the ExtraTree Regressor successfully captures the cyclic nature of visitor inflow and outflow. However, the magnitude of the predicted values often falls short of actual observations during peak traffic days, indicating that the model could struggle to forecast sharp increases in visitor numbers.
 
 ---
 
-### Region-Specific Analysis
+**Region-Specific Analysis**
 
 - **Rachel-Spiegelau IN/OUT**:
   - The model captures the general trend for both inbound and outbound traffic at Rachel-Spiegelau. However, it underestimates the peaks, especially on days of high visitor traffic.
@@ -106,11 +106,11 @@ For `sum_IN_abs` and `sum_OUT_abs`, the ExtraTree Regressor successfully capture
 
 ## Model Performance Insights
 
-### General Performance
+**General Performance**
 
 The ExtraTree Regressor does well in capturing general trends and seasonality across all regions. However, the model struggles with accurately predicting the magnitude of peaks and troughs, especially during periods of high traffic. This is a common issue seen in all regions, suggesting the need for advanced feature engineering or hybrid models that can better capture these extremes.
 
-### Predictions for Unseen Data
+**Predictions for Unseen Data**
 
 Evaluating the model on unseen data has revealed the following key insights:
 
@@ -124,15 +124,15 @@ Evaluating the model on unseen data has revealed the following key insights:
 
 ## Key Takeaways and Future Work
 
-### Improvements to Handle Extremes
+**Improvements to Handle Extremes**
 
 The model's underestimation of peak traffic and overestimation during low-traffic periods suggest that further feature engineering or model enhancements could help. Techniques such as gradient boosting or hybrid models that combine tree-based methods with sequence models like LSTMs may be better suited to handling sharp traffic spikes.
 
-### Region-Specific Analysis
+**Region-Specific Analysis**
 
 Different regions exhibit varied model performance, with some regions showing better alignment between actual and predicted values. This variability indicates that additional region-specific features (e.g., local weather patterns, events) may improve the model’s accuracy in certain areas.
 
-### Feature Engineering and Hybrid Approaches
+**Feature Engineering and Hybrid Approaches**
 
 Future iterations of the model could benefit from advanced feature engineering. For example, incorporating special event indicators, weather anomalies, or holiday-specific flags could help the model better predict extreme values. Additionally, exploring hybrid approaches (e.g., combining ExtraTree with LSTM models) might improve the overall performance and accuracy.
 
