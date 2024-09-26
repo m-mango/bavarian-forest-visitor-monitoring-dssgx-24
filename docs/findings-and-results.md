@@ -184,4 +184,14 @@ The visitor dashboard provides an intuitive interface that enables users to acce
     <span style={{ color: "gray" }}>Visitor Dashboard</span>
 </figure>
 
+---
 
+### Admin Dashboard 
+
+The admin dashboard serves as a powerful management tool, enabling administrators to monitor and analyze key metrics related to park operations effectively. Through this interface, admins can access forecasted data on visitor occupancy, providing insights into current crowd levels across the park. Additionally, the dashboard offers detailed visitor predictions for the upcoming week, presented in absolute numbers. This forecasting allows admins to anticipate visitor flow and make informed decisions, ensuring adequate staffing, resource allocation, and visitor experience management. For parking, the dashboard provides real-time occupancy data, displayed as absolute values instead of general categories like low, medium, or high. This level of detail helps administrators optimize parking management and plan ahead for potential surges, ultimately improving the park's operational efficiency and enhancing the visitor experience.
+
+
+<figure style={{ textAlign: "center" }}>
+    <img src="/asset/admin-dashboard.gif" alt="Visitor Dashboard visualization"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
+    <span style={{ color: "gray" }}>Admin Dashboard</span>
+</figure>
