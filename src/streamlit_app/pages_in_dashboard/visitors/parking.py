@@ -7,7 +7,7 @@ def get_fixed_size():
     """
     Get a fixed size value for the map markers.
     """
-    return 300  
+    return 450  
 
 def calculate_color(occupancy_rate):
     """
@@ -24,9 +24,10 @@ def calculate_color(occupancy_rate):
     if occupancy_rate >= 80:
         return [230, 39, 39] # red
     elif occupancy_rate >= 60:
-        return [244, 251, 81] # yellow
+        return [250, 232, 8] #yellow
+    
     else:
-        return [109, 249, 2] # green
+        return [33, 82, 2] #green
 
 def occupancy_to_color(occupancy_rate):
     """
