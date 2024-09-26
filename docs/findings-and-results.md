@@ -25,7 +25,19 @@ The performance of the Extra Trees Regressor was evaluated using 5-fold cross-va
 | Nationalparkzentrum Falkenstein (IN)                         | 5.0964   | 116.4658  | 10.7654  | 0.6457  | 0.6387  | 1.0955  |
 | Nationalparkzentrum Falkenstein (OUT)                        | 4.7758   | 106.0070  | 10.2023  | 0.6063  | 0.6482  | 1.2331  |
 
-### Key Insights
+### Understanding the Metrics
+
+Before we analyze the specific results, let's clarify the metrics used:
+
+* **MAE (Mean Absolute Error):** Measures the average absolute difference between predicted and actual values.
+* **MSE (Mean Squared Error):** Measures the average squared difference between predicted and actual values.
+* **RMSE (Root Mean Squared Error):** The square root of MSE, often preferred for interpretability as it's in the same units as the target variable.
+* **R² (R-squared):** Indicates the proportion of variance in the target variable explained by the model. Higher values are better.
+* **RMSLE (Root Mean Squared Logarithmic Error):** Useful for predicting values on a logarithmic scale (e.g., when values can range from 0 to infinity).
+* **MAPE (Mean Absolute Percentage Error):** Measures the average percentage error between predicted and actual values.
+
+### Interpreting the Results
+Based on the provided table, here are some observations:
 
 1. **Overall Visitor Traffic**:
 
