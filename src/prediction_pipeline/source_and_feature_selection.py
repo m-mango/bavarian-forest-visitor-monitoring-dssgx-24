@@ -2,6 +2,7 @@ import awswrangler as wr
 import pandas as pd
 import numpy as np
 import warnings
+from ...Main import pipeline
 
 warnings.filterwarnings("ignore")
 
@@ -403,7 +404,8 @@ def filter_features_for_modelling(df: pd.DataFrame) -> pd.DataFrame:
 
 def get_features():
 
-    sourced_df = load_csv_files_from_aws_s3(path=source_train_path) 
+    #sourced_df = load_csv_files_from_aws_s3(path=source_train_path) 
+    _,_,sourced_df = pipeline()
     sliced_df = sourced_df[(sourced_df['Time'] >= start_date) & (sourced_df['Time'] <= end_date)]
     removed_merged_df = remove_merge_from_columns(sliced_df)
     regionwise_df = get_regionwise_IN_and_OUT_columns(removed_merged_df)
