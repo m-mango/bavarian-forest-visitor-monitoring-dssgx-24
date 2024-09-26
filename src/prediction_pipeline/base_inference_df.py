@@ -1,6 +1,7 @@
 from src.prediction_pipeline.sourcing_data.source_weather import source_weather_data
 from src.prediction_pipeline.sourcing_data.source_visitor_center_data import source_visitor_center_data
 from src.prediction_pipeline.pre_processing.features_zscoreweather_distanceholidays import add_nearest_holiday_distance, add_daily_max_values, add_moving_z_scores
+from src.prediction_pipeline.source_and_feature_selection import apply_cliclic_tranformations
 from datetime import datetime
 import pandas as pd
 
@@ -81,10 +82,12 @@ def source_preprocess_inference_data():
     inference_data_with_new_features = add_moving_z_scores(inference_data_with_daily_max, 
                                                            weather_columns_for_zscores, 
                                                            window_size_for_zscores)
+    
+    inference_data_with_cyclic_features = apply_cliclic_tranformations(inference_data_with_new_features, cyclic_features = ['Tag','Hour', 'Monat', 'Wochentag'])
 
     #slice from start time = today
-    inference_data_with_new_features = inference_data_with_new_features[
-                                        inference_data_with_new_features["Time"] >= datetime.now()
+    inference_data_with_cyclic_features = inference_data_with_cyclic_features[
+                                        inference_data_with_cyclic_features["Time"] >= datetime.now()
                                         ]
 
-    return inference_data_with_new_features
+    return inference_data_with_cyclic_features
