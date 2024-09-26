@@ -43,8 +43,6 @@ if not check_password():
     st.stop()  # Do not continue if check_password is not True.
 
 # Main Streamlit app starts here
-st.write("This page is under construction  🚧 ")
-
 st.write("# Visitor Count Information")
 
 # Load the predicted data from the AWS S3 bucket
