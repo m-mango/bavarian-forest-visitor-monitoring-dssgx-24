@@ -1,5 +1,7 @@
-
+__pycache__
 /data
 .DS_Store
 /outputs
 *.log
+/catboost_info
+config/
