@@ -173,6 +173,11 @@ Future iterations of the model could benefit from advanced feature engineering. 
 
 ## Final Product
 
+<figure style={{ textAlign: "center" }}>
+    <img src="/asset/overall-dashboard.gif" alt="Visitor Dashboard visualization"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
+    <span style={{ color: "gray" }}>Bavarian Forest Dashbaord</span>
+</figure>
+
 ### Visitor Dashboard
 
 The visitor dashboard provides an intuitive interface that enables users to access essential information in real-time. Visitors can effortlessly view current weather conditions, allowing them to prepare for their day effectively. Additionally, the dashboard showcases hourly predictions for the upcoming week, helping users plan their visits with confidence. For those interested in maximizing their experience, links to various recreational activities are readily available, guiding visitors toward enjoyable options within the park. Moreover, real-time parking occupancy data is displayed, ensuring that users are informed about available parking spaces before arriving. This comprehensive flow of information empowers visitors to make informed decisions, enhancing their overall experience.
@@ -195,3 +200,31 @@ The admin dashboard serves as a powerful management tool, enabling administrator
     <img src="/asset/admin-dashboard.gif" alt="Visitor Dashboard visualization"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
     <span style={{ color: "gray" }}>Admin Dashboard</span>
 </figure>
+---
+
+### Data Accessibility Point
+
+ Data Accessibilty point has two main sections that are as follow:
+
+- **Upload/Download Functionality**: The admin dashboard provides seamless access to data upload and download capabilities. Administrators can easily upload new datasets or update existing ones directly through the interface, ensuring that the system is always using the most up-to-date information. The download functionality allows users to export data related to visitors, parking occupancy, and weather for further analysis or record-keeping. This feature ensures smooth data integration and easy access for offline analysis or reporting.
+
+<figure style={{ textAlign: "center" }}>
+    <img src="/asset/upload-download.gif" alt="Upload and Download section"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
+    <span style={{ color: "gray" }}>Admin Dashboard</span>
+</figure>
+
+- **Querying the Data**: Admins can efficiently query the data using advanced filtering options within the dashboard. They can apply filters such as date ranges, specific months, seasons, or years to tailor their data retrieval. Additionally, specific categories like weather, visitor occupancy, and parking can be queried to get detailed insights based on the selected criteria. This flexible querying system allows administrators to gather precise, actionable data for analysis and operational planning.
+
+<figure style={{ textAlign: "center" }}>
+    <img src="/asset/data-query.gif" alt="Visitor Dashboard visualization"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
+    <span style={{ color: "gray" }}>Data Quering Section</span>
+</figure>
+---
+
+## Conclusion
+
+The results of our predictive models demonstrated strong performance on unseen data, with MAPE(mean absolute percentage error) indicating reliable accuracy across the various target variables. The feature importance analysis provided valuable insights, highlighting the key factors driving visitor flows and parking occupancy, which are crucial for making data-driven decisions. 
+
+The culmination of these efforts is the deployment of an interactive dashboard that not only leverages predictive analytics but also integrates real-time data to offer actionable insights. The combination of accurate visitor predictions, real-time parking availability, and weather forecasting enhances both the visitor experience and the administrative decision-making process. Overall, the solution provides a powerful tool for optimizing park management and ensuring smooth operations, making the park more accessible and enjoyable for visitors.
+
+
