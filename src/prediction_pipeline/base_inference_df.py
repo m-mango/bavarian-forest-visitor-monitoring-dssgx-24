@@ -67,11 +67,13 @@ def source_preprocess_inference_data():
     weather_data_inference = source_weather_data(start_time = datetime.now() - pd.Timedelta(days=10), 
                                                  end_time = datetime.now() + pd.Timedelta(days=7))
 
+    # get visitor center data
     visitor_center_data = source_visitor_center_data()
     visitor_center_data["Time"] = pd.to_datetime(visitor_center_data["Time"])
 
     join_df = join_inference_data(weather_data_inference, visitor_center_data)
 
+    #feature engineering
     inference_data_with_distances = add_nearest_holiday_distance(join_df)
 
     inference_data_with_daily_max = add_daily_max_values(inference_data_with_distances, weather_columns_for_zscores)
@@ -80,6 +82,7 @@ def source_preprocess_inference_data():
                                                            weather_columns_for_zscores, 
                                                            window_size_for_zscores)
 
+    #slice from start time = today
     inference_data_with_new_features = inference_data_with_new_features[
                                         inference_data_with_new_features["Time"] >= datetime.now()
                                         ]
