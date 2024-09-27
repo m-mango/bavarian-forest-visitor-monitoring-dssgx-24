@@ -1,8 +1,8 @@
 from sourcing_data.source_weather import source_weather_data
 from sourcing_data.source_visitor_center_data import source_visitor_center_data
 from pre_processing.features_zscoreweather_distanceholidays import add_nearest_holiday_distance, add_daily_max_values, add_moving_z_scores
-from src.prediction_pipeline.source_and_feature_selection import apply_cliclic_tranformations
-from src.prediction_pipeline.source_and_feature_selection import get_dummy_encodings
+from source_and_feature_selection import apply_cliclic_tranformations
+from source_and_feature_selection import process_transformations
 from pre_processing.preprocess_visitor_center_data import process_visitor_center_data
 from datetime import datetime
 import pandas as pd
@@ -88,13 +88,18 @@ def source_preprocess_inference_data():
                                                            weather_columns_for_zscores, 
                                                            window_size_for_zscores)
 
-    inference_data_with_cyclic_features = apply_cliclic_tranformations(inference_data_with_new_features, cyclic_features = ['Tag','Hour', 'Monat', 'Wochentag'])
 
-    inference_data_with_coco_enconding = get_dummy_encodings(inference_data_with_cyclic_features, columns_to_use = ['Jahreszeit', 'coco_2'])
+    inference_data_with_coco_enconding = process_transformations(inference_data_with_new_features)
 
     #drop data for any day previous to datetime.now()
     inference_data_with_coco_enconding = inference_data_with_coco_enconding[
                                         inference_data_with_coco_enconding["Time"] >= datetime.now()
                                         ]
     
-    return inference_data_with_cyclic_features
+
+    #set Time column as index   
+    inference_data_with_coco_enconding = inference_data_with_coco_enconding.set_index('Time')
+    #drop column named Date
+    inference_data_with_coco_enconding = inference_data_with_coco_enconding.drop(columns=['Date'])
+    
+    return inference_data_with_coco_enconding
