@@ -2,57 +2,57 @@
 
 ## Description of the Data Sources Used & Methods for Data Sourcing
 
-- **Sensor Data for Visitor Counts**:
+### Sensor Data for Visitor Counts
 
-    The visitor sensor data is an internal 
-    administrative file maintained by the Bavarian Forest National Park. 
-    The park has over 700 entry and exit points, of which 26 are equipped
-    with pyro sensors designed to detect the flow of visitors. These 
-    sensors can distinguish the direction in which visitors are traveling, 
-    counting each person entering or exiting the park. When a visitor 
-    enters, the sensor increments a count of 1 to the sensor-specific “IN” 
-    column in the data file, and similarly, when a visitor exits, it 
-    increments a count of 1 to the corresponding “OUT” column. This 
-    system allows for the tracking of visitor movement throughout the 
-    park. In addition to this, some sensors, referred to as "multi-sensors," 
-    are capable of distinguishing between cyclists and pedestrians, 
-    providing more detailed visitor data. Furthermore, while some sensors
-    can automatically upload their data to the Bayern Cloud, others 
-    require manual uploads through on-site data collection using a USB 
-    drive.
+The visitor sensor data is an internal 
+administrative file maintained by the Bavarian Forest National Park. 
+The park has over 700 entry and exit points, of which 26 are equipped
+with pyro sensors designed to detect the flow of visitors. These 
+sensors can distinguish the direction in which visitors are traveling, 
+counting each person entering or exiting the park. When a visitor 
+enters, the sensor increments a count of 1 to the sensor-specific “IN” 
+column in the data file, and similarly, when a visitor exits, it 
+increments a count of 1 to the corresponding “OUT” column. This 
+system allows for the tracking of visitor movement throughout the 
+park. In addition to this, some sensors, referred to as "multi-sensors," 
+are capable of distinguishing between cyclists and pedestrians, 
+providing more detailed visitor data. Furthermore, while some sensors
+can automatically upload their data to the Bayern Cloud, others 
+require manual uploads through on-site data collection using a USB 
+drive.
 
-- **Visitor Center Data**:
+### Visitor Center Data
 
-    The visitor center data file is an internal 
-    administrative data file maintained by the Bavarian Forest National 
-    Park. This data file includes daily counts of visitors to the various 
-    visitor centers (add the types of visitor centers) as well as columns 
-    that indicate whether or not the visitor center was open or closed on a
-    given day. Additionally, temporal-related information is kept in this 
-    administrative file, including whether or not a given day was a federal
-    or national holiday (Bavarian or Czech; School or Federal or School 
-    holiday), the season, the day of the week, and date.
+The visitor center data file is an internal 
+administrative data file maintained by the Bavarian Forest National 
+Park. This data file includes daily counts of visitors to the various 
+visitor centers (add the types of visitor centers) as well as columns 
+that indicate whether or not the visitor center was open or closed on a
+given day. Additionally, temporal-related information is kept in this 
+administrative file, including whether or not a given day was a federal
+or national holiday (Bavarian or Czech; School or Federal or School 
+holiday), the season, the day of the week, and date.
 
-- **Weather Data**:
+### Weather Data
 
-    Historical and forecasted weather data was sourced 
-    using the Meteostat Python API, a powerful library that provides 
-    access to a comprehensive database of weather and climate 
-    information. This library allows users to retrieve data for specific 
-    locations worldwide. For our analysis, we obtained hourly historical 
-    and forecasted weather data for the Haselbach region, with specific 
-    coordinates of Latitude = 49.31452390542327 and Longitude = 
-    12.711573421032. Our analysis focused on several key variables, 
-    including wind speed (km/h), relative humidity (%), and temperature 
-    (Celsius). Additionally, we included a categorical variable that 
-    classifies the weather conditions at each hour into 27 levels, 
-    encompassing conditions such as sunny, fair, rain, heavy rain, cloudy, 
-    hail, and more. CoCo, which stands for weather “Condition Code," is 
-    the shorthand used by Meteostat to classify various weather 
-    conditions. Below is a table that outlines all levels of CoCo and how 
-    we recoded them for easier interpretation: 
+Historical and forecasted weather data was sourced 
+using the Meteostat Python API, a powerful library that provides 
+access to a comprehensive database of weather and climate 
+information. This library allows users to retrieve data for specific 
+locations worldwide. For our analysis, we obtained hourly historical 
+and forecasted weather data for the Haselbach region, with specific 
+coordinates of Latitude = 49.31452390542327 and Longitude = 
+12.711573421032. Our analysis focused on several key variables, 
+including wind speed (km/h), relative humidity (%), and temperature 
+(Celsius). Additionally, we included a categorical variable that 
+classifies the weather conditions at each hour into 27 levels, 
+encompassing conditions such as sunny, fair, rain, heavy rain, cloudy, 
+hail, and more. CoCo, which stands for weather “Condition Code," is 
+the shorthand used by Meteostat to classify various weather 
+conditions. Below is a table that outlines all levels of CoCo and how 
+we recoded them for easier interpretation: 
 
-    | Original CoCo Codes | Original CoCo Weather Description                               | Recoded CoCo Code & New Weather Description |
+| Original CoCo Codes | Original CoCo Weather Description                               | Recoded CoCo Code & New Weather Description |
 |----------------------|------------------------------------------------------------------|----------------------------------------------|
 | 1, 2                 | Clear, Fair                                                      | 1 (Sunny)                                   |
 | 3, 4, 5              | Cloudy, Overcast, Fog                                           | 2 (Clouds)                                  |
@@ -62,19 +62,19 @@
 | 23, 24, 25, 26, 27   | Lightning, Hail, Thunderstorm, Heavy Thunderstorm, Storm       | 6 (Storms)                                  |
 
 
-- **Parking Data**:
+### Parking Data
 
-    Historical and real-time parking data for the Bavarian 
-    Forest National Park is sourced from the Bayern Cloud, a cloud 
-    computing service provided by the Bavarian government to support 
-    public administration, municipalities, and other organizations in the 
-    region. The park has 12 sensors installed in its parking lots, which 
-    monitor the occupancy of parking spaces. These sensors provide data 
-    on each lot's capacity, current occupancy, and occupancy rate. 
-    However, two of the parking lot sensors are currently offline, so data 
-    from those locations is unavailable. The frequency at which the 
-    sensors transmit data to the Bayern Cloud varies, both across 
-    different sensors and within individual sensors over time.
+Historical and real-time parking data for the Bavarian 
+Forest National Park is sourced from the Bayern Cloud, a cloud 
+computing service provided by the Bavarian government to support 
+public administration, municipalities, and other organizations in the 
+region. The park has 12 sensors installed in its parking lots, which 
+monitor the occupancy of parking spaces. These sensors provide data 
+on each lot's capacity, current occupancy, and occupancy rate. 
+However, two of the parking lot sensors are currently offline, so data 
+from those locations is unavailable. The frequency at which the 
+sensors transmit data to the Bayern Cloud varies, both across 
+different sensors and within individual sensors over time.
     
 
 ## Streamlit App
@@ -144,67 +144,67 @@ The Administration Dashboard is designed to assist park management in making str
 
 The Data Accessibility Point provides park administration with a seamless interface for managing and querying important data. It includes features for both uploading and downloading data, ensuring efficient data handling.
 
-1. **Data Upload Section**:
-    - Administrators can upload data related to:
+#### Data Upload Section
+- Administrators can upload data related to:
 
-        - **Visitor Count Sensors**
-        - **Visitor Count Centers**
-        - **Other Data Types**
+    - **Visitor Count Sensors**
+    - **Visitor Count Centers**
+    - **Other Data Types**
 
-    - Before uploading, users can preview the entire dataset and generate a data summary report using Pandas Profiling. This allows for a quick assessment of the data quality and structure.
-    - Once reviewed, the uploaded data is stored securely in the system for future access and analysis.
+- Before uploading, users can preview the entire dataset and generate a data summary report using Pandas Profiling. This allows for a quick assessment of the data quality and structure.
+- Once reviewed, the uploaded data is stored securely in the system for future access and analysis.
 
-2. **Data Download Section**:
-    - Users can select specific data categories to download, including:
-        - **Visitor Count Sensors**
-        - **Visitor Count Centers**
-        - **Other Categories**
-    - A preview of the selected data will be available, ensuring that users can verify the information before downloading.
+#### Data Download Section
+- Users can select specific data categories to download, including:
+    - **Visitor Count Sensors**
+    - **Visitor Count Centers**
+    - **Other Categories**
+- A preview of the selected data will be available, ensuring that users can verify the information before downloading.
 
-3. **Quering Data Section**: 
+#### Data Query Section
 
-    The query section of the Streamlit application is designed to enable users to access and analyze data related to three main categories: **Weather**, **Visitor Occupancy**, and **Parking**. Users can apply various filters such as date ranges, months, and seasons to customize their queries. Based on these selected criteria, the application generates specific queries to retrieve data points from the underlying dataset. This feature allows users to efficiently extract relevant insights.
+The query section of the Streamlit application is designed to enable users to access and analyze data related to three main categories: **Weather**, **Visitor Occupancy**, and **Parking**. Users can apply various filters such as date ranges, months, and seasons to customize their queries. Based on these selected criteria, the application generates specific queries to retrieve data points from the underlying dataset. This feature allows users to efficiently extract relevant insights.
 
-    #### Main Categories of Data
+**Main Categories of Data**
 
-    1. **Weather Data**: Includes properties like temperature, precipitation, wind speed, relative humidity, and sunshine duration. Users can retrieve meteorological information for specific time periods or analyze patterns across months and seasons.
+1. **Weather Data**: Includes properties like temperature, precipitation, wind speed, relative humidity, and sunshine duration. Users can retrieve meteorological information for specific time periods or analyze patterns across months and seasons.
 
-    2. **Visitor Occupancy**: Provides data from various visitor sensors, which include metrics such as the number of visitors entering ("IN"), exiting ("OUT"), or the total number of visitors ("TOTAL") at specific locations. This data helps to monitor and predict visitor flow within the park.
+2. **Visitor Occupancy**: Provides data from various visitor sensors, which include metrics such as the number of visitors entering ("IN"), exiting ("OUT"), or the total number of visitors ("TOTAL") at specific locations. This data helps to monitor and predict visitor flow within the park.
 
-    3. **Parking**: Captures data from parking sensors, such as occupancy levels, parking capacity, and occupancy rates. This information is useful for managing and analyzing parking facilities' utilization.
+3. **Parking**: Captures data from parking sensors, such as occupancy levels, parking capacity, and occupancy rates. This information is useful for managing and analyzing parking facilities' utilization.
 
-    #### Filters for Query Refinement
+**Filters for Query Refinement**
 
-    To refine their queries, users can apply various filters:
+To refine their queries, users can apply various filters:
 
-    - **Date Selection**: Allows users to specify a start and end date, limiting the query to a particular timeframe. By default, the date range is set to retrieve data from the past 7 days.
+- **Date Selection**: Allows users to specify a start and end date, limiting the query to a particular timeframe. By default, the date range is set to retrieve data from the past 7 days.
 
-    - **Months**: Enables users to select one or more months from January to December, filtering data based on monthly patterns.
+- **Months**: Enables users to select one or more months from January to December, filtering data based on monthly patterns.
 
-    - **Seasons**: Provides another way to filter data, allowing users to retrieve information for specific seasons: Winter, Spring, Summer, or Fall.
+- **Seasons**: Provides another way to filter data, allowing users to retrieve information for specific seasons: Winter, Spring, Summer, or Fall.
 
-    - **Year Filter**: Automatically applied based on the selected months or seasons. If no months or seasons are selected, users are prompted to choose at least one to proceed with the query.
+- **Year Filter**: Automatically applied based on the selected months or seasons. If no months or seasons are selected, users are prompted to choose at least one to proceed with the query.
 
-    Each category also has its own set of specific filters. For example:
-    - In the **Weather** category, users can select properties like temperature or precipitation.
-    - In the **Parking** category, users can choose specific parking sensors and related data, such as occupancy rates.
-    - In **Visitor Occupancy**, users can select which visitor sensors to focus on and what metrics to retrieve (e.g., IN, OUT, or TOTAL visitors).
+Each category also has its own set of specific filters. For example:
+- In the **Weather** category, users can select properties like temperature or precipitation.
+- In the **Parking** category, users can choose specific parking sensors and related data, such as occupancy rates.
+- In **Visitor Occupancy**, users can select which visitor sensors to focus on and what metrics to retrieve (e.g., IN, OUT, or TOTAL visitors).
 
-    #### Types of Queries
+**Types of Queries**
 
-    Queries are categorized into three types:
+Queries are categorized into three types:
 
-    1. **Date Range Queries**: Allow users to retrieve data within a specific timeframe. For instance, users might ask, “What was the temperature between September 1, 2024, and September 7, 2024?” This type of query is available across all three categories (Weather, Visitor Occupancy, Parking), helping users analyze short-term trends.
+1. **Date Range Queries**: Allow users to retrieve data within a specific timeframe. For instance, users might ask, “What was the temperature between September 1, 2024, and September 7, 2024?” This type of query is available across all three categories (Weather, Visitor Occupancy, Parking), helping users analyze short-term trends.
 
-    2. **Monthly Queries**: Provide aggregated data for a specific month. For example, a user might query, “What was the total visitor count in August 2024?” Monthly queries help users examine patterns over the course of a particular month.
+2. **Monthly Queries**: Provide aggregated data for a specific month. For example, a user might query, “What was the total visitor count in August 2024?” Monthly queries help users examine patterns over the course of a particular month.
 
-    3. **Seasonal Queries**: Offer insight into broader seasonal trends. For example, users can ask, “What was the parking occupancy rate during the Summer of 2024?” These queries allow users to compare data across different seasons, which is useful for seasonal forecasting and planning.
+3. **Seasonal Queries**: Offer insight into broader seasonal trends. For example, users can ask, “What was the parking occupancy rate during the Summer of 2024?” These queries allow users to compare data across different seasons, which is useful for seasonal forecasting and planning.
 
-    #### Query Generation Process
+**Query Generation Process**
 
-    The query generation process is managed by the `generate_queries` function, which dynamically constructs query strings based on the user’s inputs. The function captures all selected filters—whether they pertain to date, month, season, or a specific category—and formats them into a query structure. These queries are then outputted in a structured format that the application can execute, allowing users to easily access the data they need.
+The query generation process is managed by the `generate_queries` function, which dynamically constructs query strings based on the user’s inputs. The function captures all selected filters—whether they pertain to date, month, season, or a specific category—and formats them into a query structure. These queries are then outputted in a structured format that the application can execute, allowing users to easily access the data they need.
 
-    Additionally, the system incorporates error handling mechanisms. For instance, if the selected end date is earlier than the start date, users will receive an error message prompting them to correct the date range. Furthermore, if a query returns no data, an informative message is displayed, guiding the user to adjust their filters.
+Additionally, the system incorporates error handling mechanisms. For instance, if the selected end date is earlier than the start date, users will receive an error message prompting them to correct the date range. Furthermore, if a query returns no data, an informative message is displayed, guiding the user to adjust their filters.
 
 ---
 

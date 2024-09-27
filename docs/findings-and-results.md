@@ -3,6 +3,8 @@
 
 The analysis of visitor traffic in the Bavarian Forest National Park utilized the Extra Trees Regressor, focusing on predictions across six distinct regions. We examined 15 target variables, including total visitor counts and IN/OUT values for each region, as well as overall metrics for the park.
 
+## Model Training
+
 ### Model Fit Indices
 
 The performance of the Extra Trees Regressor was evaluated using 5-fold cross-validation for both training and test data. The average results across all folds for the target variables are summarized in the table below:
@@ -54,11 +56,11 @@ Based on the provided table, here are some observations:
 4. **Regional Disparities**:
     - Some regions, such as **Rachel-Spiegelau** and **Falkenstein-Schwellhäusl**, demonstrated relatively close MAE values (around **5-7** for both IN and OUT),       suggesting similar patterns of visitor behavior. The consistent metrics across these regions may indicate comparable attractions or services that draw visitors in and keep them within these areas.
 
-**Conclusion**
+### Conclusion
 
 The findings illustrate the Extra Trees Regressor's effectiveness in predicting visitor traffic across various regions of the Bavarian Forest National Park. The results indicate strong predictive power, especially for areas with consistent visitor patterns. These insights can aid park management in resource allocation, event planning, and enhancing visitor experience based on anticipated traffic flows.
 
-### Visitor Traffic Forecasting for Bavarian Forest National Park (BFNP)
+## Visitor Traffic Forecasting for Bavarian Forest National Park (BFNP)
 
 
 We evaluated the ExtraTree Regressor model on unseen data from **May 1, 2024, to July 22, 2024**. The model was trained on historical data and used to forecast visitor traffic in the Bavarian Forest National Park (BFNP). The results across various regions and target variables are presented below.
@@ -104,7 +106,7 @@ For `sum_IN_abs` and `sum_OUT_abs`, the ExtraTree Regressor successfully capture
 
 ---
 
-## Model Performance Insights
+### Model Performance Insights
 
 **General Performance**
 
@@ -122,7 +124,7 @@ Evaluating the model on unseen data has revealed the following key insights:
 
 ---
 
-## Key Takeaways and Future Work
+### Key Takeaways and Future Work
 
 **Improvements to Handle Extremes**
 
@@ -136,7 +138,7 @@ Different regions exhibit varied model performance, with some regions showing be
 
 Future iterations of the model could benefit from advanced feature engineering. For example, incorporating special event indicators, weather anomalies, or holiday-specific flags could help the model better predict extreme values. Additionally, exploring hybrid approaches (e.g., combining ExtraTree with LSTM models) might improve the overall performance and accuracy.
 
-## Feature Importance for Every Target Variable
+### Feature Importance for Every Target Variable
 
 <figure style={{ textAlign: "center" }}>
     <img src="/asset/Feature Importance Plots - Grid.png" alt="Here the alt text"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
