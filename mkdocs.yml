@@ -1,5 +1,7 @@
 site_name: Docs for the Bavarian Forest National Park Project
 
+site_url: https://dssgxmunich.github.io/bavarian-forest-visitor-monitoring-dssgx-24/
+
 theme:
   name: "material"
 
