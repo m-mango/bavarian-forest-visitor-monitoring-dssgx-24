@@ -12,7 +12,7 @@ bucket = "dssgx-munich-2024-bavarian-forest"
 output_file_name = "holidays_deltaweather_features_df.csv"
 output_data_folder = "preprocessed_data"
 
-window_size = 120 # Define the window size in hours that you wish to use to calculate z-scores
+window_size = 5 # Define the window size in hours that you wish to use to calculate z-scores
 
 
 # Functions
