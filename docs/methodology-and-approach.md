@@ -31,7 +31,7 @@
     given day. Additionally, temporal-related information is kept in this 
     administrative file, including whether or not a given day was a federal
     or national holiday (Bavarian or Czech; School or Federal or School 
-    holiday), the season, the day of the week, and date
+    holiday), the season, the day of the week, and date.
 
 - **Weather Data**:
 
@@ -74,7 +74,7 @@
     However, two of the parking lot sensors are currently offline, so data 
     from those locations is unavailable. The frequency at which the 
     sensors transmit data to the Bayern Cloud varies, both across 
-    different sensors and within individual sensors over time
+    different sensors and within individual sensors over time.
     
 
 ## Streamlit App
