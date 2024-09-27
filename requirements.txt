@@ -1,5 +1,11 @@
 pandas
 jupyter
+openpyxl
+prettytable
+plotly
+pycaret
+pyarrow
+numpy
 plotly
 matplotlib
 chardet
@@ -11,6 +17,9 @@ scikit-learn
 seaborn
 pycaret[full]
 pyarrow==15.0.0
+streamlit-pandas-profiling
+ydata-profiling
+pydantic-settings
 
 # Additional requirements for LSTM
 numpy

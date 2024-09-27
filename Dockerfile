@@ -10,4 +10,4 @@ COPY Docker-requirements.txt .
 RUN pip install -r Docker-requirements.txt
 
 # Run pipeline and dashboard entry script
-CMD ["streamlit", "run", "pipeline.py"]
+CMD ["streamlit", "run", "Dashboard.py"]
