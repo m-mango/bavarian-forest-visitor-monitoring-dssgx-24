@@ -21,3 +21,6 @@ streamlit-pandas-profiling
 ydata-profiling
 pydantic-settings
 
+# Additional requirements for LSTM
+numpy
+tensorflow
