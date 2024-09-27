@@ -131,7 +131,7 @@ def pipeline():
 if __name__ == "__main__":
 
     # call the sourcing and processing pipeline
-    processed_weather_data, processed_parking_data = pipeline()
+    processed_weather_data, processed_parking_data, with_zscores_and_nearest_holidays_df = pipeline()
 
     # create the dashboard
     create_dashboard_main_page(processed_weather_data, processed_parking_data)

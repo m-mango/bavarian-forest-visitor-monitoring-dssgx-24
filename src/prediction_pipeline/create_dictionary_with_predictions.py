@@ -43,7 +43,7 @@ def load_latest_models(bucket_name, folder_prefix, models_names):
         #print(response)
         if 'Contents' in response:
             # Sort files by LastModified to get the latest file
-            files = sorted(response['Contents'], key=lambda x: x['LastModified'], reverse=False)
+            files = sorted(response['Contents'], key=lambda x: x['LastModified'], reverse=True)
             latest_file = files[0]['Key']  # Get the key (file path) of the latest file
             
             obj = s3.get_object(Bucket=bucket_name, Key=latest_file)

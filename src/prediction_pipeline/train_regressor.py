@@ -103,20 +103,22 @@ def train_regressor():
             train_start = '2023-01-01'
             train_end = '2024-04-30'
             test_start = '2024-05-01'
-            test_end = '2024-07-22'
-                
+            test_end = '2024-07-21'
+    
             # Split the data into train, test, and unseen sets based on date ranges
 
             df_train = feature_dataframe[numeric_features+categorical_features+[target]].loc[train_start:train_end]
             df_test = feature_dataframe[numeric_features+categorical_features+[target]].loc[test_start:test_end]
  
+            print("missing values", df_train.isna().sum())
+
             # Setup PyCaret for the target variable with the combined data
             reg_setup = setup(data=df_train,
                             target=target, 
                             numeric_features=numeric_features, 
                             categorical_features=categorical_features,
                             fold=5,
-                            preprocess=True,
+                            preprocess=False,
                             data_split_shuffle=False,  # Do not shuffle data to maintain date order
                             session_id=123,
                             train_size=0.9)  # Use 90% of data for training 
@@ -131,11 +133,14 @@ def train_regressor():
             save_models_to_aws_s3(extra_trees_model, save_path_models, 
                                   f"extra_trees_{target}",local_path, uuid)
             print(f"Model with {target} saved to AWS S3")
+
             
             # save predictions to aws s3
             file_name = f"y_test_predicted_{target}.parquet"
-            save_predictions_to_aws_s3(predictions, save_path_predictions,file_name, uuid)
+            #save_predictions_to_aws_s3(predictions, save_path_predictions,file_name, uuid)
             print(f"Predictions with {target} saved to AWS S3")
+
+            predictions.to_csv("predictions_test.csv")
     return
 if __name__ == "__main__":
     train_regressor()

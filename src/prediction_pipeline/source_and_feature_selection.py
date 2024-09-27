@@ -2,7 +2,15 @@ import awswrangler as wr
 import pandas as pd
 import numpy as np
 import warnings
-from ...Main import pipeline
+from sourcing_data.source_historic_visitor_count import source_historic_visitor_count 
+from pre_processing.preprocess_historic_visitor_count_data import preprocess_visitor_count_data
+from sourcing_data.source_visitor_center_data import source_visitor_center_data
+from sourcing_data.source_weather import source_weather_data
+from pre_processing.preprocess_weather_data import process_weather_data
+from pre_processing.join_sensor_weather_visitorcenter import get_joined_dataframe
+from pre_processing.features_zscoreweather_distanceholidays import get_zscores_and_nearest_holidays
+from pre_processing.preprocess_visitor_center_data import process_visitor_center_data
+from datetime import datetime
 
 warnings.filterwarnings("ignore")
 
@@ -385,11 +393,13 @@ def remove_merge_from_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 def process_transformations(df: pd.DataFrame) -> pd.DataFrame:
     """Process the transformations on the DataFrame."""
+
     df = apply_cliclic_tranformations(df, cyclic_features = ['Tag','Hour', 'Monat', 'Wochentag'])
     df = standardize_numeric_features(df, standardize_features = ['Temperature (°C)', 'Relative Humidity (%)', 'Wind Speed (km/h)',
                                                                   'Distance_to_Nearest_Holiday_Bayern','Distance_to_Nearest_Holiday_CZ'])
     df = get_dummy_encodings(df, columns_to_use = ['Jahreszeit', 'coco_2'])
     df = handle_binary_values(df)
+    
 
     return df
 
@@ -403,15 +413,39 @@ def filter_features_for_modelling(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def get_features():
+        # get the historic visitor count data
+    sourced_visitor_count_df = source_historic_visitor_count()
+   
+    processed_visitor_count_df = preprocess_visitor_count_data(sourced_visitor_count_df)
+
+    # get the visitor centers data
+
+    # source visitor center data
+    sourced_vc_data_df = source_visitor_center_data()
+
+    processed_vc_df_hourly,_ = process_visitor_center_data(sourced_vc_data_df)
+    processed_vc_df_hourly['Hour'] = processed_vc_df_hourly['Time'].dt.hour
+    # get the weather data
+    weather_data = source_weather_data(start_time = datetime(2022, 1, 1), end_time = datetime(2024, 7, 22) )
+
+    processed_weather_df = process_weather_data(weather_data)
+
+    # join the dataframes
+    joined_df = get_joined_dataframe(processed_weather_df, processed_visitor_count_df, processed_vc_df_hourly)
+
+    #  z score normalization
+    columns_for_zscores = [ 'Temperature (°C)','Relative Humidity (%)','Wind Speed (km/h)']
+    with_zscores_and_nearest_holidays_df = get_zscores_and_nearest_holidays(joined_df, columns_for_zscores)
 
     #sourced_df = load_csv_files_from_aws_s3(path=source_train_path) 
-    _,_,sourced_df = pipeline()
+    sourced_df = with_zscores_and_nearest_holidays_df
+
     sliced_df = sourced_df[(sourced_df['Time'] >= start_date) & (sourced_df['Time'] <= end_date)]
     removed_merged_df = remove_merge_from_columns(sliced_df)
     regionwise_df = get_regionwise_IN_and_OUT_columns(removed_merged_df)
-    df_delta_newfeatures = load_csv_files_from_aws_s3(path=delta_calculations_path)
-    merged_df = merge_new_features(regionwise_df, df_delta_newfeatures)
-    changed_datatypes_df = change_datatypes(merged_df, dtype_dict)
+    #df_delta_newfeatures = load_csv_files_from_aws_s3(path=delta_calculations_path)
+    #merged_df = merge_new_features(regionwise_df, df_delta_newfeatures)
+    changed_datatypes_df = change_datatypes(regionwise_df, dtype_dict)
     processed_features_df = process_transformations(changed_datatypes_df)
     filtered_features_df = filter_features_for_modelling(processed_features_df)
 
