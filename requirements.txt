@@ -2,15 +2,16 @@ pandas
 jupyter
 plotly
 matplotlib
-numpy 
 chardet
 meteostat
 awswrangler
 stldecompose
-tensorflow
 prophet
 scikit-learn
 seaborn
 pycaret[full]
 pyarrow==15.0.0
 
+# Additional requirements for LSTM
+numpy
+tensorflow
