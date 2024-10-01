@@ -1,5 +1,11 @@
 pandas
 jupyter
+openpyxl
+prettytable
+plotly
+pycaret
+pyarrow
+numpy
 plotly
 matplotlib
 chardet
@@ -16,3 +22,6 @@ ydata-profiling
 pydantic-settings
 openpyxl
 
+# Additional requirements for LSTM
+numpy
+tensorflow

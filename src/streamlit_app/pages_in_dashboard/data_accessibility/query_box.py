@@ -96,7 +96,7 @@ def select_filters(category):
 
     else:
         year = None
-        st.write("Please select a month or season to choose a year.")
+        st.markdown(":green[Please select a month or season to choose a year.]")
 
         
     # Select the sensors or weather values or parking values
@@ -453,7 +453,7 @@ def get_query_section():
             if selected_query in value:
                 selected_query_type = key
 
-        submitted = st.form_submit_button("Run Query")
+        submitted = st.form_submit_button(":green[Run Query]")
     if submitted:
         # get_data_from_query(selected_query,selected_query_type,selected_category)
         queried_df = get_data_from_query(selected_category,selected_query,selected_query_type)
