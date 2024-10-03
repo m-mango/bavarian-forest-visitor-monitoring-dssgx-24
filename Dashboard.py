@@ -30,14 +30,13 @@ from datetime import datetime
 # Set the page layout - it is a two column layout
 col1, col2 = page_layout_config.get_page_layout()
 
-def create_dashboard_main_page(processed_weather_data, processed_parking_data):
+def create_dashboard_main_page(processed_weather_data):
 
     """
     Create the dashboard for the Bavarian Forest National Park.
 
     Args:
         processed_weather_data (pd.DataFrame): Processed weather data.
-        processed_parking_data (pd.DataFrame): Processed parking data.
 
     Returns:
         None
@@ -54,7 +53,7 @@ def create_dashboard_main_page(processed_weather_data, processed_parking_data):
         visitor_count.get_visitor_counts_section()
 
         # get the parking section
-        parking.get_parking_section(processed_parking_data)
+        parking.get_parking_section()
 
 
     with col2:
@@ -83,18 +82,14 @@ def pipeline():
     
     Returns:
         processed_weather_data (pd.DataFrame): Processed weather data.
-        processed_parking_data (pd.DataFrame): Processed parking data.
     """
 
     # Source all data
-    visitor_counts_data, parking_data, weather_data  = source_all_data()
+    visitor_counts_data, weather_data  = source_all_data()
 
     # Process the weather data
     processed_weather_data = pwd.process_weather_data(weather_data)
 
-    # process the parking data
-    processed_parking_data = prtpd.process_real_time_parking_data(parking_data)
-    
 
     ####################################################################################################
     # Prediction Pipeline
@@ -126,14 +121,14 @@ def pipeline():
 
 
 
-    return processed_weather_data, processed_parking_data
+    return processed_weather_data
 
 if __name__ == "__main__":
 
     # call the sourcing and processing pipeline
-    processed_weather_data, processed_parking_data = pipeline()
+    processed_weather_data = pipeline()
 
     # create the dashboard
-    create_dashboard_main_page(processed_weather_data, processed_parking_data)
+    create_dashboard_main_page(processed_weather_data)
 
     

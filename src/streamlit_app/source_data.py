@@ -16,6 +16,8 @@ import requests
 from datetime import datetime
 import os
 from meteostat import Hourly, Point
+import src.streamlit_app.pre_processing.process_real_time_parking_data as prtpd
+import streamlit as st
 
 
 ########################################################################################
@@ -201,13 +203,13 @@ def source_weather_data():
     return weather_hourly
 
 
-def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame]:
 
     """
-    Source all the data required for the dashboard.
+    Sources the weather data and the historic visitor count data for the dashboard.
 
     Returns:
-        tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]: Historic visitor counts data, real-time parking data, and weather data.
+        tuple[pd.DataFrame, pd.DataFrame]: Historic visitor counts data, and weather data.
     """
     # Load the visyor count data form AWS S3
     historic_visitor_counts = source_data_from_aws_s3(
@@ -216,6 +218,22 @@ def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     print("Historic visitor counts data loaded successfully!")
 
+    # Source the weather data
+    weather_data_df = source_weather_data()
+
+    print("Weather data sourced successfully!")
+
+    return historic_visitor_counts, weather_data_df
+
+@st.cache_data(ttl="20min")
+def source_and_preprocess_realtime_parking_data() -> tuple[pd.DataFrame, object]:
+
+    """
+    Source and preprocess the real-time parking data. Returns the timestamp of when the function was run.
+
+    Returns:
+        pd.DataFrame: Preprocessed real-time parking data.
+    """
     # Source the parking data from bayern cloud
     all_parking_dataframes = []
     for location_slug in parking_sensors.keys():
@@ -227,9 +245,13 @@ def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     print("Parking data sourced successfully!")
 
-    # Source the weather data
-    weather_data_df = source_weather_data()
+    # Preprocess the parking data
+    processed_parking_data = prtpd.process_real_time_parking_data(all_parking_data)
 
-    print("Weather data sourced successfully!")
+    print("Parking data processed and cleaned!")
 
-    return historic_visitor_counts, all_parking_data, weather_data_df
+    # Return the timestamp of when the function was run
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"Parking data processed and cleaned at {timestamp} UTC.")
+
+    return processed_parking_data, timestamp
