@@ -251,7 +251,7 @@ def source_and_preprocess_realtime_parking_data() -> tuple[pd.DataFrame, object]
     print("Parking data processed and cleaned!")
 
     # Return the timestamp of when the function was run
-    timestamp = datetime.now()
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"Parking data processed and cleaned at {timestamp} UTC.")
 
     return processed_parking_data, timestamp
