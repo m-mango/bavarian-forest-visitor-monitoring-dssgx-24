@@ -236,6 +236,7 @@ def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     return historic_visitor_counts, all_parking_data, weather_data_df
 
+@st.cache_data(ttl="20min")
 def source_and_preprocess_realtime_parking_data() -> tuple[pd.DataFrame, object]:
 
     """
