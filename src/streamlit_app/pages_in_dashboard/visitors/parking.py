@@ -116,6 +116,9 @@ def get_parking_section():
     # Convert the occupancy rate to numeric and handle errors
     processed_parking_data['current_occupancy_rate'] = pd.to_numeric(processed_parking_data['current_occupancy_rate'], errors='coerce')
 
+    # Map occupancy rate to status (High, Medium, Low)
+    processed_parking_data['occupancy_status'] = processed_parking_data['current_occupancy_rate'].apply(get_occupancy_status)
+
     # Calculate center of the map based on the average of latitudes and longitudes
     avg_latitude = processed_parking_data['latitude'].mean()
     avg_longitude = processed_parking_data['longitude'].mean()
@@ -134,21 +137,18 @@ def get_parking_section():
         get_position=["longitude", "latitude"],
         get_radius="size",
         get_fill_color="color",
-        pickable=True
+        pickable=True,
     )
 
     deck = pdk.Deck(
         layers=[layer],
         initial_view_state=view_state,
         tooltip={
-            "text": "{location}\nAvailable Spaces: {current_availability} cars\nOccupancy Rate: {current_occupancy_rate}%"
+            "text": "{location}\nOccupancy Status: {occupancy_status}"
         },
         map_style="road"
     )
     st.pydeck_chart(deck)
-
-    # Map occupancy rate to status (High, Medium, Low)
-    processed_parking_data['occupancy_status'] = processed_parking_data['current_occupancy_rate'].apply(get_occupancy_status)
 
     # Interactive Metrics
     selected_location = st.selectbox(
