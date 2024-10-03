@@ -10,9 +10,12 @@ def get_fixed_size():
     """
     return 450  
 
-def calculate_color(occupancy_rate):
+def calculate_color_based_on_occupancy_rate(occupancy_rate) -> dict:
     """
     Calculate the color of the marker based on the occupancy rate.
+    Returns a named tuple with the RGB values and a CSS gradient color value.
+
+
 
     Args:
         occupancy_rate (float): The occupancy rate of the parking section.
@@ -23,30 +26,15 @@ def calculate_color(occupancy_rate):
     occupancy_rate = float(occupancy_rate)
 
     if occupancy_rate >= 80:
-        return [230, 39, 39] # red
+        return {"color_markers_map_visualization": [230, 39, 39],
+                "color_bar_occupancy_rate": "red"} # red
     elif occupancy_rate >= 60:
-        return [250, 232, 8] #yellow
-    
+        return {"color_markers_map_visualization": [250, 232, 8],
+                "color_bar_occupancy_rate": "yellow"} # yellow
     else:
-        return [33, 82, 2] #green
+        return {"color_markers_map_visualization": [109, 249, 2],
+                "color_bar_occupancy_rate": "green"} # green
 
-def occupancy_to_color(occupancy_rate):
-    """
-    Convert occupancy rate to a CSS gradient color value.
-    
-    Args:
-        occupancy_rate (float): The occupancy rate of the parking section.
-
-    Returns:
-        str: The CSS color string representing the gradient color.
-    """
-    occupancy_rate = float(occupancy_rate)
-    if occupancy_rate >= 80:
-        return "red"
-    elif occupancy_rate >= 60:
-        return "yellow"
-    else:
-        return "green"
 
 def get_occupancy_status(occupancy_rate):
     """
@@ -80,7 +68,7 @@ def render_occupancy_bar(occupancy_rate):
     occupancy_rate = min(max(float(occupancy_rate), minimum_value_of_occupancy), 100)
     
     # Define the color based on occupancy
-    bar_color = occupancy_to_color(occupancy_rate)
+    bar_color = calculate_color_based_on_occupancy_rate(occupancy_rate)["color_bar_occupancy_rate"]
 
     # Create an HTML div with the appropriate width based on occupancy rate
     st.markdown(f"""
@@ -111,7 +99,7 @@ def get_parking_section():
     
     # Set a fixed size for all markers
     processed_parking_data['size'] = get_fixed_size()
-    processed_parking_data['color'] = processed_parking_data['current_occupancy_rate'].apply(calculate_color)
+    processed_parking_data['color'] = processed_parking_data['current_occupancy_rate'].apply(lambda occupancy_rate: calculate_color_based_on_occupancy_rate(occupancy_rate)["color_markers_map_visualization"])
 
     # Convert the occupancy rate to numeric and handle errors
     processed_parking_data['current_occupancy_rate'] = pd.to_numeric(processed_parking_data['current_occupancy_rate'], errors='coerce')
