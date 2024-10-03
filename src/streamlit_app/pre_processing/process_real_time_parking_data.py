@@ -1,5 +1,6 @@
 # import libraries
 import pandas as pd
+import streamlit as st
 
 
 def impute_missing_data(all_parking_data):
@@ -40,6 +41,9 @@ def process_real_time_parking_data(parking_data_df):
 
 
     clean_parking_data = impute_missing_data(parking_data_df)
+
+    if 'preprocessed_parking_data' not in st.session_state:
+        st.session_state['preprocessed_parking_data'] = clean_parking_data
 
     print("Parking data processed and cleaned!")
 
