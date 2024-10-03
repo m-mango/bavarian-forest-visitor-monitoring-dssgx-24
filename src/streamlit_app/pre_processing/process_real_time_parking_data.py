@@ -42,9 +42,6 @@ def process_real_time_parking_data(parking_data_df):
 
     clean_parking_data = impute_missing_data(parking_data_df)
 
-    if 'preprocessed_parking_data' not in st.session_state:
-        st.session_state['preprocessed_parking_data'] = clean_parking_data
-
     print("Parking data processed and cleaned!")
 
     return clean_parking_data
