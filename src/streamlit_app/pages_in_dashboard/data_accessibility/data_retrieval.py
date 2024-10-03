@@ -396,7 +396,7 @@ def get_visitor_centers_data(objects):
     # if there are multiple objects get the last modified one
     object_to_be_queried = objects[-1]
     # Read the excel file from S3 skipping the last row which is a NaN row. Probably this would have to be dropped if data quality check is implemented
-    df = wr.s3.read_excel(f"{object_to_be_queried}", skipfooter=1)
+    df = wr.s3.read_excel(f"{object_to_be_queried}", skipfooter=1, engine="openpyxl")
     return df
 
 def get_weather_data(objects):
