@@ -75,8 +75,9 @@ def render_occupancy_bar(occupancy_rate):
     Returns:
         None
     """
-    # Ensure occupancy rate is between 0 and 100
-    occupancy_rate = min(max(float(occupancy_rate), 0), 100)
+    # Ensure occupancy rate is between minimum value and 100
+    minimum_value_of_occupancy = 5
+    occupancy_rate = min(max(float(occupancy_rate), minimum_value_of_occupancy), 100)
     
     # Define the color based on occupancy
     bar_color = occupancy_to_color(occupancy_rate)
