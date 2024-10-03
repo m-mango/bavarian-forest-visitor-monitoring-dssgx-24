@@ -2,6 +2,7 @@
 import streamlit as st
 import pydeck as pdk
 import pandas as pd
+from src.streamlit_app.source_data import source_and_preprocess_realtime_parking_data
 
 def get_fixed_size():
     """
@@ -87,7 +88,8 @@ def render_occupancy_bar(occupancy_rate):
     </div>
     """, unsafe_allow_html=True)
 
-def get_parking_section(processed_parking_data):
+@st.fragment(run_every="30min")
+def get_parking_section():
     """
     Display the parking section of the dashboard with a map showing the real-time parking occupancy 
     and interactive metrics.
@@ -98,7 +100,13 @@ def get_parking_section(processed_parking_data):
     Returns:
         None
     """
+
+    # Source and preprocess the parking data
+    processed_parking_data, timestamp_latest_parking_data_fetch = source_and_preprocess_realtime_parking_data()
+
     st.markdown("### Real Time Parking Occupancy")
+
+    st.write(f"Parking Data last updated: {timestamp_latest_parking_data_fetch}")
     
     # Set a fixed size for all markers
     processed_parking_data['size'] = get_fixed_size()
