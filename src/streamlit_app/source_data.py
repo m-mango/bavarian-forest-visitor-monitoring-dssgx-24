@@ -16,6 +16,8 @@ import requests
 from datetime import datetime
 import os
 from meteostat import Hourly, Point
+import src.streamlit_app.pre_processing.process_real_time_parking_data as prtpd
+import streamlit as st
 
 
 ########################################################################################
@@ -233,3 +235,33 @@ def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     print("Weather data sourced successfully!")
 
     return historic_visitor_counts, all_parking_data, weather_data_df
+
+def source_and_preprocess_realtime_parking_data() -> tuple[pd.DataFrame, object]:
+
+    """
+    Source and preprocess the real-time parking data. Returns the timestamp of when the function was run.
+
+    Returns:
+        pd.DataFrame: Preprocessed real-time parking data.
+    """
+    # Source the parking data from bayern cloud
+    all_parking_dataframes = []
+    for location_slug in parking_sensors.keys():
+        print(f"Fetching and saving real-time occupancy data for location '{location_slug}'...")
+        parking_df = source_parking_data_from_cloud(location_slug)
+        all_parking_dataframes.append(parking_df)
+
+    all_parking_data = merge_all_df_from_list(all_parking_dataframes)
+
+    print("Parking data sourced successfully!")
+
+    # Preprocess the parking data
+    processed_parking_data = prtpd.process_real_time_parking_data(all_parking_data)
+
+    print("Parking data processed and cleaned!")
+
+    # Return the timestamp of when the function was run
+    timestamp = datetime.now()
+    print(f"Parking data processed and cleaned at {timestamp} UTC.")
+
+    return processed_parking_data, timestamp

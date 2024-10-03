@@ -32,7 +32,9 @@ def calculate_color(occupancy_rate):
         return [109, 249, 2] #green
 
 
-def get_parking_section(processed_parking_data):
+def get_parking_section(
+        processed_parking_data,
+        timestamp_latest_parking_data_fetch):
     """
     
     Display the parking section of the dashboard with a map showing the real-time parking occupancy 
@@ -45,6 +47,8 @@ def get_parking_section(processed_parking_data):
         None
     """
     st.markdown("### Real Time Parking Occupancy")
+
+    st.write(f"Parking Data last updated: {timestamp_latest_parking_data_fetch}")
     
     # Set a fixed size for all markers
     processed_parking_data['size'] = get_fixed_size()
