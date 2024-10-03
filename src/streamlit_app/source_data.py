@@ -203,13 +203,13 @@ def source_weather_data():
     return weather_hourly
 
 
-def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame]:
 
     """
-    Source all the data required for the dashboard.
+    Sources the weather data and the historic visitor count data for the dashboard.
 
     Returns:
-        tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]: Historic visitor counts data, real-time parking data, and weather data.
+        tuple[pd.DataFrame, pd.DataFrame]: Historic visitor counts data, and weather data.
     """
     # Load the visyor count data form AWS S3
     historic_visitor_counts = source_data_from_aws_s3(
@@ -218,23 +218,12 @@ def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     print("Historic visitor counts data loaded successfully!")
 
-    # Source the parking data from bayern cloud
-    all_parking_dataframes = []
-    for location_slug in parking_sensors.keys():
-        print(f"Fetching and saving real-time occupancy data for location '{location_slug}'...")
-        parking_df = source_parking_data_from_cloud(location_slug)
-        all_parking_dataframes.append(parking_df)
-
-    all_parking_data = merge_all_df_from_list(all_parking_dataframes)
-
-    print("Parking data sourced successfully!")
-
     # Source the weather data
     weather_data_df = source_weather_data()
 
     print("Weather data sourced successfully!")
 
-    return historic_visitor_counts, all_parking_data, weather_data_df
+    return historic_visitor_counts, weather_data_df
 
 @st.cache_data(ttl="20min")
 def source_and_preprocess_realtime_parking_data() -> tuple[pd.DataFrame, object]:
