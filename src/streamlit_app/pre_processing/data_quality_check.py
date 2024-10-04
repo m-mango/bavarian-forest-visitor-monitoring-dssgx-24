@@ -349,6 +349,9 @@ def data_quality_check(data,category):
             else:
                 print(f"Time column '{visitor_centers_time}' does not exist in the uploaded file.")
 
+            # get the start and the end dates
+            start_date, end_date = start_and_end_dates(fixed_dates_data_df, visitor_centers_time)
+            
             # save the file to the raw folder in AWS s3 bucket
             write_csv_file_to_aws_s3(data, f"{raw_folder}/{category}/visitors_count_centers_{start_date}_to_{end_date}.csv")
 
