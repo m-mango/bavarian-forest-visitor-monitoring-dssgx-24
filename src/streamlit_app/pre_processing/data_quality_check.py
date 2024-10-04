@@ -323,7 +323,7 @@ def data_quality_check(data,category):
 
             # Define the S3 path for the preprocessed file
             preprocessed_file_path = f"s3://{bucket}/{preprocessed_folder}/{category}/visitor_count_sensors_preprocessed.csv"
-            process_and_upload_data(new_processed_df, category, preprocessed_file_path)
+            process_and_upload_data(new_processed_df, preprocessed_file_path)
 
         else:
             print("Data quality check failed. Please check the columns in the uploaded file.")
