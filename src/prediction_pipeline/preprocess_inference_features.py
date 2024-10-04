@@ -21,7 +21,7 @@ from sourcing_data.source_visitor_center_data import source_visitor_center_data
 from pre_processing.preprocess_visitor_center_data import process_visitor_center_data
 from pre_processing.features_zscoreweather_distanceholidays import add_nearest_holiday_distance, add_daily_max_values, add_moving_z_scores
 # Import the transformations from the training feature selection script
-from source_and_feature_selection import process_transformations
+from modeling.source_and_feature_selection import process_transformations
 
 from datetime import datetime
 import pandas as pd
