@@ -78,12 +78,13 @@ def upload_section():
             )
             st.write(f"<style>.stButton > button {{width: 100%; height: 50px;}}</style>", unsafe_allow_html=True)
 
-        # Show the preview and summary report below the header
-        st.dataframe(st.session_state.data)
-        st.header("Data Summary Report")
+        if not upload_confirm:
+            # Show the preview and summary report below the header
+            st.dataframe(st.session_state.data)
+            st.header("Data Summary Report")
 
-        # Use the custom Pandas Profiling report function with the new theme
-        custom_pandas_profiling_report(st.session_state.data)
+            # Use the custom Pandas Profiling report function with the new theme
+            custom_pandas_profiling_report(st.session_state.data)
 
         if upload_confirm:
             # Send the uploaded file to data_quality_check instead of the DataFrame
