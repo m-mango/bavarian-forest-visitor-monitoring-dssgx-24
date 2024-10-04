@@ -17,6 +17,8 @@ def convert_sensor_dictionary_to_excel_file(
     """
     Convert sensor dictionary to a Pandas Dataframe and save it as an Excel file.
 
+    Info: This function is not used as of now, but might be useful in the future for handling changes to the sensor configuration.
+
     Args:
         sensor_dict (dict): A dictionary containing sensor data.
         output_file_path (str): The path to the output Excel file.
@@ -51,6 +53,8 @@ def convert_sensor_excel_file_to_dictionary(
         sensor_file_path: str) -> dict:
     """
     Convert Excel file containing sensor configuration data to a dictionary.
+
+    Info: This function is not used as of now, but might be useful in the future for handling changes to the sensor configuration.
 
     Args:
         sensor_file_path (str): The path to the Excel file.
