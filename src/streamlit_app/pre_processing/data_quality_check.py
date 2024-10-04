@@ -358,7 +358,7 @@ def data_quality_check(data,category):
             # add the upload time to the last column
             new_processed_df["Upload_time"] = pd.to_datetime("today").strftime('%Y-%m-%d %H:%M:%S')
 
-            preprocessed_file_path = f"s3://{bucket}/{preprocessed_folder}/{category}/visitor_count_sensors_preprocessed.csv"
+            preprocessed_file_path = f"s3://{bucket}/{preprocessed_folder}/{category}/visitor_count_centers_preprocessed.csv"
 
             process_and_upload_data(new_processed_df, preprocessed_file_path)
         else:
