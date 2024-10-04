@@ -24,9 +24,9 @@ with col1:
 
     # Tabs for Upload and Download
     tab1, tab2 = st.tabs(["Upload Data", "Download Data"])
-    if tab1:
+    with tab1:
         upload_section()
-    if tab2:
+    with tab2:
         download_section()
 
 with col2:
