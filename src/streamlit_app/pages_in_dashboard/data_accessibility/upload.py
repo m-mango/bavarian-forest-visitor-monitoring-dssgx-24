@@ -21,9 +21,9 @@ def generate_file_name(category: str, upload_timestamp: str) -> str:
 def read_csv_file(uploaded_file):
     # Check the file extension and read accordingly
     if uploaded_file.name.endswith('.csv'):
-        return pd.read_csv(uploaded_file)
+        return pd.read_csv(uploaded_file, index_col=False)
     elif uploaded_file.name.endswith('.xlsx'):
-        return pd.read_excel(uploaded_file)
+        return pd.read_excel(uploaded_file, dtype=object, engine = 'openpyxl')
     else:
         st.error("Unsupported file format. Please upload a CSV or Excel file.")
         return None
@@ -49,13 +49,8 @@ def upload_section():
 
     # Only read the file if it has been uploaded
     if uploaded_file:
-        # Process based on category
-        if category == "visitor_count_sensors":
-            data = pd.read_csv(uploaded_file, index_col=False)
-        elif category == "visitors_count_centers":
-            data = pd.read_excel(uploaded_file, dtype=object, engine =  'openpyxl')
-        elif category == "other":
-            data = pd.read_csv(uploaded_file)
+        # Check if uploaded file is a CSV or Excel file
+        data = read_csv_file(uploaded_file)
 
     # Ensure that both file and category are provided before proceeding
     if uploaded_file and category and data is not None:
