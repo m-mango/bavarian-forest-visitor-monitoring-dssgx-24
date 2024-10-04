@@ -78,8 +78,9 @@ def upload_section():
             st.dataframe(st.session_state.data)
             st.header("Data Summary Report")
 
-            # Use the custom Pandas Profiling report function with the new theme
-            custom_pandas_profiling_report(st.session_state.data)
+            with st.spinner('Profiling the uploaded data...'):
+                # Use the custom Pandas Profiling report function with the new theme
+                custom_pandas_profiling_report(st.session_state.data)
 
         if upload_confirm:
             # Send the uploaded file to data_quality_check instead of the DataFrame
