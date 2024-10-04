@@ -25,7 +25,7 @@ def download_section():
     # Select category
     category = st.selectbox(
         "Select the data category to browse",
-        ["visitor count sensors", "visitors count centers", "other"]
+        ["visitor_count_sensors", "visitors_count_centers", "other"]
     )
     
     # List files based on category
