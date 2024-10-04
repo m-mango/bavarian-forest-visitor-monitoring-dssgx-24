@@ -47,11 +47,11 @@ def get_recreation_section():
             <div style="
                 padding: 5px 10px;
                 margin-bottom: 8px;
-                background-color: #333;
+                background-color: #215202;
                 border-radius: 5px;
                 text-align: left;">
                 <h5 style="color: #fff; margin: 0;">{info['emoji']} {activity}</h5>
                 <p style="color: #ccc; margin: 3px 0; font-size: 0.9em;">{info['description']}</p>
-                <a href="{info['link']}" target="_blank" style="color: #00ff00; font-size: 0.9em; text-decoration: none;">Learn More</a>
+                <a href="{info['link']}" target="_blank" style="color: #dee8c7; font-size: 0.9em; text-decoration: none;">Learn More</a>
             </div>
         """, unsafe_allow_html=True)
