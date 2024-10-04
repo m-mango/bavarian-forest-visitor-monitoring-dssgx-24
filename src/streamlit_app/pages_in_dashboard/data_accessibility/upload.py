@@ -83,7 +83,7 @@ def upload_section():
                 custom_pandas_profiling_report(st.session_state.data)
 
         if upload_confirm:
-            # Send the uploaded file to data_quality_check instead of the DataFrame
+            # Check the data and if it passes, upload the preprocessed file to AWS S3
             status = data_quality_check(st.session_state.data, category)
 
             if not status:
@@ -97,6 +97,6 @@ def upload_section():
                 file_name = generate_file_name(category, upload_timestamp)
                 s3_path = f"s3://{bucket}/{base_folder}/{category.replace(' ', '_')}/{file_name}"
 
-                # Upload the file to AWS S3
+                # Upload the raw file to AWS S3
                 write_csv_file_to_aws_s3(st.session_state.data, s3_path, index=False)
                 st.success("File successfully uploaded.")
