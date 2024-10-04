@@ -38,7 +38,7 @@ def upload_section():
     # Select category
     category = st.selectbox(
         "Select the data category",
-        ["visitor_count_sensors", "visitors_count_centers"],
+        ["visitor_count_sensors", "visitors_count_centers", "other"],
     )
 
     # File upload
