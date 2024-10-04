@@ -1,20 +1,15 @@
 """
 This script creates a dictionary with predictions for the selected models. 
 
-This needs to load the models from AWS and train on an inference df that is generated from the source_preprocess_inference_data function. This last function is in base_inference_df.py and seems to be working fine.
+This needs to load the models from AWS and train on an inference df that is generated from 
+the source_preprocess_inference_data function. 
+"""
 
-1. """
-
-
-
-#from base_inference_df import source_preprocess_inference_data
-import boto3
-import pickle
+import awswrangler as wr
 import pandas as pd
-from pycaret.regression import load_model, predict_model  # Change to regression if needed
-from base_inference_df import source_preprocess_inference_data
-# Initialize S3 client
-s3 = boto3.client('s3')
+from pycaret.regression import load_model
+# Write the import from src..... when called from the Main.py
+from preprocess_inference_features import source_preprocess_inference_data
 
 
 # Your AWS bucket and folder details where models are stored
@@ -22,14 +17,18 @@ bucket_name = 'dssgx-munich-2024-bavarian-forest'
 folder_prefix = 'models/models_trained/b6d6d8dc-9cd7-4213-a1d1-d567170ccdd7/'  # If you have a specific folder
 
 
-target_vars_et  = ['traffic_abs', 'sum_IN_abs', 'sum_OUT_abs', 'Lusen-Mauth-Finsterau IN', 'Lusen-Mauth-Finsterau OUT', 
-               'Nationalparkzentrum Lusen IN', 'Nationalparkzentrum Lusen OUT', 'Rachel-Spiegelau IN', 'Rachel-Spiegelau OUT', 'Falkenstein-Schwellhäusl IN', 'Falkenstein-Schwellhäusl OUT',             'Scheuereck-Schachten-Trinkwassertalsperre IN', 'Scheuereck-Schachten-Trinkwassertalsperre OUT', 
-               'Nationalparkzentrum Falkenstein IN', 'Nationalparkzentrum Falkenstein OUT']
+target_vars_et  = ['traffic_abs', 'sum_IN_abs', 'sum_OUT_abs', 
+                    'Lusen-Mauth-Finsterau IN', 'Lusen-Mauth-Finsterau OUT', 
+                    'Nationalparkzentrum Lusen IN', 'Nationalparkzentrum Lusen OUT',
+                    'Rachel-Spiegelau IN', 'Rachel-Spiegelau OUT', 
+                    'Falkenstein-Schwellhäusl IN', 'Falkenstein-Schwellhäusl OUT',
+                    'Scheuereck-Schachten-Trinkwassertalsperre IN', 'Scheuereck-Schachten-Trinkwassertalsperre OUT', 
+                    'Nationalparkzentrum Falkenstein IN', 'Nationalparkzentrum Falkenstein OUT']
 
 
-#models_names = ["extra_trees_" + model for model in target_vars_et]
-
-models_names = ["extra_trees_Falkenstein-Schwellhäusl IN"]
+# model names 
+model_names = [f'extra_trees_{var}' for var in target_vars_et]
+\
 
 def load_latest_models(bucket_name, folder_prefix, models_names):
     """
@@ -56,10 +55,10 @@ def load_latest_models(bucket_name, folder_prefix, models_names):
             authentication={'bucket' : bucket_name, 'path': folder_prefix},
             model_name=model)
         
-        print(type(saved_lr))
-        print(saved_lr)
-
-
+        # Store the loaded model in the dictionary
+        loaded_models[f'{model}'] = saved_lr
+    
+    return loaded_models
 
 
 
@@ -85,23 +84,35 @@ def predict_with_models(loaded_models, df_features):
             # Make predictions
             predictions = model.predict(df_features)
             
-            # Create a new DataFrame for the predictions
+            # Create a new DataFrame for the predictions with the time column
             df_predictions = pd.DataFrame(predictions, columns=[f'{model_name}_predictions'])
+
+            # Make the index column 'Time'
+            df_predictions['Time'] = df_features.index
             
             # Store the DataFrame in the dictionary
             prediction_dfs[model_name] = df_predictions
-        #else:
-           # print(f"Error: {model_name} is not a valid model. It is of type {type(model)}")
+    
+            # save the prediction dataframe as a parquet file in aws
+            wr.s3.to_parquet(df_predictions,path = f"s3://{bucket_name}/models/inference_data_outputs/{model_name}.parquet")
+
+            print(f"Predictions for {model_name} stored successfully")
+        else:
+           print(f"Error: {model_name} is not a valid model. It is of type {type(model)}")
 
     return prediction_dfs
 
 def main():
-    load_latest_models(bucket_name, folder_prefix, models_names)
+
+    loaded_models = load_latest_models(bucket_name, folder_prefix, model_names)
+
+    print("Models loaded successfully")
     
-    #inference_data = source_preprocess_inference_data()
+    inference_data = source_preprocess_inference_data()
+
+    print("Inference data loaded successfully")
     
-    #prediction_dfs = predict_with_models(loaded_models, inference_data)
-    #print(prediction_dfs)
+    predict_with_models(loaded_models, inference_data)
 
 if __name__ == "__main__":
     main()
