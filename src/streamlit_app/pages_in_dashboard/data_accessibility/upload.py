@@ -51,7 +51,7 @@ def upload_section():
     if uploaded_file:
         # Process based on category
         if category == "visitor_count_sensors":
-            data = pd.read_csv(uploaded_file, skiprows=2, index_col=None)
+            data = pd.read_csv(uploaded_file, index_col=False)
         elif category == "visitors_count_centers":
             data = pd.read_excel(uploaded_file, dtype=object, engine =  'openpyxl')
         elif category == "other":
