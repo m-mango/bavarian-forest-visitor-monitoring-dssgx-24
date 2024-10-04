@@ -274,7 +274,7 @@ def process_and_upload_data(new_processed_df, preprocessed_file_path):
             # Concatenate the old and the new dataframes
             new_df = pd.concat([old_processed_df, new_processed_df], ignore_index=True)
             
-            # Handle duplicate dates (remove rows with the same 'Time' value, keeping the last)
+            # Handle duplicate dates (remove rows with the same 'Time' value, keeping the last: as the concatination in the previous step concats as last dataframe the new data, keep='last' will keep the latest data when there are duplicates in the 'Time' column")
             new_df = new_df.drop_duplicates(subset=['Time'], keep='last')
 
         else:
