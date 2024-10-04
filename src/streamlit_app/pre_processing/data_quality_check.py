@@ -293,8 +293,6 @@ def process_and_upload_data(new_processed_df, preprocessed_file_path, time_colum
         st.error(f"Error while processing data: {e}")
 
 def data_quality_check(data,category):
-# def data_quality_check():
-    # category = "visitor_count_sensors"
 
     if category == "visitor_count_sensors":
 
@@ -335,7 +333,7 @@ def data_quality_check(data,category):
         return status
 
  
-    if category == "visitors_count_centers":
+    elif category == "visitors_count_centers":
          
         # check for the column names match with the dictionary
         status = get_and_match_columns(data, visitor_centers)
@@ -372,6 +370,11 @@ def data_quality_check(data,category):
             # write a message to the user that if you have changed any column names, please update the configuration file
             st.error("If you have changed any column names, please update try again. You file is now uploaded to the invalid folder in the AWS s3 bucket.")
         return status
+    
+    else:
+        status = True # This category does not have a data quality check implemented, so return True
+        return status
+    
 
 if __name__ == "__main__":
     data_quality_check()
