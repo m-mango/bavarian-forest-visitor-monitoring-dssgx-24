@@ -299,85 +299,45 @@ def process_and_upload_data(new_processed_df, preprocessed_file_path, time_colum
 def data_quality_check(data,category):
 
     if category == "visitor_count_sensors":
-
-        # check the column names from the data
-        status = get_and_match_columns(data, visitor_sensors)
-
-        
-        if status:
-            # Time column preprocessing
-            # get the time column from the visitor_sensors dictionary
-            visitor_sensors_time = visitor_sensors.get('time', [None])[0]
-
-            fixed_dates_data_df = parse_german_dates(data, visitor_sensors_time)
-
-            # get the start and the end dates
-            start_date, end_date = start_and_end_dates(fixed_dates_data_df, visitor_sensors_time)
-
-            # save the file to the raw folder in AWS s3 bucket
-            write_csv_file_to_aws_s3(data, f"{raw_folder}/{category}/visitor_count_sensors_{start_date}_to_{end_date}.csv")
-            
-            # get the first date from the time column
-            new_processed_df = int_for_all_counts(fixed_dates_data_df)
-            
-            # Add upload times the last column of the dataframe
-            new_processed_df["Upload_time"] = pd.to_datetime("today").strftime('%Y-%m-%d %H:%M:%S')
-
-            # Define the S3 path for the preprocessed file
-            preprocessed_file_path = f"s3://{bucket}/{preprocessed_folder}/{category}/visitor_count_sensors_preprocessed.csv"
-            process_and_upload_data(new_processed_df, preprocessed_file_path, visitor_sensors_time)
-
-        else:
-            print("Data quality check failed. Please check the columns in the uploaded file.")
-            upload_time = pd.to_datetime("today").strftime('%Y-%m-%d %H:%M:%S')
-            write_csv_file_to_aws_s3(data, f"{invalid_upload_folder}/{category}/visitor_count_sensors_{upload_time}.csv")
-
-            # write a message to the user that if you have changed any column names, please update the configuration file
-            st.error("If you have changed any column names, please update and try again. You file is now uploaded to the invalid folder in the AWS s3 bucket.")
-        return status
-
- 
+        configuration_dict = visitor_sensors
     elif category == "visitors_count_centers":
-         
-        # check for the column names match with the dictionary
-        status = get_and_match_columns(data, visitor_centers)
-
-        if status:
-            
-            visitor_centers_time = visitor_centers.get('time', [None])[0]
-            # Only proceed if the column exists in the data
-            if visitor_centers_time in data.columns:
-                fixed_dates_data_df = parse_german_dates(data, visitor_centers_time)
-            else:
-                print(f"Time column '{visitor_centers_time}' does not exist in the uploaded file.")
-
-            # get the start and the end dates
-            start_date, end_date = start_and_end_dates(fixed_dates_data_df, visitor_centers_time)
-            
-            # save the file to the raw folder in AWS s3 bucket
-            write_csv_file_to_aws_s3(data, f"{raw_folder}/{category}/visitors_count_centers_{start_date}_to_{end_date}.csv")
-
-            # check the data types
-            new_processed_df = convert_data_types(data, visitor_centers)
-
-            # add the upload time to the last column
-            new_processed_df["Upload_time"] = pd.to_datetime("today").strftime('%Y-%m-%d %H:%M:%S')
-
-            preprocessed_file_path = f"s3://{bucket}/{preprocessed_folder}/{category}/visitor_count_centers_preprocessed.csv"
-
-            process_and_upload_data(new_processed_df, preprocessed_file_path, visitor_centers_time)
-        else:
-            print("Data quality check failed. Please check the columns in the uploaded file.")
-            upload_time = pd.to_datetime("today").strftime('%Y-%m-%d %H:%M:%S')
-            write_csv_file_to_aws_s3(data, f"{invalid_upload_folder}/{category}/visitors_count_centers_{upload_time}.csv")
-
-            # write a message to the user that if you have changed any column names, please update the configuration file
-            st.error("If you have changed any column names, please update try again. You file is now uploaded to the invalid folder in the AWS s3 bucket.")
-        return status
-    
+        configuration_dict = visitor_centers
     else:
         status = True # This category does not have a data quality check implemented, so return True
         return status
+
+    # check the column names from the data
+    status = get_and_match_columns(data, configuration_dict)
+    
+    if status:
+        # get the time column from the configuration dictionary
+        time_column = configuration_dict.get('time', [None])[0]
+
+        fixed_dates_data_df = parse_german_dates(data, time_column)
+
+        # get the start and the end dates
+        start_date, end_date = start_and_end_dates(fixed_dates_data_df, time_column)
+        
+        if category == "visitor_count_sensors":
+            new_processed_df = int_for_all_counts(fixed_dates_data_df)
+        elif category == "visitors_count_centers":
+            new_processed_df = convert_data_types(fixed_dates_data_df, visitor_centers)
+                    
+        # Add upload times the last column of the dataframe
+        new_processed_df["Upload_time"] = pd.to_datetime("today").strftime('%Y-%m-%d %H:%M:%S')
+
+        # Define the S3 path for the preprocessed file
+        preprocessed_file_path = f"s3://{bucket}/{preprocessed_folder}/{category}/{category}_preprocessed.csv"
+        process_and_upload_data(new_processed_df, preprocessed_file_path, time_column)
+
+    else:
+        print("Data quality check failed. Please check the columns in the uploaded file.")
+        upload_time = pd.to_datetime("today").strftime('%Y-%m-%d %H:%M:%S')
+        write_csv_file_to_aws_s3(data, f"{invalid_upload_folder}/{category}/{category}_{upload_time}.csv")
+
+        st.error("If you have changed any column names, please update and try again. Your file is now uploaded to the invalid folder in the AWS S3 bucket.")
+    
+    return status
     
 
 if __name__ == "__main__":
