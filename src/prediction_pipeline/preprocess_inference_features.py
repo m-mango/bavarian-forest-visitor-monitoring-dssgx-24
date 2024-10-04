@@ -1,12 +1,3 @@
-from sourcing_data.source_weather import source_weather_data
-from sourcing_data.source_visitor_center_data import source_visitor_center_data
-from pre_processing.features_zscoreweather_distanceholidays import add_nearest_holiday_distance, add_daily_max_values, add_moving_z_scores
-from source_and_feature_selection import apply_cliclic_tranformations
-from source_and_feature_selection import process_transformations
-from pre_processing.preprocess_visitor_center_data import process_visitor_center_data
-from datetime import datetime
-import pandas as pd
-
 """
 This script processes and merges weather data with visitor center data to create a comprehensive 
 inference dataset for prediction. It imports necessary functions for sourcing and preprocessing weather and visitor 
@@ -24,6 +15,18 @@ The main functionalities include:
 
 The result is a processed DataFrame ready for further analysis or modeling.
 """
+# Write the paths from src when called from the Main.py
+from sourcing_data.source_weather import source_weather_data
+from sourcing_data.source_visitor_center_data import source_visitor_center_data
+from pre_processing.preprocess_visitor_center_data import process_visitor_center_data
+from pre_processing.features_zscoreweather_distanceholidays import add_nearest_holiday_distance, add_daily_max_values, add_moving_z_scores
+# Import the transformations from the training feature selection script
+from source_and_feature_selection import process_transformations
+
+from datetime import datetime
+import pandas as pd
+
+
 
 weather_columns_for_zscores = ['Temperature (°C)', 'Relative Humidity (%)', 'Wind Speed (km/h)']
 window_size_for_zscores = 5
@@ -66,11 +69,13 @@ def source_preprocess_inference_data():
     Returns:
         pd.DataFrame: DataFrame containing preprocessed inference data.
     """
-    #get weather for previous 10 days to calculate zscores
+
+    ## Source Weather Data for inference
+    # get weather for previous 10 days to calculate zscores
     weather_data_inference = source_weather_data(start_time = datetime.now() - pd.Timedelta(days=10), 
                                                  end_time = datetime.now() + pd.Timedelta(days=7))
 
-    # get visitor center data
+    ## Source Visitor Center Data for inference
     visitor_center_data = source_visitor_center_data()
     processed_visitor_center_data = process_visitor_center_data(visitor_center_data)
     # process_visitor_center_data() returns a tuple with hourly data and daily data, we just need the first one
@@ -79,7 +84,7 @@ def source_preprocess_inference_data():
     hourly_visitor_center_data['Hour'] = hourly_visitor_center_data['Time'].dt.hour
     join_df = join_inference_data(weather_data_inference, hourly_visitor_center_data)
 
-    #feature engineering
+    # Get z scores for the weather columns
     inference_data_with_distances = add_nearest_holiday_distance(join_df)
 
     inference_data_with_daily_max = add_daily_max_values(inference_data_with_distances, weather_columns_for_zscores)
@@ -89,9 +94,10 @@ def source_preprocess_inference_data():
                                                            window_size_for_zscores)
 
 
+    # Apply the cyclic and categorical trasformations from the training dataset (same as the training dataset)
     inference_data_with_coco_enconding = process_transformations(inference_data_with_new_features)
 
-    #drop data for any day previous to datetime.now()
+    # drop data for any day previous to datetime.now()
     inference_data_with_coco_enconding = inference_data_with_coco_enconding[
                                         inference_data_with_coco_enconding["Time"] >= datetime.now()
                                         ]
