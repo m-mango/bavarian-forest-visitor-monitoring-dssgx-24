@@ -261,7 +261,7 @@ def start_and_end_dates(df,time_column):
     end_date = end_date.strftime('%Y-%m-%d')
     return start_date, end_date
 
-def process_and_upload_data(new_processed_df, preprocessed_file_path):
+def process_and_upload_data(new_processed_df, preprocessed_file_path, time_column):
     
     try:
         # Check if the file already exists in the S3 bucket
@@ -275,7 +275,7 @@ def process_and_upload_data(new_processed_df, preprocessed_file_path):
             new_df = pd.concat([old_processed_df, new_processed_df], ignore_index=True)
             
             # Handle duplicate dates (remove rows with the same 'Time' value, keeping the last: as the concatination in the previous step concats as last dataframe the new data, keep='last' will keep the latest data when there are duplicates in the 'Time' column")
-            new_df = new_df.drop_duplicates(subset=['Datum'], keep='last')
+            new_df = new_df.drop_duplicates(subset=[time_column], keep='last')
 
         else:
             st.info("No preprocessed file found. Using the new data only.")
@@ -323,7 +323,7 @@ def data_quality_check(data,category):
 
             # Define the S3 path for the preprocessed file
             preprocessed_file_path = f"s3://{bucket}/{preprocessed_folder}/{category}/visitor_count_sensors_preprocessed.csv"
-            process_and_upload_data(new_processed_df, preprocessed_file_path)
+            process_and_upload_data(new_processed_df, preprocessed_file_path, visitor_sensors_time)
 
         else:
             print("Data quality check failed. Please check the columns in the uploaded file.")
@@ -363,7 +363,7 @@ def data_quality_check(data,category):
 
             preprocessed_file_path = f"s3://{bucket}/{preprocessed_folder}/{category}/visitor_count_centers_preprocessed.csv"
 
-            process_and_upload_data(new_processed_df, preprocessed_file_path)
+            process_and_upload_data(new_processed_df, preprocessed_file_path, visitor_centers_time)
         else:
             print("Data quality check failed. Please check the columns in the uploaded file.")
             upload_time = pd.to_datetime("today").strftime('%Y-%m-%d %H:%M:%S')
