@@ -448,6 +448,10 @@ def process_visitor_center_data(sourced_df):
     # reset the index
     hourly_df.reset_index(drop=True, inplace=True)
     daily_df.reset_index(drop=True, inplace=True)
+
+    # Before saving and returning hourly_df, we need to add the hour column
+    hourly_df['Hour'] = hourly_df['Time'].dt.hour
+
     # Save to AWS
     # Save daily data to AWS for querying
     write_parquet_file_to_aws_s3(daily_df, saved_path_visitor_center_query)

@@ -18,7 +18,7 @@ import pandas as pd
 import re
 import numpy as np
 import awswrangler as wr
-from src.prediction_pipeline.sourcing_data.source_historic_visitor_count import source_historic_visitor_count
+
 pd.options.mode.chained_assignment = None  
 
 

@@ -119,14 +119,13 @@ def pipeline():
     columns_for_zscores = [ 'Temperature (°C)','Relative Humidity (%)','Wind Speed (km/h)']
     with_zscores_and_nearest_holidays_df = get_zscores_and_nearest_holidays(joined_df, columns_for_zscores)
 
+    return processed_weather_data, with_zscores_and_nearest_holidays_df
 
-
-    return processed_weather_data
 
 if __name__ == "__main__":
 
     # call the sourcing and processing pipeline
-    processed_weather_data = pipeline()
+    processed_weather_data, with_zscores_and_nearest_holidays_df = pipeline()
 
     # create the dashboard
     create_dashboard_main_page(processed_weather_data)
