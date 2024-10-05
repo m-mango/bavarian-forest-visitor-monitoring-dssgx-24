@@ -106,12 +106,9 @@ def train_regressor():
             test_end = '2024-07-21'
     
             # Split the data into train, test, and unseen sets based on date ranges
-
             df_train = feature_dataframe[numeric_features+categorical_features+[target]].loc[train_start:train_end]
             df_test = feature_dataframe[numeric_features+categorical_features+[target]].loc[test_start:test_end]
  
-            print("missing values", df_train.isna().sum())
-
             # Setup PyCaret for the target variable with the combined data
             reg_setup = setup(data=df_train,
                             target=target, 
@@ -137,7 +134,7 @@ def train_regressor():
             
             # save predictions to aws s3
             file_name = f"y_test_predicted_{target}.parquet"
-            #save_predictions_to_aws_s3(predictions, save_path_predictions,file_name, uuid)
+            save_predictions_to_aws_s3(predictions, save_path_predictions,file_name, uuid)
             print(f"Predictions with {target} saved to AWS S3")
 
     return
