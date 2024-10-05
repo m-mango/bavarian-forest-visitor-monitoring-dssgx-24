@@ -40,7 +40,7 @@ def create_datetimeindex(df):
     
     return df
 
-def join_dataframes(df_list):
+def join_dataframes(df_list) -> pd.DataFrame:
     """
     Joins a list of DataFrames using an outer join along the columns.
 
@@ -53,7 +53,7 @@ def join_dataframes(df_list):
     return reduce(lambda left, right: pd.concat([left, right], axis=1, join='outer'), df_list)
 
 
-def get_joined_dataframe(weather_data, visitor_count_data, visitorcenter_data):
+def get_joined_dataframe(weather_data, visitor_count_data, visitorcenter_data) -> pd.DataFrame:
     """
     Main function to run the data joining pipeline.
 
