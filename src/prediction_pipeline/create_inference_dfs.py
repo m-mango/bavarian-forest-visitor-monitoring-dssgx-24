@@ -64,17 +64,15 @@ def load_latest_models(bucket_name, folder_prefix, models_names):
 def predict_with_models(loaded_models, df_features):
     """
     Given a dictionary of models and a DataFrame of features, this function predicts the target
-    values using each model and stores the results in a dictionary of DataFrames.
+    values using each model and saves the inference predictions to AWS S3 (to be further loaded from Streamlit).
     
     Parameters:
     - loaded_models (dict): A dictionary of models where keys are model names and values are the trained models.
     - df_features (pd.DataFrame): A DataFrame containing the features to make predictions on.
 
     Returns:
-    - dict: A dictionary where keys are model names and values are DataFrames containing the predictions.
+    None
     """
-    # Initialize an empty dictionary to store DataFrames
-    prediction_dfs = {}
 
     # Iterate through the loaded models
     for model_name, model in loaded_models.items():
@@ -88,9 +86,6 @@ def predict_with_models(loaded_models, df_features):
 
             # Make the index column 'Time'
             df_predictions['Time'] = df_features.index
-            
-            # Store the DataFrame in the dictionary
-            prediction_dfs[model_name] = df_predictions
     
             # save the prediction dataframe as a parquet file in aws
             wr.s3.to_parquet(df_predictions,path = f"s3://{bucket_name}/models/inference_data_outputs/{model_name}.parquet")
@@ -98,8 +93,6 @@ def predict_with_models(loaded_models, df_features):
             print(f"Predictions for {model_name} stored successfully")
         else:
            print(f"Error: {model_name} is not a valid model. It is of type {type(model)}")
-
-    return prediction_dfs
 
 def main():
 
