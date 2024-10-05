@@ -80,8 +80,6 @@ def source_preprocess_inference_data():
     processed_visitor_center_data = process_visitor_center_data(visitor_center_data)
     # process_visitor_center_data() returns a tuple with hourly data and daily data, we just need the first one
     hourly_visitor_center_data = processed_visitor_center_data[0]
-    #hour column was not being created in process_visitor_center_data()
-    hourly_visitor_center_data['Hour'] = hourly_visitor_center_data['Time'].dt.hour
     join_df = join_inference_data(weather_data_inference, hourly_visitor_center_data)
 
     # Get z scores for the weather columns

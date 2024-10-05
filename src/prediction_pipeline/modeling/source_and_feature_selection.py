@@ -414,7 +414,6 @@ def get_features():
     # source and preprocess the visitor center data
     sourced_vc_data_df = source_visitor_center_data()
     processed_vc_df_hourly,_ = process_visitor_center_data(sourced_vc_data_df)
-    processed_vc_df_hourly['Hour'] = processed_vc_df_hourly['Time'].dt.hour
 
     # source and preprocess the weather data
     weather_data = source_weather_data(start_time = datetime(2022, 1, 1), end_time = datetime(2024, 7, 22) )
