@@ -3,8 +3,6 @@
 
 The analysis of visitor traffic in the Bavarian Forest National Park utilized the Extra Trees Regressor, focusing on predictions across six distinct regions. We examined 15 target variables, including total visitor counts and IN/OUT values for each region, as well as overall metrics for the park.
 
-![alt text](asset/Feature Importance Plots - Grid.png)
-
 ## Model Training
 
 ### Model Fit Indices
@@ -71,13 +69,16 @@ We evaluated the ExtraTree Regressor model on unseen data from **May 1, 2024, to
 
 The graphs presented above show how the model performs on **unseen data** from May to July 2024, which was not included in the model's training or validation phases. Evaluating on unseen data allows us to assess the model's generalizability and real-world applicability for forecasting future visitor counts.
 
+![alt text](asset/Feature Importance Plots - Grid.png)
+
+
 <figure style={{ textAlign: "center" }}>
-    <img src="/asset/Comparison of Predicted and Actual Visitor Counts to Bavarian Forest National Park (BFNP) on Unseen Data - 1.png" alt="Here the alt text"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
+    <img src="asset/Comparison of Predicted and Actual Visitor Counts to Bavarian Forest National Park (BFNP) on Unseen Data - 1.png" alt="Here the alt text"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
     <span style={{ color: "gray" }}>comparison of predicted and actual values on unseen data (1)</span>
 </figure>
 
 <figure style={{ textAlign: "center" }}>
-    <img src="/asset/Comparison of Predicted and Actual Visitor Counts to Bavarian Forest National Park (BFNP) on Unseen Data - 2.png" alt="Here the alt text"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
+    <img src="asset/Comparison of Predicted and Actual Visitor Counts to Bavarian Forest National Park (BFNP) on Unseen Data - 2.png" alt="Here the alt text"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
     <span style={{ color: "gray" }}>comparison of predicted and actual values on unseen data (2)</span>
 </figure>
 ---
