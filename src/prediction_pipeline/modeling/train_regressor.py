@@ -140,7 +140,6 @@ def train_regressor():
             #save_predictions_to_aws_s3(predictions, save_path_predictions,file_name, uuid)
             print(f"Predictions with {target} saved to AWS S3")
 
-            predictions.to_csv("predictions_test.csv")
     return
 if __name__ == "__main__":
     train_regressor()
