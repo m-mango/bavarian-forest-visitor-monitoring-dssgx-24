@@ -14,10 +14,6 @@ from datetime import datetime
 
 warnings.filterwarnings("ignore")
 
-source_train_path = "s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/joined_sensor_weather_visitorcenter_2016-2024.csv"
-
-delta_calculations_path = "s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/holidays_deltaweather_features_df.csv"
-
 ############################################################################################################
 # Global Variables
 ############################################################################################################
@@ -411,45 +407,38 @@ def filter_features_for_modelling(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def get_features():
-        # get the historic visitor count data
+    # source and preprocess the historic visitor count data
     sourced_visitor_count_df = source_historic_visitor_count()
-   
     processed_visitor_count_df = preprocess_visitor_count_data(sourced_visitor_count_df)
 
-    # get the visitor centers data
-
-    # source visitor center data
+    # source and preprocess the visitor center data
     sourced_vc_data_df = source_visitor_center_data()
-
     processed_vc_df_hourly,_ = process_visitor_center_data(sourced_vc_data_df)
     processed_vc_df_hourly['Hour'] = processed_vc_df_hourly['Time'].dt.hour
-    # get the weather data
-    weather_data = source_weather_data(start_time = datetime(2022, 1, 1), end_time = datetime(2024, 7, 22) )
 
+    # source and preprocess the weather data
+    weather_data = source_weather_data(start_time = datetime(2022, 1, 1), end_time = datetime(2024, 7, 22) )
     processed_weather_df = process_weather_data(weather_data)
 
     # join the dataframes
     joined_df = get_joined_dataframe(processed_weather_df, processed_visitor_count_df, processed_vc_df_hourly)
 
-    #  z score normalization
-    columns_for_zscores = [ 'Temperature (°C)','Relative Humidity (%)','Wind Speed (km/h)']
-    with_zscores_and_nearest_holidays_df = get_zscores_and_nearest_holidays(joined_df, columns_for_zscores)
+    # Feature engineering: add features such as zscore weather features and nearest holidays
+    weather_columns_for_zscores = [ 'Temperature (°C)','Relative Humidity (%)','Wind Speed (km/h)']
+    with_zscores_and_nearest_holidays_df = get_zscores_and_nearest_holidays(joined_df, weather_columns_for_zscores)
 
-    #sourced_df = load_csv_files_from_aws_s3(path=source_train_path) 
-    sourced_df = with_zscores_and_nearest_holidays_df
+    # Filter only for certain dates
+    sliced_df = with_zscores_and_nearest_holidays_df[(with_zscores_and_nearest_holidays_df['Time'] >= start_date) & (with_zscores_and_nearest_holidays_df['Time'] <= end_date)]
 
-    sliced_df = sourced_df[(sourced_df['Time'] >= start_date) & (sourced_df['Time'] <= end_date)]
+    # Further feature engineering
     removed_merged_df = remove_merge_from_columns(sliced_df)
     regionwise_df = get_regionwise_IN_and_OUT_columns(removed_merged_df)
-    #df_delta_newfeatures = load_csv_files_from_aws_s3(path=delta_calculations_path)
-    #merged_df = merge_new_features(regionwise_df, df_delta_newfeatures)
     changed_datatypes_df = change_datatypes(regionwise_df, dtype_dict)
     processed_features_df = process_transformations(changed_datatypes_df)
+
+    # Filter only for the features for modelling
     filtered_features_df = filter_features_for_modelling(processed_features_df)
 
-    # # save the filtered_df as csv
-    # filtered_features_df.to_csv('processed_new_features.csv')
-    
     return filtered_features_df
 
 
