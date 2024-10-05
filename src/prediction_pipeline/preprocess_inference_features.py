@@ -25,11 +25,13 @@ from modeling.source_and_feature_selection import process_transformations
 
 from datetime import datetime
 import pandas as pd
+import awswrangler as wr
 
 
 
 weather_columns_for_zscores = ['Temperature (°C)', 'Relative Humidity (%)', 'Wind Speed (km/h)']
 window_size_for_zscores = 5
+saved_path_visitor_center_modeling = "s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/visitor_centers_hourly.parquet"
 
 def join_inference_data(weather_data_inference, visitor_centers_data):
 
@@ -75,11 +77,10 @@ def source_preprocess_inference_data():
     weather_data_inference = source_weather_data(start_time = datetime.now() - pd.Timedelta(days=10), 
                                                  end_time = datetime.now() + pd.Timedelta(days=7))
 
-    ## Source Visitor Center Data for inference
-    visitor_center_data = source_visitor_center_data()
-    processed_visitor_center_data = process_visitor_center_data(visitor_center_data)
-    # process_visitor_center_data() returns a tuple with hourly data and daily data, we just need the first one
-    hourly_visitor_center_data = processed_visitor_center_data[0]
+    ## Get preprocessed Visitor Center Data for inference
+    hourly_visitor_center_data = wr.s3.read_parquet(path=saved_path_visitor_center_modeling)
+
+    ## Merge latest weather with existing visitor center data
     join_df = join_inference_data(weather_data_inference, hourly_visitor_center_data)
 
     # Get z scores for the weather columns
