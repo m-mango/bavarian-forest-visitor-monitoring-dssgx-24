@@ -3,6 +3,8 @@
 
 The analysis of visitor traffic in the Bavarian Forest National Park utilized the Extra Trees Regressor, focusing on predictions across six distinct regions. We examined 15 target variables, including total visitor counts and IN/OUT values for each region, as well as overall metrics for the park.
 
+![alt text](asset/Feature Importance Plots - Grid.png)
+
 ## Model Training
 
 ### Model Fit Indices
