@@ -28,7 +28,6 @@ target_vars_et  = ['traffic_abs', 'sum_IN_abs', 'sum_OUT_abs',
 
 # model names 
 model_names = [f'extra_trees_{var}' for var in target_vars_et]
-\
 
 def load_latest_models(bucket_name, folder_prefix, models_names):
     """
