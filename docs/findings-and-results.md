@@ -69,9 +69,12 @@ We evaluated the ExtraTree Regressor model on unseen data from **May 1, 2024, to
 
 The graphs presented above show how the model performs on **unseen data** from May to July 2024, which was not included in the model's training or validation phases. Evaluating on unseen data allows us to assess the model's generalizability and real-world applicability for forecasting future visitor counts.
 
-![](asset/Comparison of Predicted and Actual Visitor Counts to Bavarian Forest National Park (BFNP) on Unseen Data - 1.png "comparison of predicted and actual values on unseen data (1)")
+![Plots comparing the predicted vs the actual values of unseen data to the model](asset/Comparison of Predicted and Actual Visitor Counts to Bavarian Forest National Park (BFNP) on Unseen Data - 1.png)
+<p style="text-align:center;">Comparison of predicted and actual values on unseen data (1)</p>
 
-![](asset/Comparison of Predicted and Actual Visitor Counts to Bavarian Forest National Park (BFNP) on Unseen Data - 2.png "comparison of predicted and actual values on unseen data (2)")
+
+![Plots comparing the predicted vs the actual values of unseen data to the model](asset/Comparison of Predicted and Actual Visitor Counts to Bavarian Forest National Park (BFNP) on Unseen Data - 2.png)
+<p style="text-align:center;">Comparison of predicted and actual values on unseen data (2)</p>
 
 
 ---
