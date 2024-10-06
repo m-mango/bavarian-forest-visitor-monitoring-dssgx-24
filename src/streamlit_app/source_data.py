@@ -18,6 +18,7 @@ import os
 from meteostat import Hourly, Point
 import src.streamlit_app.pre_processing.process_real_time_parking_data as prtpd
 import streamlit as st
+import pytz
 
 
 ########################################################################################
@@ -250,8 +251,8 @@ def source_and_preprocess_realtime_parking_data() -> tuple[pd.DataFrame, object]
 
     print("Parking data processed and cleaned!")
 
-    # Return the timestamp of when the function was run
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"Parking data processed and cleaned at {timestamp} UTC.")
+    # Return the timestamp in German time indicating the time zone Berlin
+    timestamp = datetime.now(pytz.timezone('Europe/Berlin')).strftime("%Y-%m-%d %H:%M:%S")
+    print(f"Parking data processed and cleaned at {timestamp}, Europe/Berlin time.")
 
     return processed_parking_data, timestamp

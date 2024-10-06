@@ -95,7 +95,7 @@ def get_parking_section():
 
     st.markdown("### Real Time Parking Occupancy")
 
-    st.write(f"Parking Data last updated: {timestamp_latest_parking_data_fetch}")
+    st.write(f"Parking Data last updated: {timestamp_latest_parking_data_fetch}, Europe/Berlin time.")
     
     # Set a fixed size for all markers
     processed_parking_data['size'] = get_fixed_size()

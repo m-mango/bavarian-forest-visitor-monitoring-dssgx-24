@@ -16,7 +16,8 @@ initial_sidebar_state="expanded")
 alt.themes.enable("dark")
 
 # Password-protect the page
-check_password()
+if not check_password():
+    st.stop()  # Do not continue if check_password is not True.
 
 # Define the app layout
 col1, col2 = st.columns((1.5,2), gap='medium')

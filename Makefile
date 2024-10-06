@@ -3,6 +3,7 @@ BAYERN_CLOUD_API_KEY := $(shell echo $(BAYERN_CLOUD_API_KEY))
 REPO_PATH := $(shell pwd)
 AWS_ACCESS_KEY_ID := $(shell echo $(AWS_ACCESS_KEY_ID))
 AWS_SECRET_ACCESS_KEY : $(shell echo $(AWS_SECRET_ACCESS_KEY))
+PATH_TO_STREAMLIT_SECRETS := "/Users/julia/.streamlit/secrets.toml"
 IMAGE_NAME := bavarian-forest
 
 # Build the Docker image
@@ -13,6 +14,7 @@ build:
 run:
 	docker run \
 		-v $(REPO_PATH):/app \
+		-v $(PATH_TO_STREAMLIT_SECRETS):/app/.streamlit/secrets.toml \
 		-e BAYERN_CLOUD_API_KEY=$(BAYERN_CLOUD_API_KEY) \
 		-e AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID) \
 		-e AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY) \
@@ -23,6 +25,7 @@ run:
 bash:
 	docker run \
 		-v $(REPO_PATH):/app \
+		-v $(PATH_TO_STREAMLIT_SECRETS):/app/.streamlit/secrets.toml \
 		-e BAYERN_CLOUD_API_KEY=$(BAYERN_CLOUD_API_KEY) \
 		-e AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID) \
 		-e AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY) \
