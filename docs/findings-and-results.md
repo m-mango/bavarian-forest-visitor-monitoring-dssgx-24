@@ -69,15 +69,14 @@ We evaluated the ExtraTree Regressor model on unseen data from **May 1, 2024, to
 
 The graphs presented above show how the model performs on **unseen data** from May to July 2024, which was not included in the model's training or validation phases. Evaluating on unseen data allows us to assess the model's generalizability and real-world applicability for forecasting future visitor counts.
 
-<figure style={{ textAlign: "center" }}>
-    <img src="/asset/Comparison of Predicted and Actual Visitor Counts to Bavarian Forest National Park (BFNP) on Unseen Data - 1.png" alt="Here the alt text"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
-    <span style={{ color: "gray" }}>comparison of predicted and actual values on unseen data (1)</span>
-</figure>
+![Plots comparing the predicted vs the actual values of unseen data to the model](asset/Comparison of Predicted and Actual Visitor Counts to Bavarian Forest National Park (BFNP) on Unseen Data - 1.png)
+<p style="text-align:center;">Comparison of predicted and actual values on unseen data (1)</p>
 
-<figure style={{ textAlign: "center" }}>
-    <img src="/asset/Comparison of Predicted and Actual Visitor Counts to Bavarian Forest National Park (BFNP) on Unseen Data - 2.png" alt="Here the alt text"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
-    <span style={{ color: "gray" }}>comparison of predicted and actual values on unseen data (2)</span>
-</figure>
+
+![Plots comparing the predicted vs the actual values of unseen data to the model](asset/Comparison of Predicted and Actual Visitor Counts to Bavarian Forest National Park (BFNP) on Unseen Data - 2.png)
+<p style="text-align:center;">Comparison of predicted and actual values on unseen data (2)</p>
+
+
 ---
 
 **Traffic Abs**
@@ -140,10 +139,8 @@ Future iterations of the model could benefit from advanced feature engineering. 
 
 ### Feature Importance for Every Target Variable
 
-<figure style={{ textAlign: "center" }}>
-    <img src="/asset/Feature Importance Plots - Grid.png" alt="Here the alt text"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
-    <span style={{ color: "gray" }}>Feature Importance amond Every Target Variable</span>
-</figure>
+![Plots showing the feature importance in the models](asset/Feature Importance Plots - Grid.png)
+<p style="text-align:center;">Feature Importance among every Target Variable</p>
 
 **Key Findings:**
 
@@ -175,21 +172,15 @@ Future iterations of the model could benefit from advanced feature engineering. 
 
 ## Final Product
 
-<figure style={{ textAlign: "center" }}>
-    <img src="/asset/overall-dashboard.gif" alt="Visitor Dashboard visualization"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
-    <span style={{ color: "gray" }}>Bavarian Forest Dashbaord</span>
-</figure>
+![A GIF showing the overall dashboard](asset/overall-dashboard.gif)
+<p style="text-align:center;">Dashboard Bavarian Forest</p>
 
 ### Visitor Dashboard
 
 The visitor dashboard provides an intuitive interface that enables users to access essential information in real-time. Visitors can effortlessly view current weather conditions, allowing them to prepare for their day effectively. Additionally, the dashboard showcases hourly predictions for the upcoming week, helping users plan their visits with confidence. For those interested in maximizing their experience, links to various recreational activities are readily available, guiding visitors toward enjoyable options within the park. Moreover, real-time parking occupancy data is displayed, ensuring that users are informed about available parking spaces before arriving. This comprehensive flow of information empowers visitors to make informed decisions, enhancing their overall experience.
 
-
-
-<figure style={{ textAlign: "center" }}>
-    <img src="/asset/bf-dashboard-visitor-predictions.gif" alt="Visitor Dashboard visualization"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
-    <span style={{ color: "gray" }}>Visitor Dashboard</span>
-</figure>
+![A GIF showing the visitor dashboard](asset/bf-dashboard-visitor-predictions.gif)
+<p style="text-align:center;">Visitor Dashboard</p>
 
 ---
 
@@ -197,11 +188,9 @@ The visitor dashboard provides an intuitive interface that enables users to acce
 
 The admin dashboard serves as a powerful management tool, enabling administrators to monitor and analyze key metrics related to park operations effectively. Through this interface, admins can access forecasted data on visitor occupancy, providing insights into current crowd levels across the park. Additionally, the dashboard offers detailed visitor predictions for the upcoming week, presented in absolute numbers. This forecasting allows admins to anticipate visitor flow and make informed decisions, ensuring adequate staffing, resource allocation, and visitor experience management. For parking, the dashboard provides real-time occupancy data, displayed as absolute values instead of general categories like low, medium, or high. This level of detail helps administrators optimize parking management and plan ahead for potential surges, ultimately improving the park's operational efficiency and enhancing the visitor experience.
 
+![A GIF showing the admin dashboard](asset/admin-dashboard.gif)
+<p style="text-align:center;">Admin Dashboard</p>
 
-<figure style={{ textAlign: "center" }}>
-    <img src="/asset/admin-dashboard.gif" alt="Visitor Dashboard visualization"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
-    <span style={{ color: "gray" }}>Admin Dashboard</span>
-</figure>
 ---
 
 ### Data Accessibility Point
@@ -210,17 +199,14 @@ The admin dashboard serves as a powerful management tool, enabling administrator
 
 - **Upload/Download Functionality**: The admin dashboard provides seamless access to data upload and download capabilities. Administrators can easily upload new datasets or update existing ones directly through the interface, ensuring that the system is always using the most up-to-date information. The download functionality allows users to export data related to visitors, parking occupancy, and weather for further analysis or record-keeping. This feature ensures smooth data integration and easy access for offline analysis or reporting.
 
-<figure style={{ textAlign: "center" }}>
-    <img src="/asset/upload-download.gif" alt="Upload and Download section"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
-    <span style={{ color: "gray" }}>Admin Dashboard</span>
-</figure>
+![A GIF showing the data access point in the dashboard](asset/upload-download.gif)
+<p style="text-align:center;">Dashboard: Data Access Point for Admins</p>
 
 - **Querying the Data**: Admins can efficiently query the data using advanced filtering options within the dashboard. They can apply filters such as date ranges, specific months, seasons, or years to tailor their data retrieval. Additionally, specific categories like weather, visitor occupancy, and parking can be queried to get detailed insights based on the selected criteria. This flexible querying system allows administrators to gather precise, actionable data for analysis and operational planning.
 
-<figure style={{ textAlign: "center" }}>
-    <img src="/asset/data-query.gif" alt="Visitor Dashboard visualization"  style={{ display: "block", marginLeft: "auto", marginRight: "auto", marginBottom: "10px" }} width="700"/>
-    <span style={{ color: "gray" }}>Data Quering Section</span>
-</figure>
+![A GIF showing the data querying section in the data access point in the dashboard](asset/data-query.gif)
+<p style="text-align:center;">Dashboard: Data Querying Section in the Data Access Point</p>
+
 ---
 
 ## Conclusion
