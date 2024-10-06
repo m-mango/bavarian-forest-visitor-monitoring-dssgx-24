@@ -4,6 +4,7 @@ import altair as alt
 from src.streamlit_app.pages_in_dashboard.data_accessibility.query_box import get_query_section
 from src.streamlit_app.pages_in_dashboard.data_accessibility.upload import upload_section
 from src.streamlit_app.pages_in_dashboard.data_accessibility.download import download_section
+from src.streamlit_app.pages_in_dashboard.admin.password import check_password
 
 # Define the page layout of the Streamlit app
 
@@ -12,11 +13,12 @@ page_title='Access the park data🌲',
 page_icon="🌲",
 layout="wide",
 initial_sidebar_state="expanded")
-
 alt.themes.enable("dark")
 
-# Define the app layout
+# Password-protect the page
+check_password()
 
+# Define the app layout
 col1, col2 = st.columns((1.5,2), gap='medium')
 with col1:
     # get_upload_and_download_section()
