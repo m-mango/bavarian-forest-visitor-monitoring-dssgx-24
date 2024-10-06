@@ -6,8 +6,8 @@ RUN mkdir -p /app
 WORKDIR /app
 
 # Install the python requirements
-COPY Docker-requirements.txt .
-RUN pip install -r Docker-requirements.txt
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 # Run pipeline and dashboard entry script
 CMD ["streamlit", "run", "Dashboard.py"]
