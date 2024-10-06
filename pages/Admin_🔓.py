@@ -8,8 +8,8 @@ from src.streamlit_app.source_data import source_and_preprocess_realtime_parking
 # Title of the page - page layout
 st.write("# Bavarian Forest admin page")
 
-# password check
-check_password()
+if not check_password():
+    st.stop()  # Do not continue if check_password is not True.
 
 # visitor count information
 visitor_count()
