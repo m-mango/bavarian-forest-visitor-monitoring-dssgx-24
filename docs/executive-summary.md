@@ -1,3 +1,1 @@
 # Executive Summary
-
-Dummy test
