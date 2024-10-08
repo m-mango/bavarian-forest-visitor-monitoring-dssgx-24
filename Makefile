@@ -1,10 +1,16 @@
 # Define your environmental variables here; TODO: Update them if needed
 BAYERN_CLOUD_API_KEY := $(shell echo $(BAYERN_CLOUD_API_KEY))
 REPO_PATH := $(shell pwd)
+PATH_TO_STREAMLIT_SECRETS := ~/.streamlit/secrets.toml
+IMAGE_NAME := bavarian-forest
+
+# If using AWS SSO, update these variables
+AWS_CREDENTIALS_PATH := ~/.aws
+AWS_PROFILE := TM-DSSGx
+
+# If using AWS permanent access key (for applications), update these variables
 AWS_ACCESS_KEY_ID := $(shell echo $(AWS_ACCESS_KEY_ID))
 AWS_SECRET_ACCESS_KEY : $(shell echo $(AWS_SECRET_ACCESS_KEY))
-PATH_TO_STREAMLIT_SECRETS := "/Users/julia/.streamlit/secrets.toml"
-IMAGE_NAME := bavarian-forest
 
 # Build the Docker image
 build:
@@ -32,8 +38,21 @@ bash:
 		-p 8501:8501 \
 		-it --entrypoint /bin/bash $(IMAGE_NAME)
 
+sso-bash:
+	docker run \
+		-v $(REPO_PATH):/app \
+		-v $(PATH_TO_STREAMLIT_SECRETS):/app/.streamlit/secrets.toml \
+		-v $(AWS_CREDENTIALS_PATH):/root/.aws \
+		-e BAYERN_CLOUD_API_KEY=$(BAYERN_CLOUD_API_KEY) \
+		-e AWS_PROFILE=$(AWS_PROFILE) \
+		-p 8501:8501 \
+		-it --entrypoint /bin/bash $(IMAGE_NAME)
+
 # Combined build and run
 streamlit: build run
 
 # Combined build and bash
 container: build bash
+
+# Combined build and sso-bash
+sso-container: build sso-bash
