@@ -11,6 +11,10 @@ plugins:
 nav:
   - welcome.md
   - project-factsheet.md
+  - approach.md
+  - data.md
+  - prediction-pipeline.md
+  - user-frontends.md
   - methodology-and-approach.md
   - findings-and-results.md
   - limitations-and-challenges.md
