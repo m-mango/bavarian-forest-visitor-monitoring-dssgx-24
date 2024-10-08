@@ -9,7 +9,7 @@ plugins:
   - mkdocstrings
 
 nav:
-  - index.md
+  - welcome.md
   - executive-summary.md
   - project-background.md
   - methodology-and-approach.md
