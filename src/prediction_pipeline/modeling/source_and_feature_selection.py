@@ -2,25 +2,13 @@ import awswrangler as wr
 import pandas as pd
 import numpy as np
 import warnings
-from sourcing_data.source_historic_visitor_count import source_historic_visitor_count 
-from pre_processing.preprocess_historic_visitor_count_data import preprocess_visitor_count_data
-from sourcing_data.source_visitor_center_data import source_visitor_center_data
-from sourcing_data.source_weather import source_weather_data
-from pre_processing.preprocess_weather_data import process_weather_data
-from pre_processing.join_sensor_weather_visitorcenter import get_joined_dataframe
-from pre_processing.features_zscoreweather_distanceholidays import get_zscores_and_nearest_holidays
-from pre_processing.preprocess_visitor_center_data import process_visitor_center_data
-from datetime import datetime
+
 
 warnings.filterwarnings("ignore")
 
 ############################################################################################################
 # Global Variables
 ############################################################################################################
-
-# Set the start and end date for training
-start_date = '2023-01-01'
-end_date = '2024-07-22'
 
 # Columns to use for preprocessing
 columns_to_use = [
@@ -406,28 +394,10 @@ def filter_features_for_modelling(df: pd.DataFrame) -> pd.DataFrame:
 
 
 
-def get_features():
-    # source and preprocess the historic visitor count data
-    sourced_visitor_count_df = source_historic_visitor_count()
-    processed_visitor_count_df = preprocess_visitor_count_data(sourced_visitor_count_df)
-
-    # source and preprocess the visitor center data
-    sourced_vc_data_df = source_visitor_center_data()
-    processed_vc_df_hourly,_ = process_visitor_center_data(sourced_vc_data_df)
-
-    # source and preprocess the weather data
-    weather_data = source_weather_data(start_time = datetime(2022, 1, 1), end_time = datetime(2024, 7, 22) )
-    processed_weather_df = process_weather_data(weather_data)
-
-    # join the dataframes
-    joined_df = get_joined_dataframe(processed_weather_df, processed_visitor_count_df, processed_vc_df_hourly)
-
-    # Feature engineering: add features such as zscore weather features and nearest holidays
-    weather_columns_for_zscores = [ 'Temperature (°C)','Relative Humidity (%)','Wind Speed (km/h)']
-    with_zscores_and_nearest_holidays_df = get_zscores_and_nearest_holidays(joined_df, weather_columns_for_zscores)
-
+def get_features(with_zscores_and_nearest_holidays_df, train_start_date, train_end_date):
+    
     # Filter only for certain dates
-    sliced_df = with_zscores_and_nearest_holidays_df[(with_zscores_and_nearest_holidays_df['Time'] >= start_date) & (with_zscores_and_nearest_holidays_df['Time'] <= end_date)]
+    sliced_df = with_zscores_and_nearest_holidays_df[(with_zscores_and_nearest_holidays_df['Time'] >= train_start_date) & (with_zscores_and_nearest_holidays_df['Time'] <= train_end_date)]
 
     # Further feature engineering
     removed_merged_df = remove_merge_from_columns(sliced_df)
