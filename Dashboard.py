@@ -1,5 +1,6 @@
 import streamlit as st
 from PIL import Image
+import pandas as pd
 
 # get the streamlit app modules
 import src.streamlit_app.pages_in_dashboard.visitors.page_layout_config as page_layout_config
@@ -10,16 +11,25 @@ import src.streamlit_app.pages_in_dashboard.visitors.visitor_count as visitor_co
 import src.streamlit_app.pages_in_dashboard.visitors.recreational_activities as recreation
 import src.streamlit_app.pages_in_dashboard.visitors.other_information as other_info
 
-# imports for the prediction_pipeline
+# imports for the sourcing and preprocessing pipeline
 from src.prediction_pipeline.sourcing_data.source_historic_visitor_count import source_historic_visitor_count 
 from src.prediction_pipeline.pre_processing.preprocess_historic_visitor_count_data import preprocess_visitor_count_data
 from src.prediction_pipeline.sourcing_data.source_visitor_center_data import source_visitor_center_data
+from src.prediction_pipeline.pre_processing.preprocess_visitor_center_data import process_visitor_center_data
 from src.prediction_pipeline.sourcing_data.source_weather import source_weather_data
 from src.prediction_pipeline.pre_processing.preprocess_weather_data import process_weather_data
 from src.prediction_pipeline.pre_processing.join_sensor_weather_visitorcenter import get_joined_dataframe
 from src.prediction_pipeline.pre_processing.features_zscoreweather_distanceholidays import get_zscores_and_nearest_holidays
-from src.prediction_pipeline.pre_processing.preprocess_visitor_center_data import process_visitor_center_data
+
 from datetime import datetime
+
+# imports for inference dataframe
+from src.prediction_pipeline.modeling.preprocess_inference_features import source_preprocess_inference_data
+from src.prediction_pipeline.modeling.create_inference_dfs import visitor_predictions
+
+# imports for training pipeline
+from src.prediction_pipeline.modeling.source_and_feature_selection import get_features
+from src.prediction_pipeline.modeling.train_regressor import train_regressor
 
 # Set the page layout - it is a two column layout
 col1, col2 = page_layout_config.get_page_layout()
@@ -65,7 +75,25 @@ def create_dashboard_main_page():
         other_info.get_other_information()
 
 
+@st.fragment(run_every="1d")
+def run_inference(weather_data_inference, processed_vc_df_hourly):
     
+    # preprocess the inference data
+    inference_df = source_preprocess_inference_data(weather_data_inference, processed_vc_df_hourly)
+
+    # make predictions
+    visitor_predictions(inference_df)
+
+@st.fragment(run_every="12w")
+def run_training(with_zscores_and_nearest_holidays_df,train_start_date, train_end_date):
+
+    # get the features for training
+    get_features(with_zscores_and_nearest_holidays_df,train_start_date, train_end_date)
+
+    # train the model
+    train_regressor()
+
+
 @st.cache_data
 def pipeline():
     """
@@ -81,7 +109,7 @@ def pipeline():
     """
 
     ####################################################################################################
-    # Prediction Pipeline
+    # Source and Preprocess Data for Model Inference
     ####################################################################################################
     
     # get the historic visitor count data
@@ -89,13 +117,20 @@ def pipeline():
    
     processed_visitor_count_df = preprocess_visitor_count_data(sourced_visitor_count_df)
 
-    # get the visitor centers data
+   # get the visitor center data
     sourced_vc_data_df = source_visitor_center_data()
 
     processed_vc_df_hourly,_ = process_visitor_center_data(sourced_vc_data_df)
 
-    # get the weather data
-    weather_data = source_weather_data(start_time = datetime(2023, 1, 1), end_time = datetime(2024, 7, 22) )
+    # get the weather data for training and inference
+    # training data
+    train_start_date = datetime(2023, 1, 1)
+    train_end_date = datetime(2024, 7, 21)
+    weather_data = source_weather_data(train_start_date, train_end_date)
+    
+    # inference data
+    weather_data_inference = source_weather_data(start_time = datetime.now() - pd.Timedelta(days=10), 
+                                                 end_time = datetime.now() + pd.Timedelta(days=7))
 
     processed_weather_df = process_weather_data(weather_data)
 
@@ -103,16 +138,26 @@ def pipeline():
     joined_df = get_joined_dataframe(processed_weather_df, processed_visitor_count_df, processed_vc_df_hourly)
 
     #  z score normalization
+    
     columns_for_zscores = [ 'Temperature (°C)','Relative Humidity (%)','Wind Speed (km/h)']
     with_zscores_and_nearest_holidays_df = get_zscores_and_nearest_holidays(joined_df, columns_for_zscores)
 
-    return with_zscores_and_nearest_holidays_df
+    ####################################################################################################
+    # Inference Pipeline
+    ####################################################################################################
+    # Run inference pipeline
+    run_inference(weather_data_inference, processed_vc_df_hourly)   
 
+    ####################################################################################################
+    # Training Pipeline
+    ####################################################################################################
+
+    # run_training(with_zscores_and_nearest_holidays_df,train_start_date, train_end_date)
 
 if __name__ == "__main__":
 
     # call the sourcing and processing pipeline
-    with_zscores_and_nearest_holidays_df = pipeline()
+    pipeline()
 
     # create the dashboard
     create_dashboard_main_page()
