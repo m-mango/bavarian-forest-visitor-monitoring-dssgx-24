@@ -1,10 +1,13 @@
 # Step 1: Data Sourcing
 
-**In this section, we will describe the data sources used and how they can be sourced.**
+## Overview
+In this section, we will describe the data sources used and how we sourced them.
+
+![E2E Pipeline Step 1 Data Sourcing](asset/E2E_Pipeline_Data.png) 
 
 ---
 
-### Sensor Data for Visitor Counts
+## Sensor Data for Visitor Counts
 
 The visitor sensor data is an internal 
 administrative file maintained by the Bavarian Forest National Park. 
@@ -23,7 +26,7 @@ can automatically upload their data to the Bayern Cloud, others
 require manual uploads through on-site data collection using a USB 
 drive.
 
-### Visitor Center Data
+## Visitor Center Data
 
 The visitor center data file is an internal 
 administrative data file maintained by the Bavarian Forest National 
@@ -35,7 +38,7 @@ administrative file, including whether or not a given day was a federal
 or national holiday (Bavarian or Czech; School or Federal or School 
 holiday), the season, the day of the week, and date.
 
-### Weather Data
+## Weather Data
 
 Historical and forecasted weather data was sourced 
 using the Meteostat Python API, a powerful library that provides 
@@ -64,7 +67,7 @@ we recoded them for easier interpretation:
 | 23, 24, 25, 26, 27   | Lightning, Hail, Thunderstorm, Heavy Thunderstorm, Storm       | 6 (Storms)                                  |
 
 
-### Parking Data
+## Parking Data
 
 Historical and real-time parking data for the Bavarian 
 Forest National Park is sourced from the Bayern Cloud, a cloud 

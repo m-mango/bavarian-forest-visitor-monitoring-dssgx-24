@@ -1,15 +1,16 @@
 # Step 2: Building the Prediction Pipeline
 
-**In this section, we will describe how we built the prediction pipeline.**
+## Overview
+In this section, we will describe our data preprocessing and data cleaning steps, the data integration, feature selection and feature engineering, as well as our modeling approach and the selected models.
 
+![E2E Pipeline Step 2 Prediction Pipeline](asset/E2E_Pipeline_Prediction.png)
 ---
 
-## Prediction Pipeline
-### Description of the Data Preprocessing and Cleaning Steps
+## Description of the Data Preprocessing and Cleaning Steps
 
 In our project, we utilized various data sources, including sensor data for visitor counts, weather data, visitor center data, and parking data. These datasets were initially in different formats, necessitating a thorough cleaning and preprocessing process to unify them.
 
-#### Visitor Count Data Preprocessing
+### Visitor Count Data Preprocessing
 For the visitor count data, several crucial steps were taken:
 
 - **Removing Unwanted Data**: We excluded any data prior to "2016-05-10 03:00:00" since no sensors were installed before this date, ensuring our analysis focused on relevant data.
@@ -31,7 +32,7 @@ For the visitor count data, several crucial steps were taken:
     - `sum_IN_abs` and `sum_OUT_abs`: Sums of incoming and outgoing counts.
     - `occupancy_abs`: A cumulative measure representing occupancy over time, aiding in trend analysis.
 
-#### Weather Data Preprocessing
+### Weather Data Preprocessing
 
 
 The weather data was sourced and preprocessed to ensure consistency and reliability for our analysis. The following key steps were taken:
@@ -55,7 +56,7 @@ The weather data was sourced and preprocessed to ensure consistency and reliabil
 By carefully processing the weather data, we ensured it was well-prepared for integration with visitor count data and other datasets in our predictive modeling pipeline.
 
 
-#### Visitor Center Data Preprocessing
+### Visitor Center Data Preprocessing
 
 The uncleaned administrative file, “national-park-vacation-times-houses-opening-
 times.xlsx,” was loaded for cleaning. First, the data types of each column were 
@@ -89,17 +90,21 @@ level and another at the hourly level. The hourly-level visitor center data was
 eventually joined with other datasets that had temporal granularity at the hourly 
 level for modeling.
 
-### Data Integration
+---
+
+## Data Integration
 
 We joined the preprocessed datasets—visitor counts, weather, and visitor center data—based on their timestamps to create a unified dataset for efficient modeling. This integration ensures that all data points align in hourly format, facilitating a comprehensive analysis of visitor traffic patterns.
 
 The resulting joined dataset encompasses all relevant features from each source, providing a robust foundation for our predictive modeling efforts. This approach allows us to leverage the combined insights from different datasets, enhancing the accuracy and effectiveness of our forecasts.
 
-### Feature Selection and Feature Engineering
+---
+
+## Feature Selection and Feature Engineering
 
 After joining the data, we conducted various tasks, including feature selection and feature engineering. Below are the relevant aspects of this process:
 
-#### Region-wise Mapping
+### Region-wise Mapping
 
 The Bavarian Forest National Park is divided into six regions, and we grouped the sensors accordingly. For each region, we aggregated the IN and OUT values based on the specific sensors that belong to that region:
 
@@ -125,14 +130,14 @@ The Bavarian Forest National Park is divided into six regions, and we grouped th
 The readings from these sensors were combined to provide the total IN and OUT values for the region.
 
 
-#### Feature Engineering
+### Feature Engineering
 
 We integrated additional features, including:
 
 - Z-scores for daily maximum temperature, relative humidity, and wind speed.
 - Distance to the nearest holidays for both Bayern and Czech Republic.
 
-#### Data Transformation
+### Data Transformation
 
 Handling Numerical, Cyclic, and Categorical Features
 
@@ -142,7 +147,7 @@ Handling Numerical, Cyclic, and Categorical Features
 
 3. **Categorical Features**: Categorical columns were converted to string types for proper processing and analysis.
 
-#### Additional Steps
+### Additional Steps
 
 - **Datetime Conversion**: The 'Time' column was converted to a datetime format for easier time-based indexing and analysis.
 - **Summation of IN and OUT Values**: We summed the IN and OUT values for each region based on the defined mappings.
@@ -150,7 +155,9 @@ Handling Numerical, Cyclic, and Categorical Features
 
 This systematic approach to preprocessing and feature engineering sets a solid foundation for subsequent modeling and analysis.
 
-### Modeling
+---
+
+## Modeling
 We have sliced the data from January 1, 2023, to July 22, 2024, for training purposes. During our experimentation phase, we explored various forecasting models to identify the most effective approach for predicting visitor traffic in the Bavarian Forest National Park. Ultimately, the ExtraTree Regressor and LSTM (Long Short-Term Memory) models demonstrated superior performance compared to other models.
 
 ### ExtraTree Regressor
