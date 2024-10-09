@@ -172,10 +172,6 @@ def source_weather_data(start_time, end_time):
     # Process the hourly data to extract and format necessary weather parameters
     sourced_hourly_data = process_hourly_data(hourly_data)
     
-    # # Uncomment the following line to save the sourced data to a CSV file
-
-    # # Save the processed data to a CSV file
-    # save_data_to_csv(sourced_hourly_data, 'outputs/weather_data_final/weather_data_2016-24_non_imputed_forecasted.csv')
 
     return sourced_hourly_data
 
