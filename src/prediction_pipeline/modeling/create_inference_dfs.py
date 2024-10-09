@@ -80,13 +80,13 @@ def predict_with_models(loaded_models, df_features):
             predictions = model.predict(df_features)
             
             # Create a new DataFrame for the predictions with the time column
-            df_predictions = pd.DataFrame(predictions, columns=[f'{model_name}_predictions'])
+            df_predictions = pd.DataFrame(predictions, columns=['predictions'])
 
             # Make the index column 'Time'
             df_predictions['Time'] = df_features.index
 
             # Make sure predictions are integers and not floats
-            df_predictions[f'{model_name}_predictions'] = df_predictions[f'{model_name}_predictions'].astype(int)
+            df_predictions['predictions'] = df_predictions['predictions'].astype(int)
     
             # save the prediction dataframe as a parquet file in aws
             wr.s3.to_parquet(df_predictions,path = f"s3://{bucket_name}/models/inference_data_outputs/{model_name}.parquet")
