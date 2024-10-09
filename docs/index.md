@@ -15,13 +15,16 @@ The project was carried out as part of the <br>**Data Science for Social Good (D
 
 ---
 
-**In this documentation, you will find information on** <br>
-- project background, mission, solution, and impact <br>
-- data sources used and data sourcing methods <br>
-- the user frontends (dashboards and data access point) <br>
-- the underlying prediction pipeline (pre-processing, integration, feature selection and engineering, modeling) <br>
-- our findings and results incl. discussion <br>
+**In this documentation, you will find information on**
+
+- project background and underlying problem, mission, solution, and impact
+
+- our approach incl. deep dives in data sources used and data sourcing methods, the underlying prediction pipeline (pre-processing, integration, feature selection and engineering, modeling), and the building of the user frontends (dashboards and data access point)
+
+- our findings and results incl. discussion
+
 - the API reference
+
 
 ---
 
