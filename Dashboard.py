@@ -1,4 +1,5 @@
 import streamlit as st
+from PIL import Image
 
 # get the streamlit app modules
 import src.streamlit_app.pages_in_dashboard.visitors.page_layout_config as page_layout_config
@@ -8,13 +9,6 @@ import src.streamlit_app.pages_in_dashboard.visitors.parking as parking
 import src.streamlit_app.pages_in_dashboard.visitors.visitor_count as visitor_count
 import src.streamlit_app.pages_in_dashboard.visitors.recreational_activities as recreation
 import src.streamlit_app.pages_in_dashboard.visitors.other_information as other_info
-
-# get the process data functions
-import src.streamlit_app.pre_processing.process_forecast_weather_data as pwd
-import src.streamlit_app.pre_processing.process_real_time_parking_data as prtpd
-from src.streamlit_app.source_data import source_all_data
-
-from PIL import Image
 
 # imports for the prediction_pipeline
 from src.prediction_pipeline.sourcing_data.source_historic_visitor_count import source_historic_visitor_count 
@@ -30,13 +24,13 @@ from datetime import datetime
 # Set the page layout - it is a two column layout
 col1, col2 = page_layout_config.get_page_layout()
 
-def create_dashboard_main_page(processed_weather_data):
+def create_dashboard_main_page():
 
     """
-    Create the dashboard for the Bavarian Forest National Park.
+    Create the dashboard for the Bavarian Forest National Park visitor information page.
 
     Args:
-        processed_weather_data (pd.DataFrame): Processed weather data.
+        None
 
     Returns:
         None
@@ -61,7 +55,7 @@ def create_dashboard_main_page(processed_weather_data):
         lang_sel_menu.get_language_selection_menu()
         
         # get the weather section
-        weather.get_weather_section(processed_weather_data)
+        weather.get_weather_section()
         
 
         # create recreational section
@@ -75,21 +69,16 @@ def create_dashboard_main_page(processed_weather_data):
 @st.cache_data
 def pipeline():
     """
-    Run the sourcing and processing pipeline for the dashboard.
-    
+    The prediction pipeline to fior getting the data for model inference. The pipeline sources the data, 
+    preprocesses it and returns the processed data. The sourced data includes the historic visitor count data,
+    the visitor center data and the weather data.
+
     Args:
         None
-    
+
     Returns:
-        processed_weather_data (pd.DataFrame): Processed weather data.
+        pd.DataFrame: The preprocessed data for model inference
     """
-
-    # Source all data
-    visitor_counts_data, weather_data  = source_all_data()
-
-    # Process the weather data
-    processed_weather_data = pwd.process_weather_data(weather_data)
-
 
     ####################################################################################################
     # Prediction Pipeline
@@ -101,8 +90,6 @@ def pipeline():
     processed_visitor_count_df = preprocess_visitor_count_data(sourced_visitor_count_df)
 
     # get the visitor centers data
-
-    # source visitor center data
     sourced_vc_data_df = source_visitor_center_data()
 
     processed_vc_df_hourly,_ = process_visitor_center_data(sourced_vc_data_df)
@@ -119,15 +106,15 @@ def pipeline():
     columns_for_zscores = [ 'Temperature (°C)','Relative Humidity (%)','Wind Speed (km/h)']
     with_zscores_and_nearest_holidays_df = get_zscores_and_nearest_holidays(joined_df, columns_for_zscores)
 
-    return processed_weather_data, with_zscores_and_nearest_holidays_df
+    return with_zscores_and_nearest_holidays_df
 
 
 if __name__ == "__main__":
 
     # call the sourcing and processing pipeline
-    processed_weather_data, with_zscores_and_nearest_holidays_df = pipeline()
+    with_zscores_and_nearest_holidays_df = pipeline()
 
     # create the dashboard
-    create_dashboard_main_page(processed_weather_data)
+    create_dashboard_main_page()
 
     
