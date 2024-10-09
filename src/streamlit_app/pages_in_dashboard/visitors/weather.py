@@ -2,6 +2,7 @@
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
+from src.streamlit_app.source_data import source_and_preprocess_forecasted_weather_data
 
 
 # Functions
@@ -105,7 +106,7 @@ def get_graph(forecast_data):
 
 
 
-def get_weather_section(processed_weather_data):
+def get_weather_section():
     """
     Display the weather section of the dashboard.
 
@@ -115,6 +116,8 @@ def get_weather_section(processed_weather_data):
     Returns:
         None
     """
+    processed_weather_data = source_and_preprocess_forecasted_weather_data()
+
 
     st.markdown("### Weather Forecast")
 
