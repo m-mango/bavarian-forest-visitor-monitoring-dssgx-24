@@ -213,7 +213,10 @@ def get_zscores_and_nearest_holidays(df,columns_for_zscores):
     df_daily_max = add_daily_max_values(df_holidays, columns_for_zscores)
 
     df_zscores_and_nearest_holidays = add_moving_z_scores(df_daily_max, columns_for_zscores, window_size)
- 
+
+    # Remove NaN values (as there will be NaNs in the first rows of the dataframe due to zscore being NaN)
+    df_zscores_and_nearest_holidays = df_zscores_and_nearest_holidays.dropna()
+
     write_csv_file_to_aws_s3(
                         df=df_zscores_and_nearest_holidays,
                         path=f"s3://{bucket}/{output_data_folder}/{output_file_name}",
