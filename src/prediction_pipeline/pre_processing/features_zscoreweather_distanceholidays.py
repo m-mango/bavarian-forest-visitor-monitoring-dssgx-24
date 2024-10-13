@@ -63,7 +63,7 @@ def add_nearest_holiday_distance(df):
             - 'Distance_to_Nearest_Holiday_Bayern': Distance in days to the nearest holiday in Bayern for each day/row.
             - 'Distance_to_Nearest_Holiday_CZ': Distance in days to the nearest holiday in CZ for each day/row.
     """
-    
+
     # Ensure the Time column is in datetime format
     df['Time'] = pd.to_datetime(df['Time'])
 
@@ -103,6 +103,7 @@ def add_nearest_holiday_distance(df):
     )
     # Merge the distances back with the original DataFrame
     df = df.merge(dates_df, on='Date', how='left')
+   
 
     return df
 
@@ -199,7 +200,7 @@ def write_csv_file_to_aws_s3(df: pd.DataFrame, path: str, **kwargs) -> pd.DataFr
 
 def get_zscores_and_nearest_holidays(df,columns_for_zscores):
 
-        # Reset the index, converting the index back into a 'Time' column
+    # Reset the index, converting the index back into a 'Time' column
     df.reset_index(inplace=True)
 
     # Optionally, rename the index column to 'Time' if it's not automatically renamed
@@ -212,7 +213,10 @@ def get_zscores_and_nearest_holidays(df,columns_for_zscores):
     df_daily_max = add_daily_max_values(df_holidays, columns_for_zscores)
 
     df_zscores_and_nearest_holidays = add_moving_z_scores(df_daily_max, columns_for_zscores, window_size)
- 
+
+    # Remove NaN values (as there will be NaNs in the first rows of the dataframe due to zscore being NaN)
+    df_zscores_and_nearest_holidays = df_zscores_and_nearest_holidays.dropna()
+
     write_csv_file_to_aws_s3(
                         df=df_zscores_and_nearest_holidays,
                         path=f"s3://{bucket}/{output_data_folder}/{output_file_name}",

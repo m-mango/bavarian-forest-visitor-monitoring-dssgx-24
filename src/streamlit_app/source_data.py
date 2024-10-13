@@ -17,17 +17,10 @@ from datetime import datetime
 import os
 from meteostat import Hourly, Point
 import src.streamlit_app.pre_processing.process_real_time_parking_data as prtpd
+import src.streamlit_app.pre_processing.process_forecast_weather_data as prfwd
 import streamlit as st
 import pytz
 
-
-########################################################################################
-# AWS Setup 
-########################################################################################
-
-bucket = "dssgx-munich-2024-bavarian-forest"
-raw_data_folder = "raw-data"
-preprocessed_data_folder = "preprocessed_data"
 
 ########################################################################################
 # Bayern Cloud setup
@@ -57,7 +50,7 @@ parking_sensors = {
 # Weather Data Sourcing - METEOSTAT API
 ########################################################################################
 
-# Get the start time as todays date
+# Get the start time as todays date (forecasted weather)
 START_TIME = datetime.now()
 END_TIME = (START_TIME + pd.Timedelta(days=7))
 
@@ -66,23 +59,10 @@ END_TIME = (START_TIME + pd.Timedelta(days=7))
 LATITUDE = 49.31452390542327
 LONGITUDE = 12.711573421032
 
+
 ########################################################################################
-# Functions
+# Parking functions
 ########################################################################################
-
-def source_data_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
-    """Loads individual or multiple CSV files from an AWS S3 bucket.
-
-    Args:
-        path (str): The path to the CSV files on AWS S3.
-        **kwargs: Additional arguments to pass to the read_csv function.
-
-    Returns:
-        pd.DataFrame: The DataFrame containing the data from the CSV files.
-    """
-
-    df = wr.s3.read_csv(path=path, **kwargs)
-    return df
 
 
 def source_parking_data_from_cloud(location_slug: str):
@@ -92,7 +72,8 @@ def source_parking_data_from_cloud(location_slug: str):
         location_slug (str): The location slug of the parking sensor.
     
     Returns:
-        pd.DataFrame: A DataFrame containing the current occupancy data, occupancy rate, and capacity.
+        pd.DataFrame: A DataFrame containing the current occupancy data, occupancy rate, capacity and spatial 
+        coordinates.
     """
     
     API_endpoint = f'https://data.bayerncloud.digital/api/v4/endpoints/list_occupancy/{location_slug}'
@@ -132,10 +113,10 @@ def source_parking_data_from_cloud(location_slug: str):
 def add_spatial_info_to_parking_sensors(parking_data_df):
 
     """
-    Add spatial information to the parking data
+    Add spatial information to the parking dataframe
 
     Args:
-        parking_data_df (pd.DataFrame): DataFrame containing parking sensor data.
+        parking_data_df (pd.DataFrame): DataFrame containing parking sensor data (occupnaacy, capacity, occupancy rate).
     
     Returns:
         pd.DataFrame: DataFrame containing parking sensor data with spatial information.
@@ -164,76 +145,18 @@ def merge_all_df_from_list(df_list):
     return merged_dataframe
 
 
-def get_hourly_data_forecasted(bavarian_forest):
-    
-    """
-    Fetch hourly weather data for the Bavarian Forest - forecasted from todays date
-
-    Returns:
-        pd.DataFrame: Hourly weather data
-    
-    """
-    data = Hourly(bavarian_forest, START_TIME, END_TIME)
-    data = data.fetch()
-
-    # Reset the index
-    data.reset_index(inplace=True)
-    return data 
-
-
-def source_weather_data():
-
-    """
-    Source the weather data from METEOSTAT API
-
-    Returns:
-        pd.DataFrame: Hourly weather data for the Bavarian Forest National Park for the next 7 days
-    """
-
-    # Create a Point object for the Bavarian Forest National Park entry
-    bavarian_forest = Point(lat=LATITUDE, lon=LONGITUDE)
-
-    # Fetch hourly data for the location
-    weather_hourly = get_hourly_data_forecasted(bavarian_forest)
-
-    # Drop unnecessary columns
-    weather_hourly = weather_hourly.drop(columns=['dwpt', 'snow', 'wdir', 'wpgt', 'pres', 'coco'])
-
-    # Convert the 'Time' column to datetime format
-    weather_hourly['time'] = pd.to_datetime(weather_hourly['time'])
-    return weather_hourly
-
-
-def source_all_data() -> tuple[pd.DataFrame, pd.DataFrame]:
-
-    """
-    Sources the weather data and the historic visitor count data for the dashboard.
-
-    Returns:
-        tuple[pd.DataFrame, pd.DataFrame]: Historic visitor counts data, and weather data.
-    """
-    # Load the visyor count data form AWS S3
-    historic_visitor_counts = source_data_from_aws_s3(
-    path=f"s3://{bucket}/{raw_data_folder}/hourly-historic-visitor-counts-all-sensors/",
-    skiprows=2)
-
-    print("Historic visitor counts data loaded successfully!")
-
-    # Source the weather data
-    weather_data_df = source_weather_data()
-
-    print("Weather data sourced successfully!")
-
-    return historic_visitor_counts, weather_data_df
-
 @st.cache_data(ttl="20min")
 def source_and_preprocess_realtime_parking_data() -> tuple[pd.DataFrame, object]:
 
     """
     Source and preprocess the real-time parking data. Returns the timestamp of when the function was run.
 
+    Args:
+        None
+
     Returns:
         pd.DataFrame: Preprocessed real-time parking data.
+        object: Timestamp of when the function was run.
     """
     # Source the parking data from bayern cloud
     all_parking_dataframes = []
@@ -256,3 +179,72 @@ def source_and_preprocess_realtime_parking_data() -> tuple[pd.DataFrame, object]
     print(f"Parking data processed and cleaned at {timestamp}, Europe/Berlin time.")
 
     return processed_parking_data, timestamp
+
+########################################################################################
+# Weather functions
+########################################################################################
+
+
+def get_hourly_data_forecasted(bavarian_forest):
+    
+    """
+    Fetch hourly weather data for the Bavarian Forest - forecasted from todays date
+
+    Args:
+        bavarian_forest (Point): The location of the Bavarian Forest National Park.
+
+    Returns:
+        pd.DataFrame: Hourly weather data for the Bavarian Forest National Park for the next 7 days
+    
+    """
+    data = Hourly(bavarian_forest, START_TIME, END_TIME)
+    data = data.fetch()
+
+    # Reset the index
+    data.reset_index(inplace=True)
+    return data 
+
+
+def source_weather_data():
+    """
+    Source the weather data from METEOSTAT API
+
+    Args:
+        None
+
+    Returns:
+        pd.DataFrame: Hourly weather data for the Bavarian Forest National Park for the next 7 days
+    """
+
+    # Create a Point object for the Bavarian Forest National Park entry
+    bavarian_forest = Point(lat=LATITUDE, lon=LONGITUDE)
+
+    # Fetch hourly data for the location
+    weather_hourly = get_hourly_data_forecasted(bavarian_forest)
+
+    # Drop unnecessary columns
+    weather_hourly = weather_hourly.drop(columns=['dwpt', 'snow', 'wdir', 'wpgt', 'pres', 'coco','prcp', 'tsun'])
+
+    # Convert the 'Time' column to datetime format
+    weather_hourly['time'] = pd.to_datetime(weather_hourly['time'])
+    return weather_hourly
+
+def source_and_preprocess_forecasted_weather_data():
+
+    """
+    Source and preprocess the forecasted weather data for the Bavarian Forest National Park.
+
+    Args:
+        None
+
+    Returns:
+        pd.DataFrame: Processed forecasted weather dataframe
+    """
+
+    # Source the weather data
+    weather_data_df = source_weather_data()
+
+    # Preprocess the weather data
+    sourced_and_preprocessed_weather_data = prfwd.process_weather_data(weather_data_df)
+
+    return sourced_and_preprocessed_weather_data

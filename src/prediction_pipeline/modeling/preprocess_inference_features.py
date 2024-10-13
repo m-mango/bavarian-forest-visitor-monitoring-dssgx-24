@@ -15,16 +15,13 @@ The main functionalities include:
 
 The result is a processed DataFrame ready for further analysis or modeling.
 """
-# Write the paths from src when called from the Main.py
-from sourcing_data.source_weather import source_weather_data
-from sourcing_data.source_visitor_center_data import source_visitor_center_data
-from pre_processing.preprocess_visitor_center_data import process_visitor_center_data
-from pre_processing.features_zscoreweather_distanceholidays import add_nearest_holiday_distance, add_daily_max_values, add_moving_z_scores
-# Import the transformations from the training feature selection script
-from modeling.source_and_feature_selection import process_transformations
 
-from datetime import datetime
+from src.prediction_pipeline.pre_processing.features_zscoreweather_distanceholidays import add_nearest_holiday_distance, add_daily_max_values, add_moving_z_scores 
+from src.prediction_pipeline.modeling.source_and_feature_selection import process_transformations
+
+from datetime import datetime, timedelta
 import pandas as pd
+import streamlit as st
 
 
 
@@ -48,18 +45,13 @@ def join_inference_data(weather_data_inference, visitor_centers_data):
                     'Schulferien_Bayern', 'Schulferien_CZ','Feiertag_Bayern',  'Feiertag_CZ',
                     'HEH_geoeffnet',  'HZW_geoeffnet',  'WGM_geoeffnet', 'Lusenschutzhaus_geoeffnet',  'Racheldiensthuette_geoeffnet', 'Falkensteinschutzhaus_geoeffnet', 'Schwellhaeusl_geoeffnet']  
 
-    # Perform the merge, keeping all rows from weather_data
-    merged_data = pd.merge(
-                weather_data_inference,
-                visitor_centers_data[columns_to_add],  # Select only the columns you need
-                how='left',  # Keep all rows from weather_data
-                on='Time'  # Join on the 'Time' column
-                )
+    # Perform the merge, keep the min and max values of the visitor center data
+    merged_data = visitor_centers_data[columns_to_add].merge(weather_data_inference, on='Time', how='left')
     
     return merged_data
 
-
-def source_preprocess_inference_data():
+@st.cache_data(max_entries=1)
+def source_preprocess_inference_data(weather_data_inference, hourly_visitor_center_data):
 
     """Source and preprocess inference data from weather and visitor center sources.
 
@@ -69,21 +61,14 @@ def source_preprocess_inference_data():
     Returns:
         pd.DataFrame: DataFrame containing preprocessed inference data.
     """
+    print(f"Sourcing and preprocessing inference data at {datetime.now()}...")    
 
-    ## Source Weather Data for inference
-    # get weather for previous 10 days to calculate zscores
-    weather_data_inference = source_weather_data(start_time = datetime.now() - pd.Timedelta(days=10), 
-                                                 end_time = datetime.now() + pd.Timedelta(days=7))
-
-    ## Source Visitor Center Data for inference
-    visitor_center_data = source_visitor_center_data()
-    processed_visitor_center_data = process_visitor_center_data(visitor_center_data)
-    # process_visitor_center_data() returns a tuple with hourly data and daily data, we just need the first one
-    hourly_visitor_center_data = processed_visitor_center_data[0]
     join_df = join_inference_data(weather_data_inference, hourly_visitor_center_data)
+
 
     # Get z scores for the weather columns
     inference_data_with_distances = add_nearest_holiday_distance(join_df)
+
 
     inference_data_with_daily_max = add_daily_max_values(inference_data_with_distances, weather_columns_for_zscores)
 
@@ -92,18 +77,25 @@ def source_preprocess_inference_data():
                                                            window_size_for_zscores)
 
 
+    
     # Apply the cyclic and categorical trasformations from the training dataset (same as the training dataset)
-    inference_data_with_coco_enconding = process_transformations(inference_data_with_new_features)
+    inference_data_with_coco_encoding = process_transformations(inference_data_with_new_features)
 
-    # drop data for any day previous to datetime.now()
-    inference_data_with_coco_enconding = inference_data_with_coco_enconding[
-                                        inference_data_with_coco_enconding["Time"] >= datetime.now()
-                                        ]
+    # Define the time window: from today to 10 days from now
+    start_date = datetime.now()
+    end_date = start_date + timedelta(days=6)
+
+    # Slice the data to keep only rows within the next 10 days
+    inference_data_with_coco_encoding = inference_data_with_coco_encoding[
+        (inference_data_with_coco_encoding["Time"] >= start_date) & 
+        (inference_data_with_coco_encoding["Time"] <= end_date)
+
+        ]
     
-
     #set Time column as index   
-    inference_data_with_coco_enconding = inference_data_with_coco_enconding.set_index('Time')
+    inference_data_with_coco_encoding = inference_data_with_coco_encoding.set_index('Time')
     #drop column named Date
-    inference_data_with_coco_enconding = inference_data_with_coco_enconding.drop(columns=['Date'])
+    inference_data_with_coco_encoding = inference_data_with_coco_encoding.drop(columns=['Date'])
+
     
-    return inference_data_with_coco_enconding
+    return inference_data_with_coco_encoding
