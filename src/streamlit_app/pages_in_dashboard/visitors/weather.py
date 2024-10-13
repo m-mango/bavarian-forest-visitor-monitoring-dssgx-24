@@ -2,7 +2,9 @@
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
+import pytz
 from src.streamlit_app.source_data import source_and_preprocess_forecasted_weather_data
+from datetime import datetime
 
 
 # Functions
@@ -105,7 +107,7 @@ def get_graph(forecast_data):
     return fig
 
 
-
+@st.fragment(run_every="9h")
 def get_weather_section():
     """
     Display the weather section of the dashboard.
@@ -120,6 +122,8 @@ def get_weather_section():
 
 
     st.markdown("### Weather Forecast")
+    current_timestamp = datetime.now(pytz.timezone('Europe/Berlin')).strftime("%Y-%m-%d %H:%M:%S")
+    st.markdown(f"Weather Forecasts last fetched: {current_timestamp}, Europe/Berlin time.")
 
 
     fig  = get_graph(processed_weather_data)
