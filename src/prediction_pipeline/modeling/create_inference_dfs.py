@@ -7,6 +7,7 @@ the source_preprocess_inference_data function.
 
 import awswrangler as wr
 import pandas as pd
+import streamlit as st
 from pycaret.regression import load_model
 
 
@@ -27,6 +28,7 @@ target_vars_et  = ['traffic_abs', 'sum_IN_abs', 'sum_OUT_abs',
 # model names 
 model_names = [f'extra_trees_{var}' for var in target_vars_et]
 
+@st.cache_resource
 def load_latest_models(bucket_name, folder_prefix, models_names):
     """
     Load the latest files from an S3 folder based on the model names, 
