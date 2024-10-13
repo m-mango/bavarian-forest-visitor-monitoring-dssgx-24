@@ -357,6 +357,9 @@ def get_dummy_encodings(df: pd.DataFrame, columns_to_use: list) -> pd.DataFrame:
 
 def handle_binary_values(df: pd.DataFrame) -> pd.DataFrame:
 
+    boolean_columns = df.select_dtypes(include=['bool']).columns  # Select boolean columns
+    df[boolean_columns] = df[boolean_columns].astype(int)  # Convert to int
+
     # convert the columns with True and False to 1 and 0 and convert the int64 datatype to category
     df = df.replace({True: 1, False: 0})
     # convert the int64 datatype to category
