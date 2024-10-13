@@ -11,13 +11,13 @@ plugins:
   - mkdocstrings
 
 nav:
-  - Home: homepage.md
+  - Home: index.md
   - project-factsheet.md
   - Our Approach:
-    - index.md
-    - data.md
-    - prediction-pipeline.md
-    - user-frontends.md
+    - approach/index.md
+    - approach/data.md
+    - approach/prediction-pipeline.md
+    - approach/user-frontends.md
   - findings-and-results.md
   - limitations-and-challenges.md
   - open-issues.md
