@@ -140,10 +140,10 @@ def run_training():
     with_zscores_and_nearest_holidays_df = get_zscores_and_nearest_holidays(joined_df, weather_columns_for_zscores)
 
     # get the features for training
-    get_features(with_zscores_and_nearest_holidays_df,train_start_date, train_end_date)
+    feature_df = get_features(with_zscores_and_nearest_holidays_df,train_start_date, train_end_date)
 
     # train the model
-    train_regressor()
+    train_regressor(feature_df)
 
 
 if __name__ == "__main__":
