@@ -14,7 +14,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 # Your AWS bucket and folder details where models are stored
 bucket_name = 'dssgx-munich-2024-bavarian-forest'
-folder_prefix = 'models/models_trained/b6d6d8dc-9cd7-4213-a1d1-d567170ccdd7/'  # If you have a specific folder
+folder_prefix = 'models/models_trained/1483317c-343a-4424-88a6-bd57459901d1/'  # If you have a specific folder
 
 
 target_vars_et  = ['traffic_abs', 'sum_IN_abs', 'sum_OUT_abs', 
