@@ -126,6 +126,7 @@ def predict_with_models(loaded_models, df_features):
     
     return overall_predictions
 
+@st.cache_data(max_entries=1)
 def visitor_predictions(inference_data):
 
     loaded_models = load_latest_models(bucket_name, folder_prefix, model_names)

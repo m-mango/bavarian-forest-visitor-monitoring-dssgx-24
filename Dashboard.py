@@ -2,6 +2,8 @@ import streamlit as st
 from PIL import Image
 import pandas as pd
 import awswrangler as wr
+from datetime import datetime
+import pytz
 
 # get the streamlit app modules
 import src.streamlit_app.pages_in_dashboard.visitors.page_layout_config as page_layout_config
@@ -103,8 +105,25 @@ def run_inference(preprocessed_hourly_visitor_center_data):
     """
 
     # get the weather data for inference
-    weather_data_inference = source_weather_data(start_time = datetime.now() - pd.Timedelta(days=10), 
-                                                 end_time = datetime.now() + pd.Timedelta(days=7))
+    def get_today_midnight_berlin():
+        # Set the timezone to Berlin (CET or CEST)
+        berlin_tz = pytz.timezone('Europe/Berlin')
+        
+        # Get the current time in Berlin
+        now_berlin = datetime.now(berlin_tz)
+        
+        # Replace the hour, minute, second, and microsecond with 0 to get today at 00:00
+        day_today_berlin = now_berlin.date()
+
+        # Convert day_today_berlin to datetime
+        day_today_berlin = datetime.combine(day_today_berlin, datetime.min.time())
+        
+        return day_today_berlin
+
+    print("Fetching weather data for inference...")
+
+    weather_data_inference = source_weather_data(start_time = get_today_midnight_berlin() - pd.Timedelta(days=10), 
+                                                 end_time = get_today_midnight_berlin() + pd.Timedelta(days=7))
 
     # preprocess the inference data
     inference_df = source_preprocess_inference_data(weather_data_inference, preprocessed_hourly_visitor_center_data)

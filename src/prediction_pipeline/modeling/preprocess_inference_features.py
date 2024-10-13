@@ -21,6 +21,7 @@ from src.prediction_pipeline.modeling.source_and_feature_selection import proces
 
 from datetime import datetime, timedelta
 import pandas as pd
+import streamlit as st
 
 
 
@@ -49,7 +50,7 @@ def join_inference_data(weather_data_inference, visitor_centers_data):
     
     return merged_data
 
-
+@st.cache_data(max_entries=1)
 def source_preprocess_inference_data(weather_data_inference, hourly_visitor_center_data):
 
     """Source and preprocess inference data from weather and visitor center sources.
