@@ -4,6 +4,7 @@ import streamlit as st
 import awswrangler as wr
 import pandas as pd
 import plotly.express as px
+from sklearn.preprocessing import MinMaxScaler
 
 
 # AWS Setup
@@ -56,6 +57,15 @@ def get_visitor_counts_section():
         # Create a new column to combine both date and day for radio buttons
         predicted_df['day_date'] = predicted_df['Time'].dt.strftime('%A, %d %b %Y')
 
+        # Create a weekly relative traffic column with sklearn min-max scaling
+        scaler = MinMaxScaler()
+        predicted_df['weekly_relative_traffic'] = scaler.fit_transform(predicted_df[['predictions']])
+
+        # Create a new column for color coding based on traffic thresholds
+        predicted_df['traffic_color'] = predicted_df['weekly_relative_traffic'].apply(
+            lambda x: 'red' if x > 0.40 else 'green' if x < 0.05 else 'blue'
+        )
+
         days_list = predicted_df['day_date'].unique()
 
         # Add a note that this is forecasted data
@@ -72,14 +82,6 @@ def get_visitor_counts_section():
 
         # Extract the selected day for filtering (using date)
         day_df = predicted_df[predicted_df['day_date'] == day_selected]
-
-        # Create a weekly relative traffic column
-        day_df['weekly_relative_traffic'] = day_df['predictions'] / day_df['predictions'].max()
-
-        # Create a new column for color coding based on traffic thresholds
-        day_df['traffic_color'] = day_df['weekly_relative_traffic'].apply(
-            lambda x: 'red' if x > 0.40 else 'green' if x < 0.05 else 'blue'
-        )
 
         # Plot an interactive bar chart for relative traffic
         fig1 = px.bar(
