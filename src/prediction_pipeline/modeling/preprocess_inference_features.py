@@ -85,7 +85,7 @@ def source_preprocess_inference_data(weather_data_inference, hourly_visitor_cent
 
     # Define the time window: from today to 10 days from now
     start_date = datetime.now()
-    end_date = start_date + timedelta(days=5)
+    end_date = start_date + timedelta(days=6)
 
     # Slice the data to keep only rows within the next 10 days
     inference_data_with_coco_encoding = inference_data_with_coco_encoding[
