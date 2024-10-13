@@ -60,10 +60,7 @@ def source_preprocess_inference_data(weather_data_inference, hourly_visitor_cent
     Returns:
         pd.DataFrame: DataFrame containing preprocessed inference data.
     """
-    # make the index of the visitor center data the 'Time' column 
-    hourly_visitor_center_data['Time'] =hourly_visitor_center_data.index
-    # reset the index
-    hourly_visitor_center_data = hourly_visitor_center_data.reset_index(drop=True)
+    print(f"Sourcing and preprocessing inference data at {datetime.now()}...")    
 
     join_df = join_inference_data(weather_data_inference, hourly_visitor_center_data)
 
