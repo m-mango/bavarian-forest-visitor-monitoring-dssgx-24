@@ -9,6 +9,7 @@ import awswrangler as wr
 import pandas as pd
 import streamlit as st
 from pycaret.regression import load_model
+from sklearn.preprocessing import MinMaxScaler
 
 
 # Your AWS bucket and folder details where models are stored
@@ -71,8 +72,10 @@ def predict_with_models(loaded_models, df_features):
     - df_features (pd.DataFrame): A DataFrame containing the features to make predictions on.
 
     Returns:
-    None
+    - pd.DataFrame: A DataFrame containing the predictions of all models per region.
     """
+
+    overall_predictions = pd.DataFrame()
 
     # Iterate through the loaded models
     for model_name, model in loaded_models.items():
@@ -94,15 +97,41 @@ def predict_with_models(loaded_models, df_features):
             wr.s3.to_parquet(df_predictions,path = f"s3://{bucket_name}/models/inference_data_outputs/{model_name}.parquet")
 
             print(f"Predictions for {model_name} stored successfully")
+            df_predictions["region"] = model_name.split('extra_trees_')[1].split('.parquet')[0]
+
+            # Create a weekly relative traffic column with sklearn min-max scaling
+            scaler = MinMaxScaler()
+            df_predictions['weekly_relative_traffic'] = scaler.fit_transform(df_predictions[['predictions']])
+
+            # Create a new column for color coding based on traffic thresholds
+            df_predictions['traffic_color'] = df_predictions['weekly_relative_traffic'].apply(
+                lambda x: 'red' if x > 0.40 else 'green' if x < 0.05 else 'blue'
+            )
+
+            # Append the predictions to the overall_predictions DataFrame
+            overall_predictions = pd.concat([overall_predictions, df_predictions])
+
         else:
            print(f"Error: {model_name} is not a valid model. It is of type {type(model)}")
+    
+    return overall_predictions
 
 def visitor_predictions(inference_data):
 
     loaded_models = load_latest_models(bucket_name, folder_prefix, model_names)
 
     print("Models loaded successfully")
-
     
-    predict_with_models(loaded_models, inference_data)
+    overall_inference_predictions = predict_with_models(loaded_models, inference_data)
+
+    # Convert the 'Time' column to datetime format
+    overall_inference_predictions['Time'] = pd.to_datetime(overall_inference_predictions['Time'], errors='coerce')
+
+    # Get the days from the values (dates) in the 'Time' column
+    overall_inference_predictions['day'] = overall_inference_predictions['Time'].dt.day_name()
+
+    # Create a new column to combine both date and day for radio buttons
+    overall_inference_predictions['day_date'] = overall_inference_predictions['Time'].dt.strftime('%A, %d %b %Y')
+
+    return overall_inference_predictions
 

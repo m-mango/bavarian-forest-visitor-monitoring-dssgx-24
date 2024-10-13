@@ -35,7 +35,7 @@ from src.prediction_pipeline.modeling.train_regressor import train_regressor
 # Set the page layout - it is a two column layout
 col1, col2 = page_layout_config.get_page_layout()
 
-def create_dashboard_main_page():
+def create_dashboard_main_page(inference_predictions):
 
     """
     Create the dashboard for the Bavarian Forest National Park visitor information page.
@@ -55,7 +55,7 @@ def create_dashboard_main_page():
         st.title("Plan Your Trip to the Bavarian Forest 🌲")
 
         # Get the visitor count section
-        visitor_count.get_visitor_counts_section()
+        visitor_count.get_visitor_counts_section(inference_predictions)
 
         # get the parking section
         parking.get_parking_section()
@@ -110,7 +110,9 @@ def run_inference(preprocessed_hourly_visitor_center_data):
     inference_df = source_preprocess_inference_data(weather_data_inference, preprocessed_hourly_visitor_center_data)
 
     # make predictions
-    visitor_predictions(inference_df) 
+    overall_visitor_predictions = visitor_predictions(inference_df) 
+
+    return overall_visitor_predictions
 
 
 def run_training():
@@ -149,7 +151,7 @@ if __name__ == "__main__":
     preprocessed_hourly_visitor_center_data = source_preprocessed_hourly_visitor_center_data()
 
     # call the sourcing and processing pipeline
-    run_inference(preprocessed_hourly_visitor_center_data)
+    inference_predictions = run_inference(preprocessed_hourly_visitor_center_data)
 
     # create the dashboard
-    create_dashboard_main_page()
+    create_dashboard_main_page(inference_predictions)
