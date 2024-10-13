@@ -1,13 +1,29 @@
-# Our Approach in a Nutshell
+# **HARMONIZING TOURISM AND NATURE PROTECTION.** <br> Data-driven visitor management in the <br> Bavarian Forest National Park.
 
-![E2E Pipeline Overview](asset/E2E_Pipeline_Overview.png)
+
+![DSSGx Logo](asset/DSSGx_Logo.png) ![Bavarian Forest National Park Logo](asset/NP_Logo.png) 
+
+
+The project was carried out as part of the **Data Science for Social Good (DSSGx) Munich 2024** fellowship in collaboration with the Bavarian Forest National Park.
+
 ---
 
-We developed an **end-to-end solution** from data sourcing via data pre-processing and analysis to several user frontends.
+**In this documentation, you will find information on**
 
-- In section **Step 1: Data Sourcing** we will describe the data sources which we used as well as the methods to source them.
+- [Project Background](project-factsheet.md): What is the underlying problem, mission, solution, and impact?
 
-- In section **Step 2: Building the Prediction Pipeline** we will describe our data preprocessing and data cleaning steps, the data integration, feature selection and feature engineering, as well as our modeling approach and the selected models.
+- [Our Approach](index.md): Deep dives into data sources used and data sourcing methods, the underlying prediction pipeline (pre-processing, integration, feature selection and engineering, modeling), and the building of the user frontends (dashboards and data access point)
 
-- In section **Step 3: Building the User Frontends** we will describe how we built the different user frontends, that is two dashboards and a data access point, in the application Streamlit.
+- [Our Findings and Results](findings-and-results.md): Overview of what we have achieved in the fellowship
 
+- [Discussion](limitations-and-challenges.md): Discussion of our findings and what can be tackled next
+
+- [Open Issues](open-issues.md): You are excited about the project and want to continue collaborating on it? Check out the open issues and become an open-source contributor to the project! 🚀 
+
+- [The API Reference](api-reference.md): Technical documentation of the code developed in the project, listing the functions with inputs and outputs, their explanations, and the respective code.
+
+
+---
+
+**Enjoy exploring!** <br>
+*Anthony, Ayesha, Manpa, and Patricio*

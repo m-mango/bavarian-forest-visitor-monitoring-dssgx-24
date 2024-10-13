@@ -3,7 +3,7 @@
 ## Overview
 In this section, we will describe how we built the different user frontends. We have built an end-to-end solution through our Streamlit app, which features three main dashboards. The Visitor Dashboard enables users to plan their trips effectively, providing tools to enhance their experience at the park. The Administration Dashboard assists park management in making strategic decisions regarding resource allocation, optimizing operational efficiency. Additionally, a dedicated Data Accessibility Point is included, which is exclusively accessible to park administration, allowing them to manage and query important data seamlessly.
 
-![E2E Pipeline Step 3 User Frontend](asset/E2E_Pipeline_User_Frontend.png)
+![E2E Pipeline Step 3 User Frontend](../asset/E2E_Pipeline_User_Frontend.png)
 
 ---
 

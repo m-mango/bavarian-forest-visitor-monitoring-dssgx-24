@@ -3,7 +3,7 @@
 ## Overview
 In this section, we will describe our data preprocessing and data cleaning steps, the data integration, feature selection and feature engineering, as well as our modeling approach and the selected models.
 
-![E2E Pipeline Step 2 Prediction Pipeline](asset/E2E_Pipeline_Prediction.png)
+![E2E Pipeline Step 2 Prediction Pipeline](../asset/E2E_Pipeline_Prediction.png)
 ---
 
 ## Description of the Data Preprocessing and Cleaning Steps

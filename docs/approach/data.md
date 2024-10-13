@@ -3,7 +3,7 @@
 ## Overview
 In this section, we will describe the data sources used and how we sourced them.
 
-![E2E Pipeline Step 1 Data Sourcing](asset/E2E_Pipeline_Data.png) 
+![E2E Pipeline Step 1 Data Sourcing](../asset/E2E_Pipeline_Data.png) 
 
 ---
 
