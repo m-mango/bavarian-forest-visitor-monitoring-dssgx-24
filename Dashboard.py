@@ -1,6 +1,7 @@
 import streamlit as st
 from PIL import Image
 import pandas as pd
+import awswrangler as wr
 
 # get the streamlit app modules
 import src.streamlit_app.pages_in_dashboard.visitors.page_layout_config as page_layout_config
@@ -75,17 +76,66 @@ def create_dashboard_main_page():
         other_info.get_other_information()
 
 
-@st.fragment(run_every="1d")
-def run_inference(weather_data_inference, processed_vc_df_hourly):
-    
+def source_preprocessed_hourly_visitor_center_data():
+
+    """
+    Load the preprocessed hourly visitor center data from AWS S3.
+    """
+
+    # Load visitor count data from AWS S3
+    preprocessed_hourly_visitor_center_data = wr.s3.read_parquet(
+        path="s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/visitor_centers_hourly.parquet"
+    )
+
+    return preprocessed_hourly_visitor_center_data
+
+@st.fragment(run_every="15min")
+def run_inference(preprocessed_hourly_visitor_center_data):
+
+    """
+    Run the inference pipeline. Fetches the latest weather forecasts, preprocesses data, and makes predictions.
+
+    Args:
+        preprocessed_hourly_visitor_center_data (pd.DataFrame): The preprocessed hourly visitor center data.
+
+    Returns:
+        None
+    """
+
+    # get the weather data for inference
+    weather_data_inference = source_weather_data(start_time = datetime.now() - pd.Timedelta(days=10), 
+                                                 end_time = datetime.now() + pd.Timedelta(days=7))
+
     # preprocess the inference data
-    inference_df = source_preprocess_inference_data(weather_data_inference, processed_vc_df_hourly)
+    inference_df = source_preprocess_inference_data(weather_data_inference, preprocessed_hourly_visitor_center_data)
 
     # make predictions
-    visitor_predictions(inference_df)
+    visitor_predictions(inference_df) 
 
-@st.fragment(run_every="12w")
-def run_training(with_zscores_and_nearest_holidays_df,train_start_date, train_end_date):
+
+def run_training():
+
+    # source and preprocess the historic visitor count data
+    sourced_visitor_count_df = source_historic_visitor_count()
+    processed_visitor_count_df = preprocess_visitor_count_data(sourced_visitor_count_df)
+
+    # source and preprocess the visitor center data
+    sourced_vc_data_df = source_visitor_center_data()
+    processed_vc_df_hourly,_ = process_visitor_center_data(sourced_vc_data_df)
+
+     # get the weather data for training and inference
+    # training data
+    train_start_date = datetime(2023, 1, 1)
+    train_end_date = datetime(2024, 7, 21)
+    weather_data = source_weather_data(start_time=train_start_date, end_time=train_end_date)
+    processed_weather_df = process_weather_data(weather_data)
+
+    # join the dataframes
+    joined_df = get_joined_dataframe(processed_weather_df, processed_visitor_count_df, processed_vc_df_hourly)
+
+    # Feature engineering: add features such as zscore weather features and nearest holidays
+    weather_columns_for_zscores = [ 'Temperature (°C)','Relative Humidity (%)','Wind Speed (km/h)']
+    with_zscores_and_nearest_holidays_df = get_zscores_and_nearest_holidays(joined_df, weather_columns_for_zscores)
 
     # get the features for training
     get_features(with_zscores_and_nearest_holidays_df,train_start_date, train_end_date)
@@ -94,72 +144,12 @@ def run_training(with_zscores_and_nearest_holidays_df,train_start_date, train_en
     train_regressor()
 
 
-@st.cache_data
-def pipeline():
-    """
-    The prediction pipeline to fior getting the data for model inference. The pipeline sources the data, 
-    preprocesses it and returns the processed data. The sourced data includes the historic visitor count data,
-    the visitor center data and the weather data.
-
-    Args:
-        None
-
-    Returns:
-        pd.DataFrame: The preprocessed data for model inference
-    """
-
-    ####################################################################################################
-    # Source and Preprocess Data for Model Inference
-    ####################################################################################################
-    
-    # get the historic visitor count data
-    sourced_visitor_count_df = source_historic_visitor_count()
-   
-    processed_visitor_count_df = preprocess_visitor_count_data(sourced_visitor_count_df)
-
-   # get the visitor center data
-    sourced_vc_data_df = source_visitor_center_data()
-
-    processed_vc_df_hourly,_ = process_visitor_center_data(sourced_vc_data_df)
-
-    # get the weather data for training and inference
-    # training data
-    train_start_date = datetime(2023, 1, 1)
-    train_end_date = datetime(2024, 7, 21)
-    weather_data = source_weather_data(train_start_date, train_end_date)
-    
-    # inference data
-    weather_data_inference = source_weather_data(start_time = datetime.now() - pd.Timedelta(days=10), 
-                                                 end_time = datetime.now() + pd.Timedelta(days=7))
-
-    processed_weather_df = process_weather_data(weather_data)
-
-    # join the dataframes
-    joined_df = get_joined_dataframe(processed_weather_df, processed_visitor_count_df, processed_vc_df_hourly)
-
-    #  z score normalization
-    
-    columns_for_zscores = [ 'Temperature (°C)','Relative Humidity (%)','Wind Speed (km/h)']
-    with_zscores_and_nearest_holidays_df = get_zscores_and_nearest_holidays(joined_df, columns_for_zscores)
-
-    ####################################################################################################
-    # Inference Pipeline
-    ####################################################################################################
-    # Run inference pipeline
-    run_inference(weather_data_inference, processed_vc_df_hourly)   
-
-    ####################################################################################################
-    # Training Pipeline
-    ####################################################################################################
-
-    # run_training(with_zscores_and_nearest_holidays_df,train_start_date, train_end_date)
-
 if __name__ == "__main__":
 
+    preprocessed_hourly_visitor_center_data = source_preprocessed_hourly_visitor_center_data()
+
     # call the sourcing and processing pipeline
-    pipeline()
+    run_inference(preprocessed_hourly_visitor_center_data)
 
     # create the dashboard
     create_dashboard_main_page()
-
-    
