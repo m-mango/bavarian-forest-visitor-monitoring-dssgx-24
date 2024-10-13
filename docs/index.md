@@ -12,7 +12,7 @@ The project was carried out as part of the **Data Science for Social Good (DSSGx
 
 - [Project Background](project-factsheet.md): What is the underlying problem, mission, solution, and impact?
 
-- [Our Approach](index.md): Deep dives into data sources used and data sourcing methods, the underlying prediction pipeline (pre-processing, integration, feature selection and engineering, modeling), and the building of the user frontends (dashboards and data access point)
+- [Our Approach](approach/index.md): Deep dives into data sources used and data sourcing methods, the underlying prediction pipeline (pre-processing, integration, feature selection and engineering, modeling), and the building of the user frontends (dashboards and data access point)
 
 - [Our Findings and Results](findings-and-results.md): Overview of what we have achieved in the fellowship
 
