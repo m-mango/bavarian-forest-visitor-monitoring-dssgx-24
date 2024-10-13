@@ -8,6 +8,9 @@ the source_preprocess_inference_data function.
 import awswrangler as wr
 import pandas as pd
 import streamlit as st
+import boto3
+import joblib
+import io
 from pycaret.regression import load_model
 from sklearn.preprocessing import MinMaxScaler
 
@@ -49,14 +52,21 @@ def load_latest_models(bucket_name, folder_prefix, models_names):
 
     # Loop through each model to get the latest pickle (.pkl) file
     for model in models_names:
-        # List objects in the S3 bucket with the model prefix
-        saved_lr = load_model(
-            platform="aws",
-            authentication={'bucket' : bucket_name, 'path': folder_prefix},
-            model_name=model)
+        
+        # Create an S3 client
+        s3 = boto3.client('s3')
+
+        s3_key = folder_prefix + model + '.pkl'
+        print(f"Retrieving the trained model {model} saved under AWS S3 in bucket {bucket_name} with key {s3_key}")
+
+        # Get the object from S3
+        response = s3.get_object(Bucket=bucket_name, Key=s3_key)
+
+        # Load the pickled model from the response object using joblib
+        loaded_regressor_model = joblib.load(io.BytesIO(response['Body'].read()))
         
         # Store the loaded model in the dictionary
-        loaded_models[f'{model}'] = saved_lr
+        loaded_models[f'{model}'] = loaded_regressor_model
     
     return loaded_models
 
