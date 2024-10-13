@@ -163,7 +163,7 @@ def source_weather_data(start_time, end_time):
     for the specified time period, processes the data to extract necessary weather parameters,
     and saves the processed data to a CSV file.
     """
-    print(f"Sourcing weather forecasts for {start_time} to {end_time} at {datetime.now()}...")
+    print(f"Sourcing weather data for {start_time} to {end_time} at {datetime.now()}...")
 
     # Create a Point object for the Bavarian Forest National Park entry
     bavarian_forest = Point(lat=LATITUDE, lon=LONGITUDE)
