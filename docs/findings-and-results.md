@@ -1,7 +1,12 @@
-# Findings and Results
+# Findings and Final Product
 
+## Overview
+
+In this section, we summarized the findings of the model training as well as the visitor traffic forecasting. Moreover, we give an overview over the final product built.
 
 The analysis of visitor traffic in the Bavarian Forest National Park utilized the Extra Trees Regressor, focusing on predictions across six distinct regions. We examined 15 target variables, including total visitor counts and IN/OUT values for each region, as well as overall metrics for the park.
+
+---
 
 ## Model Training
 
@@ -60,8 +65,9 @@ Based on the provided table, here are some observations:
 
 The findings illustrate the Extra Trees Regressor's effectiveness in predicting visitor traffic across various regions of the Bavarian Forest National Park. The results indicate strong predictive power, especially for areas with consistent visitor patterns. These insights can aid park management in resource allocation, event planning, and enhancing visitor experience based on anticipated traffic flows.
 
-## Visitor Traffic Forecasting for Bavarian Forest National Park (BFNP)
+---
 
+## Visitor Traffic Forecasting for Bavarian Forest National Park (BFNP)
 
 We evaluated the ExtraTree Regressor model on unseen data from **May 1, 2024, to July 22, 2024**. The model was trained on historical data and used to forecast visitor traffic in the Bavarian Forest National Park (BFNP). The results across various regions and target variables are presented below.
 
@@ -83,11 +89,11 @@ The graphs presented above show how the model performs on **unseen data** from M
 
 The total park traffic (`traffic_abs`) is consistently overestimated in both low and high-traffic periods. The predicted values follow the general trend of the actual counts but are consistently higher, particularly during low-traffic periods.
 
+
 **Sum IN and Sum OUT**
 
 For `sum_IN_abs` and `sum_OUT_abs`, the ExtraTree Regressor successfully captures the cyclic nature of visitor inflow and outflow. However, the magnitude of the predicted values often falls short of actual observations during peak traffic days, indicating that the model could struggle to forecast sharp increases in visitor numbers.
 
----
 
 **Region-Specific Analysis**
 
@@ -103,7 +109,6 @@ For `sum_IN_abs` and `sum_OUT_abs`, the ExtraTree Regressor successfully capture
 - **Nationalparkzentrum Lusen IN/OUT**:
   - The model performs similarly in this region, capturing trends but struggling to forecast peak visitor numbers. There is some overestimation during low-traffic days, but the overall cyclic pattern is well-represented.
 
----
 
 ### Model Performance Insights
 
@@ -121,7 +126,6 @@ Evaluating the model on unseen data has revealed the following key insights:
 
 - **Overestimation of Low-Traffic Days**: During low-traffic days, the model tends to overestimate the visitor count slightly, leading to higher errors in some regions.
 
----
 
 ### Key Takeaways and Future Work
 
@@ -166,7 +170,6 @@ Future iterations of the model could benefit from advanced feature engineering. 
 * **Seasonal Variations:** The cyclical patterns captured by "Hour_cos" and "Hour_sin" might indicate seasonal variations in traffic, with higher numbers of visitors during certain months or periods of the year.
 * **Weather Influence:** Favorable weather conditions (e.g., warm and sunny days) might attract more visitors, as evidenced by the importance of temperature and relative humidity.
 * **Special Event Impact:** Holidays and school holidays seem to be significant factors, suggesting that special events or time off from school can drive increased traffic.
-
 
 ---
 

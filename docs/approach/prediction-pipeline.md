@@ -1,219 +1,16 @@
-#  Methodology and Approach
+# Step 2: Building the Prediction Pipeline
 
-## Description of the Data Sources Used & Methods for Data Sourcing
+## Overview
+In this section, we will describe our data preprocessing and data cleaning steps, the data integration, feature selection and feature engineering, as well as our modeling approach and the selected models.
 
-### Sensor Data for Visitor Counts
-
-The visitor sensor data is an internal 
-administrative file maintained by the Bavarian Forest National Park. 
-The park has over 700 entry and exit points, of which 26 are equipped
-with pyro sensors designed to detect the flow of visitors. These 
-sensors can distinguish the direction in which visitors are traveling, 
-counting each person entering or exiting the park. When a visitor 
-enters, the sensor increments a count of 1 to the sensor-specific “IN” 
-column in the data file, and similarly, when a visitor exits, it 
-increments a count of 1 to the corresponding “OUT” column. This 
-system allows for the tracking of visitor movement throughout the 
-park. In addition to this, some sensors, referred to as "multi-sensors," 
-are capable of distinguishing between cyclists and pedestrians, 
-providing more detailed visitor data. Furthermore, while some sensors
-can automatically upload their data to the Bayern Cloud, others 
-require manual uploads through on-site data collection using a USB 
-drive.
-
-### Visitor Center Data
-
-The visitor center data file is an internal 
-administrative data file maintained by the Bavarian Forest National 
-Park. This data file includes daily counts of visitors to the various 
-visitor centers (add the types of visitor centers) as well as columns 
-that indicate whether or not the visitor center was open or closed on a
-given day. Additionally, temporal-related information is kept in this 
-administrative file, including whether or not a given day was a federal
-or national holiday (Bavarian or Czech; School or Federal or School 
-holiday), the season, the day of the week, and date.
-
-### Weather Data
-
-Historical and forecasted weather data was sourced 
-using the Meteostat Python API, a powerful library that provides 
-access to a comprehensive database of weather and climate 
-information. This library allows users to retrieve data for specific 
-locations worldwide. For our analysis, we obtained hourly historical 
-and forecasted weather data for the Haselbach region, with specific 
-coordinates of Latitude = 49.31452390542327 and Longitude = 
-12.711573421032. Our analysis focused on several key variables, 
-including wind speed (km/h), relative humidity (%), and temperature 
-(Celsius). Additionally, we included a categorical variable that 
-classifies the weather conditions at each hour into 27 levels, 
-encompassing conditions such as sunny, fair, rain, heavy rain, cloudy, 
-hail, and more. CoCo, which stands for weather “Condition Code," is 
-the shorthand used by Meteostat to classify various weather 
-conditions. Below is a table that outlines all levels of CoCo and how 
-we recoded them for easier interpretation: 
-
-| Original CoCo Codes | Original CoCo Weather Description                               | Recoded CoCo Code & New Weather Description |
-|----------------------|------------------------------------------------------------------|----------------------------------------------|
-| 1, 2                 | Clear, Fair                                                      | 1 (Sunny)                                   |
-| 3, 4, 5              | Cloudy, Overcast, Fog                                           | 2 (Clouds)                                  |
-| 7, 8, 9, 17, 18, 19  | Light Rain, Rain, Heavy Rain, Rain Shower, Heavy Rain Shower, Sleet Shower | 3 (Rainy)                                   |
-| 14, 15, 16, 21, 22   | Light Snowfall, Snowfall, Heavy Snowfall, Snow Shower, Heavy Snow Shower | 4 (Snow)                                    |
-| 6, 10, 11, 12, 13, 20| Freezing Fog, Freezing Rain, Heavy Freezing Rain, Sleet, Heavy Sleet, Heavy Sleet Shower | 5 (Extreme Weather)                          |
-| 23, 24, 25, 26, 27   | Lightning, Hail, Thunderstorm, Heavy Thunderstorm, Storm       | 6 (Storms)                                  |
-
-
-### Parking Data
-
-Historical and real-time parking data for the Bavarian 
-Forest National Park is sourced from the Bayern Cloud, a cloud 
-computing service provided by the Bavarian government to support 
-public administration, municipalities, and other organizations in the 
-region. The park has 12 sensors installed in its parking lots, which 
-monitor the occupancy of parking spaces. These sensors provide data 
-on each lot's capacity, current occupancy, and occupancy rate. 
-However, two of the parking lot sensors are currently offline, so data 
-from those locations is unavailable. The frequency at which the 
-sensors transmit data to the Bayern Cloud varies, both across 
-different sensors and within individual sensors over time.
-    
-
-## Streamlit App
-### Overview
-We have built an end-to-end solution through our Streamlit app, which features three main dashboards. The Visitor Dashboard enables users to plan their trips effectively, providing tools to enhance their experience at the park. The Administration Dashboard assists park management in making strategic decisions regarding resource allocation, optimizing operational efficiency. Additionally, a dedicated Data Accessibility Point is included, which is exclusively accessible to park administration, allowing them to manage and query important data seamlessly.
-
+![E2E Pipeline Step 2 Prediction Pipeline](../asset/E2E_Pipeline_Prediction.png)
 ---
 
-### Visitor Dashboard
-
-The Visitor Dashboard serves as a comprehensive tool for visitors to the Bavarian Forest National Park, offering real-time data and insights to enhance their experience.
-
-1. **Real-Time Weather Data**:
-    - We have integrated real-time weather data from Metostat for the upcoming week, ensuring visitors have accurate information about current conditions.
-
-2. **Parking Data**:
-    - Parking availability is monitored using data fetched from Bayern Cloud for 12 parking sensors. Currently, 10 sensors are operational, as 2 are offline.
-    - Visualization of parking occupancy is provided by fetching the coordinates of these sensors, indicating high, medium, and low thresholds for parking availability.
-
-3. **Visitor Traffic Forecast**:
-    - Forecasted visitor traffic is displayed for various regions of the park on an hourly basis for the coming week.
-    - Users can select specific dates and regions to view 'IN' and 'OUT' values for each region, overall traffic across the park, and total incoming and outgoing visitor flows.
-
-4. **Recreational Activities**:
-
-    The dashboard highlights various recreational activities available in the park, including:
-
-    - **Hiking**: 🥾 Explore trails through the scenic wilderness. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/hiking/index.htm)
-    - **Cycling**: 🚴‍♂️ Cycle through picturesque routes. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/bicycling/index.htm)
-    - **Camping**: 🏕️ Relax under the stars at designated camping spots. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/facilities/camping/index.htm)
-    - **Snowshoeing**: 🌨️ Enjoy snowshoeing during the winter months. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/snowshoeing/index.htm)
-    - **Skiing**: 🎿 Ski on the best cross-country trails. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/cross_country_skiing/index.htm)
-
-5. **Language Selection**:
-    - The dashboard supports both German and English languages, making it accessible to a broader audience.
-
-6. **Additional Information**:
-
-    - A section for **Other Information** provides valuable insights to visitors:
-        - **Visitor Centers**: 🏛️ Information about the main visitor centers in the Bavarian Forest. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/facilities/index.htm)
-        - **Popular Entrances to the Park**:
-            - **Entrance 1: Falkenstein**: Access to hiking trails and the Falkenstein mountain. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/facilities/npc_falkenstein/index.htm)
-            - **Entrance 2: Lusen**: Gateway to challenging trails on the Lusen mountain. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/facilities/npc_lusen/index.htm)
-        - **Best Way to Get There**: 🚌 Information on transportation options to reach the Bavarian Forest. [Learn More](https://www.nationalpark-bayerischer-wald.bayern.de/english/service/getting_there/index.htm)
-
----
-
-### Administration Dashboard
-
-The Administration Dashboard is designed to assist park management in making strategic decisions based on comprehensive data and analytics. It provides essential insights into visitor counts and parking occupancy to optimize operational efficiency.
-
-1. **Forecasted Hourly Predictions**:
-    - The dashboard presents the distribution of forecasted visitor traffic across the park for the next seven days, allowing administrators to anticipate visitor flows and plan resources accordingly.
-
-2. **Absolute Visitor Counts**:
-    - Unlike the Visitor Dashboard, the Administration Dashboard provides absolute numbers for visitor counts, enabling precise tracking of park attendance. Visualizations of these counts help in understanding trends and patterns over time.
-
-3. **Real-Time Parking Occupancy**:
-    - Real-time data for parking occupancy is displayed for 10 out of 12 parking sensors. For each selected location, the dashboard shows:
-        - **Available Spaces**: The current number of available parking spaces.
-        - **Capacity**: The total capacity of the selected parking area.
-        - **Occupancy Rate**: The percentage of the parking area currently occupied.
-
----
-
-### Data Accessibility Point
-
-The Data Accessibility Point provides park administration with a seamless interface for managing and querying important data. It includes features for both uploading and downloading data, ensuring efficient data handling.
-
-#### Data Upload Section
-- Administrators can upload data related to:
-
-    - **Visitor Count Sensors**
-    - **Visitor Count Centers**
-    - **Other Data Types**
-
-- Before uploading, users can preview the entire dataset and generate a data summary report using Pandas Profiling. This allows for a quick assessment of the data quality and structure.
-- Once reviewed, the uploaded data is stored securely in the system for future access and analysis.
-
-#### Data Download Section
-- Users can select specific data categories to download, including:
-    - **Visitor Count Sensors**
-    - **Visitor Count Centers**
-    - **Other Categories**
-- A preview of the selected data will be available, ensuring that users can verify the information before downloading.
-
-#### Data Query Section
-
-The query section of the Streamlit application is designed to enable users to access and analyze data related to three main categories: **Weather**, **Visitor Occupancy**, and **Parking**. Users can apply various filters such as date ranges, months, and seasons to customize their queries. Based on these selected criteria, the application generates specific queries to retrieve data points from the underlying dataset. This feature allows users to efficiently extract relevant insights.
-
-**Main Categories of Data**
-
-1. **Weather Data**: Includes properties like temperature, precipitation, wind speed, relative humidity, and sunshine duration. Users can retrieve meteorological information for specific time periods or analyze patterns across months and seasons.
-
-2. **Visitor Occupancy**: Provides data from various visitor sensors, which include metrics such as the number of visitors entering ("IN"), exiting ("OUT"), or the total number of visitors ("TOTAL") at specific locations. This data helps to monitor and predict visitor flow within the park.
-
-3. **Parking**: Captures data from parking sensors, such as occupancy levels, parking capacity, and occupancy rates. This information is useful for managing and analyzing parking facilities' utilization.
-
-**Filters for Query Refinement**
-
-To refine their queries, users can apply various filters:
-
-- **Date Selection**: Allows users to specify a start and end date, limiting the query to a particular timeframe. By default, the date range is set to retrieve data from the past 7 days.
-
-- **Months**: Enables users to select one or more months from January to December, filtering data based on monthly patterns.
-
-- **Seasons**: Provides another way to filter data, allowing users to retrieve information for specific seasons: Winter, Spring, Summer, or Fall.
-
-- **Year Filter**: Automatically applied based on the selected months or seasons. If no months or seasons are selected, users are prompted to choose at least one to proceed with the query.
-
-Each category also has its own set of specific filters. For example:
-- In the **Weather** category, users can select properties like temperature or precipitation.
-- In the **Parking** category, users can choose specific parking sensors and related data, such as occupancy rates.
-- In **Visitor Occupancy**, users can select which visitor sensors to focus on and what metrics to retrieve (e.g., IN, OUT, or TOTAL visitors).
-
-**Types of Queries**
-
-Queries are categorized into three types:
-
-1. **Date Range Queries**: Allow users to retrieve data within a specific timeframe. For instance, users might ask, “What was the temperature between September 1, 2024, and September 7, 2024?” This type of query is available across all three categories (Weather, Visitor Occupancy, Parking), helping users analyze short-term trends.
-
-2. **Monthly Queries**: Provide aggregated data for a specific month. For example, a user might query, “What was the total visitor count in August 2024?” Monthly queries help users examine patterns over the course of a particular month.
-
-3. **Seasonal Queries**: Offer insight into broader seasonal trends. For example, users can ask, “What was the parking occupancy rate during the Summer of 2024?” These queries allow users to compare data across different seasons, which is useful for seasonal forecasting and planning.
-
-**Query Generation Process**
-
-The query generation process is managed by the `generate_queries` function, which dynamically constructs query strings based on the user’s inputs. The function captures all selected filters—whether they pertain to date, month, season, or a specific category—and formats them into a query structure. These queries are then outputted in a structured format that the application can execute, allowing users to easily access the data they need.
-
-Additionally, the system incorporates error handling mechanisms. For instance, if the selected end date is earlier than the start date, users will receive an error message prompting them to correct the date range. Furthermore, if a query returns no data, an informative message is displayed, guiding the user to adjust their filters.
-
----
-
-## Prediction Pipeline
-### Description of the Data Preprocessing and Cleaning Steps
+## Description of the Data Preprocessing and Cleaning Steps
 
 In our project, we utilized various data sources, including sensor data for visitor counts, weather data, visitor center data, and parking data. These datasets were initially in different formats, necessitating a thorough cleaning and preprocessing process to unify them.
 
-#### Visitor Count Data Preprocessing
+### Visitor Count Data Preprocessing
 For the visitor count data, several crucial steps were taken:
 
 - **Removing Unwanted Data**: We excluded any data prior to "2016-05-10 03:00:00" since no sensors were installed before this date, ensuring our analysis focused on relevant data.
@@ -235,7 +32,7 @@ For the visitor count data, several crucial steps were taken:
     - `sum_IN_abs` and `sum_OUT_abs`: Sums of incoming and outgoing counts.
     - `occupancy_abs`: A cumulative measure representing occupancy over time, aiding in trend analysis.
 
-#### Weather Data Preprocessing
+### Weather Data Preprocessing
 
 
 The weather data was sourced and preprocessed to ensure consistency and reliability for our analysis. The following key steps were taken:
@@ -259,7 +56,7 @@ The weather data was sourced and preprocessed to ensure consistency and reliabil
 By carefully processing the weather data, we ensured it was well-prepared for integration with visitor count data and other datasets in our predictive modeling pipeline.
 
 
-#### Visitor Center Data Preprocessing
+### Visitor Center Data Preprocessing
 
 The uncleaned administrative file, “national-park-vacation-times-houses-opening-
 times.xlsx,” was loaded for cleaning. First, the data types of each column were 
@@ -293,17 +90,21 @@ level and another at the hourly level. The hourly-level visitor center data was
 eventually joined with other datasets that had temporal granularity at the hourly 
 level for modeling.
 
-### Data Integration
+---
+
+## Data Integration
 
 We joined the preprocessed datasets—visitor counts, weather, and visitor center data—based on their timestamps to create a unified dataset for efficient modeling. This integration ensures that all data points align in hourly format, facilitating a comprehensive analysis of visitor traffic patterns.
 
 The resulting joined dataset encompasses all relevant features from each source, providing a robust foundation for our predictive modeling efforts. This approach allows us to leverage the combined insights from different datasets, enhancing the accuracy and effectiveness of our forecasts.
 
-### Feature Selection and Feature Engineering
+---
+
+## Feature Selection and Feature Engineering
 
 After joining the data, we conducted various tasks, including feature selection and feature engineering. Below are the relevant aspects of this process:
 
-#### Region-wise Mapping
+### Region-wise Mapping
 
 The Bavarian Forest National Park is divided into six regions, and we grouped the sensors accordingly. For each region, we aggregated the IN and OUT values based on the specific sensors that belong to that region:
 
@@ -329,14 +130,14 @@ The Bavarian Forest National Park is divided into six regions, and we grouped th
 The readings from these sensors were combined to provide the total IN and OUT values for the region.
 
 
-#### Feature Engineering
+### Feature Engineering
 
 We integrated additional features, including:
 
 - Z-scores for daily maximum temperature, relative humidity, and wind speed.
 - Distance to the nearest holidays for both Bayern and Czech Republic.
 
-#### Data Transformation
+### Data Transformation
 
 Handling Numerical, Cyclic, and Categorical Features
 
@@ -346,7 +147,7 @@ Handling Numerical, Cyclic, and Categorical Features
 
 3. **Categorical Features**: Categorical columns were converted to string types for proper processing and analysis.
 
-#### Additional Steps
+### Additional Steps
 
 - **Datetime Conversion**: The 'Time' column was converted to a datetime format for easier time-based indexing and analysis.
 - **Summation of IN and OUT Values**: We summed the IN and OUT values for each region based on the defined mappings.
@@ -354,7 +155,9 @@ Handling Numerical, Cyclic, and Categorical Features
 
 This systematic approach to preprocessing and feature engineering sets a solid foundation for subsequent modeling and analysis.
 
-### Modeling
+---
+
+## Modeling
 We have sliced the data from January 1, 2023, to July 22, 2024, for training purposes. During our experimentation phase, we explored various forecasting models to identify the most effective approach for predicting visitor traffic in the Bavarian Forest National Park. Ultimately, the ExtraTree Regressor and LSTM (Long Short-Term Memory) models demonstrated superior performance compared to other models.
 
 ### ExtraTree Regressor
@@ -441,4 +244,3 @@ After experimenting with both the LSTM and Extra Tree Regressor models, we found
 - **Consistency in Performance**: During our model evaluation, the Extra Tree Regressor consistently delivered strong performance across various metrics, making it a reliable choice for ongoing operations.
 
 Based on these considerations, we selected the Extra Tree Regressor as the model for real-time inference. This decision balances the need for accurate predictions with the practical constraints of our current dataset and computational resources, ensuring that we can provide reliable visitor traffic forecasts in the Bavarian Forest National Park.
-
