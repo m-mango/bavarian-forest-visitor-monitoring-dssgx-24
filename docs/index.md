@@ -1,32 +1,13 @@
-# Welcome! 
+# Our Approach in a Nutshell
 
-
-# PROJECT DOCUMENTATION.
-
-# **HARMONIZING TOURISM <br>AND NATURE PROTECTION.** <br> Data-driven visitor management in the <br> Bavarian Forest National Park.
-
-
-![DSSGx Logo](asset/DSSGx_Logo.png) ![Bavarian Forest National Park Logo](asset/NP_Logo.png) 
-<br>
-<br>
-
-
-The project was carried out as part of the <br>**Data Science for Social Good (DSSGx) Munich 2024** fellowship <br> in collaboration with the Bavarian Forest National Park.
-
+![E2E Pipeline Overview](asset/E2E_Pipeline_Overview.png)
 ---
 
-**In this documentation, you will find information on**
+We developed an **end-to-end solution** from data sourcing via data pre-processing and analysis to several user frontends.
 
-- project background and underlying problem, mission, solution, and impact
+- In section **Step 1: Data Sourcing** we will describe the data sources which we used as well as the methods to source them.
 
-- our approach incl. deep dives in data sources used and data sourcing methods, the underlying prediction pipeline (pre-processing, integration, feature selection and engineering, modeling), and the building of the user frontends (dashboards and data access point)
+- In section **Step 2: Building the Prediction Pipeline** we will describe our data preprocessing and data cleaning steps, the data integration, feature selection and feature engineering, as well as our modeling approach and the selected models.
 
-- our findings and results incl. discussion
+- In section **Step 3: Building the User Frontends** we will describe how we built the different user frontends, that is two dashboards and a data access point, in the application Streamlit.
 
-- the API reference
-
-
----
-
-**Enjoy exploring!** <br>
-*Anthony, Ayesha, Manpa, and Patricio*
