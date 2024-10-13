@@ -79,7 +79,7 @@ def save_models_to_aws_s3(model, save_path_models: str, model_name: str, local_p
         os.makedirs(local_path)
 
     save_model_path = os.path.join(local_path, model_name)
-    save_model(model, save_model_path)
+    save_model(model, save_model_path, model_only=True)
 
     save_path_aws = f"s3://{bucket_name}/{save_path_models}/{uuid}/{model_name}.pkl"
 
