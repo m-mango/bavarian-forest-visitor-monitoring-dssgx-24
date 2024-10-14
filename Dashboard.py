@@ -8,6 +8,7 @@ import pytz
 # get the streamlit app modules
 import src.streamlit_app.pages_in_dashboard.visitors.page_layout_config as page_layout_config
 import src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu as lang_sel_menu
+from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
 import src.streamlit_app.pages_in_dashboard.visitors.weather as weather
 import src.streamlit_app.pages_in_dashboard.visitors.parking as parking 
 import src.streamlit_app.pages_in_dashboard.visitors.visitor_count as visitor_count
@@ -54,7 +55,7 @@ def create_dashboard_main_page(inference_predictions):
         # Display the logo and title of the column
         logo = Image.open("src/streamlit_app/assets/logo-bavarian-forest-national-park.png")
         st.image(logo, width=300)
-        st.title("Plan Your Trip to the Bavarian Forest 🌲")
+        st.title(TRANSLATIONS[st.session_state.selected_language]['title'])
 
         # Get the visitor count section
         visitor_count.get_visitor_counts_section(inference_predictions)

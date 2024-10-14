@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import pytz
 from src.streamlit_app.source_data import source_and_preprocess_forecasted_weather_data
 from datetime import datetime
+from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
 
 
 # Functions
@@ -48,9 +49,9 @@ def get_graph(forecast_data):
         x=forecast_data.index, 
         y=forecast_data['temp'], 
         mode='lines', 
-        name='Temperature (°C)',
+        name=TRANSLATIONS[st.session_state.selected_language]['temperature'],
         line=dict(color='orange', width=2),  # Smoother line with better color
-        hovertemplate='Date: %{x|%d %b %Y, %H:%M}<br>Temperature: %{y}°C<extra></extra>'
+        hovertemplate=f'{TRANSLATIONS[st.session_state.selected_language]["date"]}: ' +  '%{x|%d-%m-%Y, %H:%M}<br>' + f'{TRANSLATIONS[st.session_state.selected_language]["temperature"]}: ' + ' %{y}°C<extra></extra>'
     ))
 
     # Find peak indices for temperature
@@ -66,7 +67,7 @@ def get_graph(forecast_data):
             size=10,
             symbol='circle-open'
         ),
-        name='Peaks',
+        name=TRANSLATIONS[st.session_state.selected_language]['peaks'],
         text=forecast_data['temp'][peak_indices].astype(str) + "°C",
         textposition='top center',
         hoverinfo='none'  # Disable hover for peaks to avoid overlapping
@@ -76,11 +77,11 @@ def get_graph(forecast_data):
     fig.add_trace(peak_points_trace)
 
     fig.update_layout(
-    title='7-Day Hourly Weather Forecast',
-    xaxis_title='Date',
-    yaxis_title='Temperature (°C)',
+    title=TRANSLATIONS[st.session_state.selected_language]['7_day_hourly_weather'],
+    xaxis_title=TRANSLATIONS[st.session_state.selected_language]['date'],
+    yaxis_title=TRANSLATIONS[st.session_state.selected_language]['temperature'],
     xaxis=dict(
-        tickformat='%a, %b %d',  # Format x-axis as 'Day, Month Date'
+        tickformat='%d-%m',  # Format x-axis as 'Day, Month Date'
         dtick=24 * 60 * 60 * 1000,  # Tick every day
         tickangle=-45,  # Rotate the labels to make them more readable
         color='white',  # Ensure labels are visible on the dark background
@@ -121,9 +122,9 @@ def get_weather_section():
     processed_weather_data = source_and_preprocess_forecasted_weather_data()
 
 
-    st.markdown("### Weather Forecast")
+    st.markdown(f"### {TRANSLATIONS[st.session_state.selected_language]['weather_forecast']}")
     current_timestamp = datetime.now(pytz.timezone('Europe/Berlin')).strftime("%Y-%m-%d %H:%M:%S")
-    st.markdown(f"Weather Forecasts last fetched: {current_timestamp}, Europe/Berlin time.")
+    st.markdown(f"{TRANSLATIONS[st.session_state.selected_language]['weather_data_last_updated']} {current_timestamp}")
 
 
     fig  = get_graph(processed_weather_data)

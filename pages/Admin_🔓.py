@@ -4,9 +4,10 @@ from src.streamlit_app.pages_in_dashboard.admin.password import check_password
 from src.streamlit_app.pages_in_dashboard.admin.visitor_count import visitor_count
 from src.streamlit_app.pages_in_dashboard.admin.parking import get_parking_section
 from src.streamlit_app.source_data import source_and_preprocess_realtime_parking_data
+from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
 
 # Title of the page - page layout
-st.write("# Bavarian Forest admin page")
+st.write(f"# {TRANSLATIONS[st.session_state.selected_language]['admin_page_title']}")
 
 if not check_password():
     st.stop()  # Do not continue if check_password is not True.

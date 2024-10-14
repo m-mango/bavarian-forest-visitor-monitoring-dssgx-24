@@ -3,6 +3,7 @@ import streamlit as st
 import pydeck as pdk
 import pandas as pd
 from src.streamlit_app.source_data import source_and_preprocess_realtime_parking_data
+from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
 
 def get_fixed_size():
     """
@@ -47,11 +48,11 @@ def get_occupancy_status(occupancy_rate):
         str: The occupancy status ("High", "Medium", "Low").
     """
     if occupancy_rate >= 80:
-        return "High"
+        return TRANSLATIONS[st.session_state.selected_language]["parking_status_high"]
     elif occupancy_rate >= 60:
-        return "Medium"
+        return TRANSLATIONS[st.session_state.selected_language]["parking_status_medium"]
     else:
-        return "Low"
+        return TRANSLATIONS[st.session_state.selected_language]["parking_status_low"]
 
 def render_occupancy_bar(occupancy_rate):
     """
@@ -93,9 +94,9 @@ def get_parking_section():
     # Source and preprocess the parking data
     processed_parking_data, timestamp_latest_parking_data_fetch = source_and_preprocess_realtime_parking_data()
 
-    st.markdown("### Real Time Parking Occupancy")
+    st.markdown(f"### {TRANSLATIONS[st.session_state.selected_language]['real_time_parking_occupancy']}")
 
-    st.write(f"Parking Data last updated: {timestamp_latest_parking_data_fetch}, Europe/Berlin time.")
+    st.write(f"{TRANSLATIONS[st.session_state.selected_language]['parking_data_last_updated']} {timestamp_latest_parking_data_fetch}")
     
     # Set a fixed size for all markers
     processed_parking_data['size'] = get_fixed_size()
@@ -132,7 +133,7 @@ def get_parking_section():
         layers=[layer],
         initial_view_state=view_state,
         tooltip={
-            "text": "{location}\nOccupancy Status: {occupancy_status}"
+            "text": "{location}\n" + f"{TRANSLATIONS[st.session_state.selected_language]['occupancy_status']}: " + "{occupancy_status}"
         },
         map_style="road"
     )
@@ -140,7 +141,7 @@ def get_parking_section():
 
     # Interactive Metrics
     selected_location = st.selectbox(
-        "Select a parking section:", 
+        TRANSLATIONS[st.session_state.selected_language]['select_parking_section'], 
         processed_parking_data['location'].unique(),
         key="selectbox_parking_section"
     )
@@ -150,14 +151,12 @@ def get_parking_section():
         selected_data = processed_parking_data[processed_parking_data['location'] == selected_location].iloc[0]
 
         col1, col2, col3 = st.columns(3)
-        # col1.metric(label="Available Spaces", value=f"{selected_data['current_availability']} cars")
-        col1.metric(label="Capacity", value=f"{selected_data['current_capacity']} cars")
+        col1.metric(label=TRANSLATIONS[st.session_state.selected_language]['capacity'], value=f"{selected_data['current_capacity']} cars")
         
         # Display occupancy status and bar
         with col2:
-            # st.markdown("**Occupancy Status**")
-            st.metric(label = "Occupancy Status", value=f"{selected_data['occupancy_status']}")
+            st.metric(label = TRANSLATIONS[st.session_state.selected_language]['occupancy_status'], value=f"{selected_data['occupancy_status']}")
         with col3:
-            st.markdown("**Occupancy Rate**")
+            st.markdown(f"**{TRANSLATIONS[st.session_state.selected_language]['occupancy_rate']}**")
             render_occupancy_bar(selected_data['current_occupancy_rate'])
 
