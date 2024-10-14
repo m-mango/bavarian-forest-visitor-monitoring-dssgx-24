@@ -5,6 +5,7 @@ import awswrangler as wr
 import pandas as pd
 import plotly.express as px
 from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
+from sklearn.preprocessing import MinMaxScaler
 
 
 # AWS Setup
@@ -14,6 +15,16 @@ bucket = "dssgx-munich-2024-bavarian-forest"
 inference_data_folder = "/models/inference_data_outputs/"
 
 ########################################################################################
+
+regions = {
+    'Bayerischer Wald Total': ['traffic_abs'],
+    'Nationalparkzentrum Falkenstein': ['Nationalparkzentrum Falkenstein IN', 'Nationalparkzentrum Falkenstein OUT'],
+    'Nationalparkzentrum Lusen': ['Nationalparkzentrum Lusen IN', 'Nationalparkzentrum Lusen OUT'],
+    'Falkenstein-Schwellhäusl': ['Falkenstein-Schwellhäusl IN', 'Falkenstein-Schwellhäusl OUT'],
+    'Scheuereck-Schachten-Trinkwassertalsperre': ['Scheuereck-Schachten-Trinkwassertalsperre IN', 'Scheuereck-Schachten-Trinkwassertalsperre OUT'],
+    'Lusen-Mauth-Finsterau': ['Lusen-Mauth-Finsterau IN', 'Lusen-Mauth-Finsterau OUT'],
+    'Rachel-Spiegelau': ['Rachel-Spiegelau IN', 'Rachel-Spiegelau OUT'],
+}
 
 @st.fragment
 def get_visitor_counts_section(inference_predictions):
@@ -27,15 +38,31 @@ def get_visitor_counts_section(inference_predictions):
         None
     """
     st.markdown(f"## {TRANSLATIONS[st.session_state.selected_language]['visitor_counts_forecasted']}")
+
+    # Calculate the traffic rate per region
+    for key, value in regions.items():
+        if len(value) == 2:
+            inference_predictions[key] = inference_predictions[value[0]] + inference_predictions[value[1]]
+        else:
+            inference_predictions[key] = inference_predictions[value]
+
+        # Create a weekly relative traffic column with sklearn min-max scaling
+        scaler = MinMaxScaler()
+        inference_predictions[f'weekly_relative_traffic_{key}'] = scaler.fit_transform(inference_predictions[[key]])
+
+        # Create a new column for color coding based on traffic thresholds
+        inference_predictions[f'traffic_color_{key}'] = inference_predictions[f'weekly_relative_traffic_{key}'].apply(
+            lambda x: 'red' if x > 0.40 else 'green' if x < 0.05 else 'blue'
+        )
     
     # do a dropdown for the all_preds
-    regions_to_select = inference_predictions["region"].unique()
+    regions_to_select = list(regions.keys())
     selected_region = st.selectbox(TRANSLATIONS[st.session_state.selected_language]['select_region'], regions_to_select)
 
     if selected_region:
 
         # Filter the DataFrame based on the selected region
-        selected_region_predictions = inference_predictions[inference_predictions['region'] == selected_region]
+        selected_region_predictions = inference_predictions[["Time", "day_date", selected_region, f"weekly_relative_traffic_{selected_region}", f"traffic_color_{selected_region}"]]
 
         # Get unique values for the day and date list
         days_list = selected_region_predictions['day_date'].unique()
@@ -59,9 +86,9 @@ def get_visitor_counts_section(inference_predictions):
         fig1 = px.bar(
             day_df,
             x='Time',  
-            y='weekly_relative_traffic',
-            color='traffic_color',  # Use the traffic color column
-            labels={'weekly_relative_traffic': '', 'Time': 'Hour of Day'},
+            y=f'weekly_relative_traffic_{selected_region}',
+            color=f'traffic_color_{selected_region}',  # Use the traffic color column
+            labels={f'weekly_relative_traffic_{selected_region}': '', 'Time': 'Hour of Day'},
             title=f"{TRANSLATIONS[st.session_state.selected_language]['visitor_foot_traffic_for_day']} - {day_selected}",
             color_discrete_map={'red': 'red', 'blue': 'blue', 'green': 'green'}
         )
