@@ -6,6 +6,10 @@ from src.streamlit_app.pages_in_dashboard.admin.parking import get_parking_secti
 from src.streamlit_app.source_data import source_and_preprocess_realtime_parking_data
 from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
 
+# Initialize language in session state if it doesn't exist
+if 'selected_language' not in st.session_state:
+    st.session_state.selected_language = 'German'  # Default language
+
 # Title of the page - page layout
 st.write(f"# {TRANSLATIONS[st.session_state.selected_language]['admin_page_title']}")
 
