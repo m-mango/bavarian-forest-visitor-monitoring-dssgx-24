@@ -3,31 +3,30 @@ import streamlit as st
 
 # Add a dropdown menu for language selection with emojis
 LANGUAGE_OPTIONS= {
-    "English": "🇬🇧 English",
     "German": "🇩🇪 Deutsch",
+    "English": "🇬🇧 English",
     }
 # Language dictionary with translations
 TRANSLATIONS = {
     "English": {
-        "title": "Plan Your Trip",
-        "description": "Welcome to the National Park Dashboard",
-        "weather": "Weather Forecast",
-        "forecast": "Occupancy Forecast",
-        "parking": "Parking Information",
-        "recreation": "Recreational Activities",
-        "travel": "How to Reach",
+        'title': 'Plan Your Trip to the Bavarian Forest',
+        'select_language': 'Select Language'
     },
     "German": {
-        "title": "Planen Sie Ihre Reise",
-        "description": "Willkommen im Nationalpark-Dashboard",
-        "weather": "Wettervorhersage",
-        "forecast": "Belegungsprognose",
-        "parking": "Parkplatzinformationen",
-        "recreation": "Freizeitaktivitäten",
-        "travel": "Anreise",
+        'title': 'Planen Sie Ihren Besuch im Nationalpark Bayerischer Wald',
+        'select_language': 'Sprache auswählen'
     },
 }
 
+# Initialize language in session state if it doesn't exist
+if 'selected_language' not in st.session_state:
+    st.session_state.selected_language = 'German'  # Default language
+
+def update_language():
+    if st.session_state.selected_language == 'German':
+        st.session_state.selected_language = 'English'
+    else:
+        st.session_state.selected_language = 'German'
 
 def get_language_selection_menu():
     # Custom CSS to position the dropdown menu in the top right corner
@@ -47,9 +46,9 @@ def get_language_selection_menu():
         unsafe_allow_html=True,
     )
 
-    language = st.selectbox("Select Language", 
-                            options=list(LANGUAGE_OPTIONS.keys()), 
-                            format_func=lambda x: LANGUAGE_OPTIONS[x])
-
-    # Use the selected language to display content
-    selected_lang = TRANSLATIONS[language]
+    selected_language = st.selectbox(TRANSLATIONS[st.session_state.selected_language]['select_language'], 
+                            options=list(LANGUAGE_OPTIONS.values()),
+                            index=0 if st.session_state.selected_language == 'German' else 1,
+                            # Update the session_state when changing the input
+                            on_change=update_language,
+                            )
