@@ -35,6 +35,10 @@ from src.prediction_pipeline.modeling.create_inference_dfs import visitor_predic
 from src.prediction_pipeline.modeling.source_and_feature_selection import get_features
 from src.prediction_pipeline.modeling.train_regressor import train_regressor
 
+# Initialize language in session state if it doesn't exist
+if 'selected_language' not in st.session_state:
+    st.session_state.selected_language = 'German'  # Default language
+
 # Set the page layout - it is a two column layout
 col1, col2 = page_layout_config.get_page_layout()
 

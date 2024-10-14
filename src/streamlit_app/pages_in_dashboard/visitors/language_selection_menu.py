@@ -148,10 +148,6 @@ TRANSLATIONS = {
     }
 }
 
-# Initialize language in session state if it doesn't exist
-if 'selected_language' not in st.session_state:
-    st.session_state.selected_language = 'German'  # Default language
-
 def update_language():
     if st.session_state.selected_language == 'German':
         st.session_state.selected_language = 'English'
