@@ -4,6 +4,7 @@ import streamlit as st
 import awswrangler as wr
 import pandas as pd
 import plotly.express as px
+from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
 
 
 # AWS Setup
@@ -25,11 +26,11 @@ def get_visitor_counts_section(inference_predictions):
     Returns:
         None
     """
-    st.markdown("## Popular Times")
+    st.markdown(f"## {TRANSLATIONS[st.session_state.selected_language]['visitor_counts_forecasted']}")
     
     # do a dropdown for the all_preds
     regions_to_select = inference_predictions["region"].unique()
-    selected_region = st.selectbox('Select a region to view', regions_to_select)
+    selected_region = st.selectbox(TRANSLATIONS[st.session_state.selected_language]['select_region'], regions_to_select)
 
     if selected_region:
 
@@ -40,7 +41,7 @@ def get_visitor_counts_section(inference_predictions):
         days_list = selected_region_predictions['day_date'].unique()
 
         # Add a note that this is forecasted data
-        st.markdown(":green[*The following data represents forecasted visitor traffic.*].")
+        st.markdown(f":green[*{TRANSLATIONS[st.session_state.selected_language]['forecasted_visitor_data']}*].")
 
         # Create a layout for the radio button and chart
         col1, _ = st.columns([1, 3])
@@ -48,7 +49,7 @@ def get_visitor_counts_section(inference_predictions):
         with col1:
             # Get radio button for selecting the day
             day_selected = st.radio(
-                label='Select a day', options=days_list, index=0
+                label=TRANSLATIONS[st.session_state.selected_language]['select_day'], options=days_list, index=0
             )
 
         # Extract the selected day for filtering (using date)
@@ -61,7 +62,7 @@ def get_visitor_counts_section(inference_predictions):
             y='weekly_relative_traffic',
             color='traffic_color',  # Use the traffic color column
             labels={'weekly_relative_traffic': '', 'Time': 'Hour of Day'},
-            title=f"Relative Visitor Foot Traffic for {day_selected} (Hourly)",
+            title=f"{TRANSLATIONS[st.session_state.selected_language]['visitor_foot_traffic_for_day']} - {day_selected}",
             color_discrete_map={'red': 'red', 'blue': 'blue', 'green': 'green'}
         )
 
@@ -80,7 +81,7 @@ def get_visitor_counts_section(inference_predictions):
             xaxis_title=None,  # Hide the x-axis title
             yaxis_title=None,  # Hide the y-axis title
             template='plotly_dark',
-            legend_title_text='Vistor Foot Traffic',
+            legend_title_text=TRANSLATIONS[st.session_state.selected_language]['visitor_foot_traffic'],
             legend=dict(
                 itemsizing='constant',
                 traceorder="normal",
@@ -91,11 +92,15 @@ def get_visitor_counts_section(inference_predictions):
                 xanchor="center",
                 x=0.5  # Center the legend horizontally
             ),
+            xaxis=dict(
+                tickformat='%H:%M'
+            )
         )
 
         # Update the legend names
         fig1.for_each_trace(
-            lambda t: t.update(name={'red': 'Peak Traffic', 'green': 'Low Traffic', 'blue': 'Moderate Traffic'}[t.name])
+            lambda t: t.update(name={
+                'red': TRANSLATIONS[st.session_state.selected_language]['peak_traffic'], 'green': TRANSLATIONS[st.session_state.selected_language]['low_traffic'], 'blue': TRANSLATIONS[st.session_state.selected_language]['moderate_traffic']}[t.name])
         )
 
         # Display the interactive bar chart for relative traffic below the radio button

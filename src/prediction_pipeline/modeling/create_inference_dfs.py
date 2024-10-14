@@ -142,7 +142,7 @@ def visitor_predictions(inference_data):
     overall_inference_predictions['day'] = overall_inference_predictions['Time'].dt.day_name()
 
     # Create a new column to combine both date and day for radio buttons
-    overall_inference_predictions['day_date'] = overall_inference_predictions['Time'].dt.strftime('%A, %d %b %Y')
+    overall_inference_predictions['day_date'] = overall_inference_predictions['Time'].dt.strftime('%d-%m-%Y')
 
     return overall_inference_predictions
 
