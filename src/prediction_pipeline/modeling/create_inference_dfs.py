@@ -12,7 +12,6 @@ import boto3
 import joblib
 import io
 from pycaret.regression import load_model
-from sklearn.preprocessing import MinMaxScaler
 
 
 # Your AWS bucket and folder details where models are stored
@@ -109,15 +108,6 @@ def predict_with_models(loaded_models, df_features):
             print(f"Predictions for {model_name} stored successfully")
             df_predictions["region"] = model_name.split('extra_trees_')[1].split('.parquet')[0]
 
-            # Create a weekly relative traffic column with sklearn min-max scaling
-            scaler = MinMaxScaler()
-            df_predictions['weekly_relative_traffic'] = scaler.fit_transform(df_predictions[['predictions']])
-
-            # Create a new column for color coding based on traffic thresholds
-            df_predictions['traffic_color'] = df_predictions['weekly_relative_traffic'].apply(
-                lambda x: 'red' if x > 0.40 else 'green' if x < 0.05 else 'blue'
-            )
-
             # Append the predictions to the overall_predictions DataFrame
             overall_predictions = pd.concat([overall_predictions, df_predictions])
 
@@ -127,6 +117,20 @@ def predict_with_models(loaded_models, df_features):
     return overall_predictions
 
 @st.cache_data(max_entries=1)
+def preprocess_overall_inference_predictions(overall_predictions: pd.DataFrame) -> pd.DataFrame:
+    # Pivot the dataframe to wide format
+    overall_predictions_wide = overall_predictions.pivot(index='Time', columns='region', values='predictions').reset_index()
+
+    # Convert the 'Time' column to datetime format
+    overall_predictions_wide['Time'] = pd.to_datetime(overall_predictions_wide['Time'], errors='coerce')
+
+    # Create a new column to combine both date and day for radio buttons
+    overall_predictions_wide['day_date'] = overall_predictions_wide['Time'].dt.strftime('%d-%m-%Y')
+
+    return overall_predictions_wide
+
+
+
 def visitor_predictions(inference_data):
 
     loaded_models = load_latest_models(bucket_name, folder_prefix, model_names)
@@ -135,14 +139,7 @@ def visitor_predictions(inference_data):
     
     overall_inference_predictions = predict_with_models(loaded_models, inference_data)
 
-    # Convert the 'Time' column to datetime format
-    overall_inference_predictions['Time'] = pd.to_datetime(overall_inference_predictions['Time'], errors='coerce')
+    preprocessed_overall_inference_predictions = preprocess_overall_inference_predictions(overall_inference_predictions)
 
-    # Get the days from the values (dates) in the 'Time' column
-    overall_inference_predictions['day'] = overall_inference_predictions['Time'].dt.day_name()
-
-    # Create a new column to combine both date and day for radio buttons
-    overall_inference_predictions['day_date'] = overall_inference_predictions['Time'].dt.strftime('%d-%m-%Y')
-
-    return overall_inference_predictions
+    return preprocessed_overall_inference_predictions
 
