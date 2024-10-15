@@ -125,8 +125,6 @@ def run_inference(preprocessed_hourly_visitor_center_data):
         
         return day_today_berlin
 
-    print("Fetching weather data for inference...")
-
     weather_data_inference = source_weather_data(start_time = get_today_midnight_berlin() - pd.Timedelta(days=10), 
                                                  end_time = get_today_midnight_berlin() + pd.Timedelta(days=7))
 
