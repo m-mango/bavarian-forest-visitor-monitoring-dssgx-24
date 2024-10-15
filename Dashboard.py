@@ -125,14 +125,15 @@ def run_inference(preprocessed_hourly_visitor_center_data):
         
         return day_today_berlin
 
-    start_inference_time = get_today_midnight_berlin() - pd.Timedelta(days=10)
-    end_inference_time = get_today_midnight_berlin() + pd.Timedelta(days=7)
+    today = get_today_midnight_berlin()
+    start_inference_time = today - pd.Timedelta(days=10)
+    end_inference_time = today + pd.Timedelta(days=7)
     print(f"Running inference part from {start_inference_time} to {end_inference_time}...")
 
     weather_data_inference = source_weather_data(start_time=start_inference_time, end_time=end_inference_time)
 
     # preprocess the inference data
-    inference_df = source_preprocess_inference_data(weather_data_inference, preprocessed_hourly_visitor_center_data)
+    inference_df = source_preprocess_inference_data(weather_data_inference, preprocessed_hourly_visitor_center_data, start_time=today, end_time=end_inference_time)
 
     # make predictions
     overall_visitor_predictions = visitor_predictions(inference_df) 
