@@ -232,6 +232,7 @@ def source_weather_data():
     weather_hourly['time'] = pd.to_datetime(weather_hourly['time'])
     return weather_hourly
 
+@st.cache_data(ttl="8h")
 def source_and_preprocess_forecasted_weather_data():
 
     """
