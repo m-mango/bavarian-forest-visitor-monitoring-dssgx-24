@@ -96,7 +96,7 @@ def source_preprocessed_hourly_visitor_center_data():
 
     return preprocessed_hourly_visitor_center_data
 
-@st.fragment(run_every="12h")
+@st.fragment(run_every="3h")
 def run_inference(preprocessed_hourly_visitor_center_data):
 
     """
