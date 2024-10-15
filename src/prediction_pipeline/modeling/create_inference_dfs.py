@@ -12,6 +12,8 @@ import boto3
 import joblib
 import io
 from pycaret.regression import load_model
+from sklearn.preprocessing import MinMaxScaler
+from src.prediction_pipeline.config import regions
 
 
 # Your AWS bucket and folder details where models are stored
@@ -31,7 +33,7 @@ target_vars_et  = ['traffic_abs', 'sum_IN_abs', 'sum_OUT_abs',
 # model names 
 model_names = [f'extra_trees_{var}' for var in target_vars_et]
 
-@st.cache_resource
+@st.cache_resource(max_entries=1)
 def load_latest_models(bucket_name, folder_prefix, models_names):
     """
     Load the latest files from an S3 folder based on the model names, 
@@ -127,10 +129,26 @@ def preprocess_overall_inference_predictions(overall_predictions: pd.DataFrame) 
     # Create a new column to combine both date and day for radio buttons
     overall_predictions_wide['day_date'] = overall_predictions_wide['Time'].dt.strftime('%d-%m-%Y')
 
+        # Calculate the traffic rate per region
+    for key, value in regions.items():
+        if len(value) == 2:
+            overall_predictions_wide[key] = overall_predictions_wide[value[0]] + overall_predictions_wide[value[1]]
+        else:
+            overall_predictions_wide[key] = overall_predictions_wide[value]
+
+        # Create a weekly relative traffic column with sklearn min-max scaling
+        scaler = MinMaxScaler()
+        overall_predictions_wide[f'weekly_relative_traffic_{key}'] = scaler.fit_transform(overall_predictions_wide[[key]])
+
+        # Create a new column for color coding based on traffic thresholds
+        overall_predictions_wide[f'traffic_color_{key}'] = overall_predictions_wide[f'weekly_relative_traffic_{key}'].apply(
+            lambda x: 'red' if x > 0.40 else 'green' if x < 0.05 else 'blue'
+        )
+
     return overall_predictions_wide
 
 
-
+@st.cache_data(max_entries=1)
 def visitor_predictions(inference_data):
 
     loaded_models = load_latest_models(bucket_name, folder_prefix, model_names)

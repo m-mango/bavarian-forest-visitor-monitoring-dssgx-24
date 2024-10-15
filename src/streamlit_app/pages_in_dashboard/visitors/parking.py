@@ -2,8 +2,10 @@
 import streamlit as st
 import pydeck as pdk
 import pandas as pd
+import pytz
 from src.streamlit_app.source_data import source_and_preprocess_realtime_parking_data
 from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
+from datetime import datetime
 
 def get_fixed_size():
     """
@@ -50,7 +52,7 @@ def get_occupancy_status(occupancy_rate):
     if occupancy_rate >= 80:
         return TRANSLATIONS[st.session_state.selected_language]["parking_status_high"]
     elif occupancy_rate >= 60:
-        return TRANSLATIONS[st.session_state.selected_language]["parking_status_medium"]
+        return TRANSLATIONS[st.session_state.selected_language]["parking_status_moderate"]
     else:
         return TRANSLATIONS[st.session_state.selected_language]["parking_status_low"]
 
@@ -78,7 +80,7 @@ def render_occupancy_bar(occupancy_rate):
     </div>
     """, unsafe_allow_html=True)
 
-@st.fragment(run_every="30min")
+@st.fragment(run_every="15min")
 def get_parking_section():
     """
     Display the parking section of the dashboard with a map showing the real-time parking occupancy 
@@ -91,12 +93,32 @@ def get_parking_section():
         None
     """
 
+    print("Rendering parking section for the visitor dashboard...")
+
+    def get_current_15min_interval():
+        """
+        Get the current 15-minute interval in the format "HH:MM:00".
+
+        Returns:
+            str: The current 15-minute interval in the format "HH:MM:00".
+        """
+        current_time = datetime.now(pytz.timezone('Europe/Berlin'))
+        minutes = (current_time.minute // 15) * 15
+  
+        # Replace the minute value with the truncated value and set seconds and microseconds to 0
+        timestamp_latest_parking_data_fetch = current_time.replace(minute=minutes, second=0, microsecond=0)
+
+        # If you want to format it as a string in the "%Y-%m-%d %H:%M:%S" format
+        timestamp_latest_parking_data_fetch_str = timestamp_latest_parking_data_fetch.strftime("%Y-%m-%d %H:%M:%S")
+
+        return timestamp_latest_parking_data_fetch_str
+    
+    timestamp_latest_parking_data_fetch = get_current_15min_interval()
+
     # Source and preprocess the parking data
-    processed_parking_data, timestamp_latest_parking_data_fetch = source_and_preprocess_realtime_parking_data()
+    processed_parking_data = source_and_preprocess_realtime_parking_data(timestamp_latest_parking_data_fetch)
 
     st.markdown(f"### {TRANSLATIONS[st.session_state.selected_language]['real_time_parking_occupancy']}")
-
-    st.write(f"{TRANSLATIONS[st.session_state.selected_language]['parking_data_last_updated']} {timestamp_latest_parking_data_fetch}")
     
     # Set a fixed size for all markers
     processed_parking_data['size'] = get_fixed_size()

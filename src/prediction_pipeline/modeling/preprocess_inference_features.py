@@ -51,7 +51,7 @@ def join_inference_data(weather_data_inference, visitor_centers_data):
     return merged_data
 
 @st.cache_data(max_entries=1)
-def source_preprocess_inference_data(weather_data_inference, hourly_visitor_center_data):
+def source_preprocess_inference_data(weather_data_inference, hourly_visitor_center_data, start_time, end_time):
 
     """Source and preprocess inference data from weather and visitor center sources.
 
@@ -81,14 +81,10 @@ def source_preprocess_inference_data(weather_data_inference, hourly_visitor_cent
     # Apply the cyclic and categorical trasformations from the training dataset (same as the training dataset)
     inference_data_with_coco_encoding = process_transformations(inference_data_with_new_features)
 
-    # Define the time window: from today to 10 days from now
-    start_date = datetime.now()
-    end_date = start_date + timedelta(days=6)
-
     # Slice the data to keep only rows within the next 10 days
     inference_data_with_coco_encoding = inference_data_with_coco_encoding[
-        (inference_data_with_coco_encoding["Time"] >= start_date) & 
-        (inference_data_with_coco_encoding["Time"] <= end_date)
+        (inference_data_with_coco_encoding["Time"] >= start_time) & 
+        (inference_data_with_coco_encoding["Time"] < end_time)
 
         ]
     

@@ -19,7 +19,7 @@ from meteostat import Hourly, Point
 import src.streamlit_app.pre_processing.process_real_time_parking_data as prtpd
 import src.streamlit_app.pre_processing.process_forecast_weather_data as prfwd
 import streamlit as st
-import pytz
+from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
 
 
 ########################################################################################
@@ -145,8 +145,8 @@ def merge_all_df_from_list(df_list):
     return merged_dataframe
 
 
-@st.cache_data(ttl="20min")
-def source_and_preprocess_realtime_parking_data() -> tuple[pd.DataFrame, object]:
+@st.cache_data(max_entries=1)
+def source_and_preprocess_realtime_parking_data(current_timestamp):
 
     """
     Source and preprocess the real-time parking data. Returns the timestamp of when the function was run.
@@ -156,8 +156,9 @@ def source_and_preprocess_realtime_parking_data() -> tuple[pd.DataFrame, object]
 
     Returns:
         pd.DataFrame: Preprocessed real-time parking data.
-        object: Timestamp of when the function was run.
     """
+    print(f"Fetching and saving real-time parking occupancy data at '{current_timestamp}'...")
+    
     # Source the parking data from bayern cloud
     all_parking_dataframes = []
     for location_slug in parking_sensors.keys():
@@ -175,10 +176,12 @@ def source_and_preprocess_realtime_parking_data() -> tuple[pd.DataFrame, object]
     print("Parking data processed and cleaned!")
 
     # Return the timestamp in German time indicating the time zone Berlin
-    timestamp = datetime.now(pytz.timezone('Europe/Berlin')).strftime("%Y-%m-%d %H:%M:%S")
-    print(f"Parking data processed and cleaned at {timestamp}, Europe/Berlin time.")
 
-    return processed_parking_data, timestamp
+    print(f"Parking data processed and cleaned at {current_timestamp}, Europe/Berlin time.")
+
+    st.write(f"{TRANSLATIONS[st.session_state.selected_language]['parking_data_last_updated']} {current_timestamp}")
+
+    return processed_parking_data
 
 ########################################################################################
 # Weather functions
@@ -229,6 +232,7 @@ def source_weather_data():
     weather_hourly['time'] = pd.to_datetime(weather_hourly['time'])
     return weather_hourly
 
+@st.cache_data(ttl="8h")
 def source_and_preprocess_forecasted_weather_data():
 
     """
