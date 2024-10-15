@@ -50,7 +50,7 @@ def get_occupancy_status(occupancy_rate):
     if occupancy_rate >= 80:
         return TRANSLATIONS[st.session_state.selected_language]["parking_status_high"]
     elif occupancy_rate >= 60:
-        return TRANSLATIONS[st.session_state.selected_language]["parking_status_medium"]
+        return TRANSLATIONS[st.session_state.selected_language]["parking_status_moderate"]
     else:
         return TRANSLATIONS[st.session_state.selected_language]["parking_status_low"]
 
