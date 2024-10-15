@@ -31,7 +31,7 @@ target_vars_et  = ['traffic_abs', 'sum_IN_abs', 'sum_OUT_abs',
 # model names 
 model_names = [f'extra_trees_{var}' for var in target_vars_et]
 
-@st.cache_resource
+@st.cache_resource(max_entries=1)
 def load_latest_models(bucket_name, folder_prefix, models_names):
     """
     Load the latest files from an S3 folder based on the model names, 
@@ -130,7 +130,7 @@ def preprocess_overall_inference_predictions(overall_predictions: pd.DataFrame) 
     return overall_predictions_wide
 
 
-
+@st.cache_data(max_entries=1)
 def visitor_predictions(inference_data):
 
     loaded_models = load_latest_models(bucket_name, folder_prefix, model_names)
