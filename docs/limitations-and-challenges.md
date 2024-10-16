@@ -1,9 +1,15 @@
-# **Discussion**
+# Discussion and Recommendations
 
-## **Limitations**
+## Overview
+
+In this section, we will discuss the **limitations of our work**, especially those related to data quality, and explain the influence of those limitations on the operationalization of the target variables. We will close with a list of **recommendations** and future directions.
+
+---
+
+## Limitations
 We assumed that different data sources would have varying levels of data quality. Below is an outline of the assumptions made and findings discovered about the data quality of our primary data sources (i.e., visitor sensors, visitor center, weather, and parking data).
 
-### **Data Quality**
+### Data Quality
 
 #### **Visitor Sensor Data**
 Sensor data is frequently operationalized as “ground truth” in social and methodological research because it does not suffer from the response errors typically associated with other data types, such as self-reports or observational data recorded by human coders. However, despite this common assumption among methodologists, we recognize that some unknown level of error may still be present in the visitor sensor data. We consider this data to be imperfect for the following reasons:
@@ -38,7 +44,7 @@ Meteostat data is sourced from weather stations, and we assume the data is colle
 #### **Parking Data**
 The sensor data used to identify occupied or vacant parking spaces appeared to be reliable insofar as only two of the twelve parking stations suffer from connectivity issues to the Bayern Cloud. Since the sampling of parking sensors is variable within and across sensors, analysis of historic parking could not be performed and these data were not usable in the prediction model. However we assume the the measurements taken by sensors are generally reliable.
 
-### **How Data Quality Influenced the Operationalization of our Target Variables**
+### How Data Quality Influenced the Operationalization of our Target Variables
 
 #### **Limitations of Using Sensor Data for Estimating Park Occupancy**
 The quality of the visitor sensor data limited how the target variable of our prediction models could be operationalized. Ideally, the outcome of interest in our prediction model would be hourly occupancy of the Bavarian Forest National Park; this would allow park management to have an estimate of how many visitors will be in the park at any given hour within a one-week forecast horizon. However, the limited number of visitor sensors produce estimates that are far too low to accurately reflect park occupancy. This target variable was thus not used.
@@ -58,7 +64,9 @@ To address this issue, we shifted our focus to generating forecasts for differen
 #### **Limited Training Data Years Due to Sensor Installation Gaps**
 Although the Bavarian Forest National Park has been collecting visitor sensor data since 2016, the final number of installed sensors was established in 2023, after which no new sensors will be added. Due to significant gaps in sensor data from previous years, we decided to train our prediction models using visitor counts from sensors that were active starting in 2023 and continuing until the conclusion of our project in July 2024. A greater number of sensors provides better coverage of the park, and this robust data collection allows for more accurate visitor estimates. By focusing on this period, we can enhance the reliability of our predictions and provide the park management with valuable insights for future planning and resource allocation.
 
-## **Recommendations and Future Directions**
+---
+
+## Recommendations and Future Directions
 
 ### A Strategy for Improved Data Collection: Relocating the Waldhausreibe Sensor
 One key recommendation for BFNP is to relocate the sensor currently positioned at the less-frequented entrance of the popular Waldhausreibe trail to its busier entrance. The current placement results in a significant discrepancy between park entries and exits, as this sensor fails to capture visitors using the more popular entrance. Addressing this issue in future data collections is crucial, as it would help narrow the gap between visitor entries and exits over time.

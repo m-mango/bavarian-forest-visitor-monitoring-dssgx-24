@@ -1,5 +1,5 @@
 import pandas as pd
-from modeling.source_and_feature_selection import get_features
+from src.prediction_pipeline.modeling.source_and_feature_selection import get_features
 from pycaret import *
 from pycaret.time_series import *
 from pycaret.regression import *
@@ -79,7 +79,7 @@ def save_models_to_aws_s3(model, save_path_models: str, model_name: str, local_p
         os.makedirs(local_path)
 
     save_model_path = os.path.join(local_path, model_name)
-    save_model(model, save_model_path)
+    save_model(model, save_model_path, model_only=True)
 
     save_path_aws = f"s3://{bucket_name}/{save_path_models}/{uuid}/{model_name}.pkl"
 
@@ -87,12 +87,10 @@ def save_models_to_aws_s3(model, save_path_models: str, model_name: str, local_p
     print(f"Model saved in AWS S3 under {save_path_aws}")
     return
 
-def train_regressor():
+def train_regressor(feature_dataframe: pd.DataFrame) -> None:
 
     uuid = create_uuid()
     print(f"Training Regressor with Run ID: {uuid}")
-
-    feature_dataframe = get_features()
 
     for target in target_vars_et:
         print(f"Training Extra Trees Regressor for {target}")
@@ -116,18 +114,21 @@ def train_regressor():
                             categorical_features=categorical_features,
                             fold=5,
                             preprocess=False,
-                            data_split_shuffle=False,  # Do not shuffle data to maintain date order
+                            data_split_shuffle=True,
                             session_id=123,
-                            train_size=0.9)  # Use 90% of data for training 
+                            test_data=df_test)  # Use 90% of data for training 
                 
             # Train the Extra Trees Regressor model
             extra_trees_model = create_model('et')
                 
             # Predict on the unseen data
-            predictions = predict_model(extra_trees_model, data=df_test)
+            predictions = predict_model(extra_trees_model) # predicts on hold-out data defined above
+
+            # Finalize the model
+            final_model = finalize_model(extra_trees_model)
             
             # save the model in aws s3
-            save_models_to_aws_s3(extra_trees_model, save_path_models, 
+            save_models_to_aws_s3(final_model, save_path_models, 
                                   f"extra_trees_{target}",local_path, uuid)
             print(f"Model with {target} saved to AWS S3")
 
@@ -138,5 +139,3 @@ def train_regressor():
             print(f"Predictions with {target} saved to AWS S3")
 
     return
-if __name__ == "__main__":
-    train_regressor()

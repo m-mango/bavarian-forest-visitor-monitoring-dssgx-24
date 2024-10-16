@@ -21,6 +21,7 @@ import warnings
 from datetime import datetime
 import pandas as pd
 from meteostat import Point, Hourly
+import streamlit as st
 
 
 # Ignore warnings
@@ -156,13 +157,15 @@ def process_hourly_data(data):
 
     return data
 
-
+@st.cache_data(max_entries=1)
 def source_weather_data(start_time, end_time):
     """
     This function creates a point over the Bavarian Forest National Park, retrieves hourly weather data
     for the specified time period, processes the data to extract necessary weather parameters,
     and saves the processed data to a CSV file.
     """
+    print(f"Sourcing weather data for {start_time} to {end_time} at {datetime.now()}...")
+
     # Create a Point object for the Bavarian Forest National Park entry
     bavarian_forest = Point(lat=LATITUDE, lon=LONGITUDE)
 
@@ -172,10 +175,6 @@ def source_weather_data(start_time, end_time):
     # Process the hourly data to extract and format necessary weather parameters
     sourced_hourly_data = process_hourly_data(hourly_data)
     
-    # # Uncomment the following line to save the sourced data to a CSV file
-
-    # # Save the processed data to a CSV file
-    # save_data_to_csv(sourced_hourly_data, 'outputs/weather_data_final/weather_data_2016-24_non_imputed_forecasted.csv')
 
     return sourced_hourly_data
 

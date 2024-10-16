@@ -2,6 +2,7 @@ import streamlit as st
 import awswrangler as wr
 import pandas as pd
 import plotly.express as px
+from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
 
 bucket = "dssgx-munich-2024-bavarian-forest"
 preprocessed_data_folder = "preprocessed_data"
@@ -32,7 +33,7 @@ def visitor_count():
 
     # Get radio button for selecting the day
     day_selected = st.radio(
-        label='Select a day', options=days_list, index=0
+        label=TRANSLATIONS[st.session_state.selected_language]['select_day'], options=days_list, index=0
     )
 
     # Filter the DataFrame based on the selected day
@@ -70,7 +71,7 @@ def visitor_count():
         xaxis_title='Hour of the selected day',
         yaxis_title='Expected Traffic (Absolute)',  # Added y-axis title
         template='plotly_dark',
-        legend_title_text='Visitor Foot Traffic',
+        legend_title_text=TRANSLATIONS[st.session_state.selected_language]['visitor_foot_traffic'],
         yaxis=dict(range=[0, max_occupancy_value])  # Fixing the y-axis
     )
 

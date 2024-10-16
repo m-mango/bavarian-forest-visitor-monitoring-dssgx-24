@@ -2,6 +2,7 @@
 import streamlit as st
 import pydeck as pdk
 import pandas as pd
+from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
 
 # TODO: Normalize the numbers to get different sized markers according to the occupancy rate of the parking sections
 def get_fixed_size():
@@ -33,8 +34,7 @@ def calculate_color(occupancy_rate):
 
 
 def get_parking_section(
-        processed_parking_data,
-        timestamp_latest_parking_data_fetch):
+        processed_parking_data):
     """
     
     Display the parking section of the dashboard with a map showing the real-time parking occupancy 
@@ -46,10 +46,8 @@ def get_parking_section(
     Returns:
         None
     """
-    st.markdown("### Real Time Parking Occupancy")
+    st.markdown(f"### {TRANSLATIONS[st.session_state.selected_language]['real_time_parking_occupancy']}")
 
-    st.write(f"Parking Data last updated: {timestamp_latest_parking_data_fetch}, Europe/Berlin time.")
-    
     # Set a fixed size for all markers
     processed_parking_data['size'] = get_fixed_size()
     processed_parking_data['color'] = processed_parking_data['current_occupancy_rate'].apply(calculate_color)
@@ -83,7 +81,7 @@ def get_parking_section(
         layers=[layer],
         initial_view_state=view_state,
         tooltip={
-            "text": "{location}\nAvailable Spaces: {current_availability} cars\nOccupancy Rate: {current_occupancy_rate}%"
+            "text": "{location}\n" + f"{TRANSLATIONS[st.session_state.selected_language]['available_spaces']}: " + "{current_availability} 🚗\n" + f"{TRANSLATIONS[st.session_state.selected_language]['occupancy_rate']}: " + "{current_occupancy_rate}%"
         },  # Updated tooltip text with two decimal points for occupancy rate
         map_style="road"
     )
@@ -91,7 +89,7 @@ def get_parking_section(
 
     # Interactive Metrics
     selected_location = st.selectbox(
-        "Select a parking section:", 
+        TRANSLATIONS[st.session_state.selected_language]['select_parking_section'], 
         processed_parking_data['location'].unique(),
         key="selectbox_parking_section"
     )
@@ -101,7 +99,7 @@ def get_parking_section(
         selected_data = processed_parking_data[processed_parking_data['location'] == selected_location].iloc[0]
         
         col1, col2, col3 = st.columns(3)
-        col1.metric(label="Available Spaces", value=f"{selected_data['current_availability']} cars")
-        col2.metric(label="Capacity", value=f"{selected_data['current_capacity']} cars")
-        col3.metric(label="Occupancy Rate", value=f"{selected_data['current_occupancy_rate']}%")
+        col1.metric(label=TRANSLATIONS[st.session_state.selected_language]['available_spaces'], value=f"{selected_data['current_availability']} 🚗")
+        col2.metric(label=TRANSLATIONS[st.session_state.selected_language]['capacity'], value=f"{selected_data['current_capacity']} 🚗")
+        col3.metric(label=TRANSLATIONS[st.session_state.selected_language]['occupancy_rate'], value=f"{selected_data['current_occupancy_rate']}%")
 

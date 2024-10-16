@@ -2,6 +2,10 @@
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
+import pytz
+from src.streamlit_app.source_data import source_and_preprocess_forecasted_weather_data
+from datetime import datetime
+from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
 
 
 # Functions
@@ -34,8 +38,6 @@ def get_graph(forecast_data):
         plotly.graph_objects.Figure: The plotly figure object.
     """
 
-    # Ensure that the time column is in datetime format and set it as index
-    forecast_data['time'] = pd.to_datetime(forecast_data['time'])
     forecast_data.set_index('time', inplace=True)
 
     fig = go.Figure()
@@ -45,9 +47,9 @@ def get_graph(forecast_data):
         x=forecast_data.index, 
         y=forecast_data['temp'], 
         mode='lines', 
-        name='Temperature (°C)',
+        name=TRANSLATIONS[st.session_state.selected_language]['temperature'],
         line=dict(color='orange', width=2),  # Smoother line with better color
-        hovertemplate='Date: %{x|%d %b %Y, %H:%M}<br>Temperature: %{y}°C<extra></extra>'
+        hovertemplate=f'{TRANSLATIONS[st.session_state.selected_language]["date"]}: ' +  '%{x|%d-%m-%Y, %H:%M}<br>' + f'{TRANSLATIONS[st.session_state.selected_language]["temperature"]}: ' + ' %{y}°C<extra></extra>'
     ))
 
     # Find peak indices for temperature
@@ -63,7 +65,7 @@ def get_graph(forecast_data):
             size=10,
             symbol='circle-open'
         ),
-        name='Peaks',
+        name=TRANSLATIONS[st.session_state.selected_language]['peaks'],
         text=forecast_data['temp'][peak_indices].astype(str) + "°C",
         textposition='top center',
         hoverinfo='none'  # Disable hover for peaks to avoid overlapping
@@ -73,11 +75,11 @@ def get_graph(forecast_data):
     fig.add_trace(peak_points_trace)
 
     fig.update_layout(
-    title='7-Day Hourly Weather Forecast',
-    xaxis_title='Date',
-    yaxis_title='Temperature (°C)',
+    title=TRANSLATIONS[st.session_state.selected_language]['7_day_hourly_weather'],
+    xaxis_title=TRANSLATIONS[st.session_state.selected_language]['date'],
+    yaxis_title=TRANSLATIONS[st.session_state.selected_language]['temperature'],
     xaxis=dict(
-        tickformat='%a, %b %d',  # Format x-axis as 'Day, Month Date'
+        tickformat='%d-%m',  # Format x-axis as 'Day, Month Date'
         dtick=24 * 60 * 60 * 1000,  # Tick every day
         tickangle=-45,  # Rotate the labels to make them more readable
         color='white',  # Ensure labels are visible on the dark background
@@ -104,8 +106,8 @@ def get_graph(forecast_data):
     return fig
 
 
-
-def get_weather_section(processed_weather_data):
+@st.fragment(run_every="1h")
+def get_weather_section():
     """
     Display the weather section of the dashboard.
 
@@ -116,7 +118,29 @@ def get_weather_section(processed_weather_data):
         None
     """
 
-    st.markdown("### Weather Forecast")
+    print("Fetching the latest weather forecast data for the current hour...")
+
+    def get_current_hour():
+        """
+        Get the current hour in the format "HH:00:00".
+
+        Returns:
+            str: The current hour interval in the format "HH:MM:00".
+        """
+        current_time = datetime.now(pytz.timezone('Europe/Berlin'))
+
+        # Get the current hour: Replace the minute value with the truncated value and set seconds and microseconds to 0
+        current_hour = current_time.replace(minute=0, second=0, microsecond=0).strftime("%Y-%m-%d %H:00:00")
+
+        return current_hour
+    
+    timestamp_latest_weather_data_fetch = get_current_hour()
+
+    processed_weather_data = source_and_preprocess_forecasted_weather_data(timestamp_latest_weather_data_fetch)
+
+
+    st.markdown(f"### {TRANSLATIONS[st.session_state.selected_language]['weather_forecast']}")
+    st.markdown(f"{TRANSLATIONS[st.session_state.selected_language]['weather_data_last_updated']} {timestamp_latest_weather_data_fetch}")
 
 
     fig  = get_graph(processed_weather_data)

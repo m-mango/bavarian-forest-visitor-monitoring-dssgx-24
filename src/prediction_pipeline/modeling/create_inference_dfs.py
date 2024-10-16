@@ -7,14 +7,18 @@ the source_preprocess_inference_data function.
 
 import awswrangler as wr
 import pandas as pd
+import streamlit as st
+import boto3
+import joblib
+import io
 from pycaret.regression import load_model
-# Write the import from src..... when called from the Main.py
-from preprocess_inference_features import source_preprocess_inference_data
+from sklearn.preprocessing import MinMaxScaler
+from src.prediction_pipeline.config import regions
 
 
 # Your AWS bucket and folder details where models are stored
 bucket_name = 'dssgx-munich-2024-bavarian-forest'
-folder_prefix = 'models/models_trained/b6d6d8dc-9cd7-4213-a1d1-d567170ccdd7/'  # If you have a specific folder
+folder_prefix = 'models/models_trained/1483317c-343a-4424-88a6-bd57459901d1/'  # If you have a specific folder
 
 
 target_vars_et  = ['traffic_abs', 'sum_IN_abs', 'sum_OUT_abs', 
@@ -29,6 +33,7 @@ target_vars_et  = ['traffic_abs', 'sum_IN_abs', 'sum_OUT_abs',
 # model names 
 model_names = [f'extra_trees_{var}' for var in target_vars_et]
 
+@st.cache_resource(max_entries=1)
 def load_latest_models(bucket_name, folder_prefix, models_names):
     """
     Load the latest files from an S3 folder based on the model names, 
@@ -48,14 +53,21 @@ def load_latest_models(bucket_name, folder_prefix, models_names):
 
     # Loop through each model to get the latest pickle (.pkl) file
     for model in models_names:
-        # List objects in the S3 bucket with the model prefix
-        saved_lr = load_model(
-            platform="aws",
-            authentication={'bucket' : bucket_name, 'path': folder_prefix},
-            model_name=model)
+        
+        # Create an S3 client
+        s3 = boto3.client('s3')
+
+        s3_key = folder_prefix + model + '.pkl'
+        print(f"Retrieving the trained model {model} saved under AWS S3 in bucket {bucket_name} with key {s3_key}")
+
+        # Get the object from S3
+        response = s3.get_object(Bucket=bucket_name, Key=s3_key)
+
+        # Load the pickled model from the response object using joblib
+        loaded_regressor_model = joblib.load(io.BytesIO(response['Body'].read()))
         
         # Store the loaded model in the dictionary
-        loaded_models[f'{model}'] = saved_lr
+        loaded_models[f'{model}'] = loaded_regressor_model
     
     return loaded_models
 
@@ -71,8 +83,10 @@ def predict_with_models(loaded_models, df_features):
     - df_features (pd.DataFrame): A DataFrame containing the features to make predictions on.
 
     Returns:
-    None
+    - pd.DataFrame: A DataFrame containing the predictions of all models per region.
     """
+
+    overall_predictions = pd.DataFrame()
 
     # Iterate through the loaded models
     for model_name, model in loaded_models.items():
@@ -82,32 +96,68 @@ def predict_with_models(loaded_models, df_features):
             predictions = model.predict(df_features)
             
             # Create a new DataFrame for the predictions with the time column
-            df_predictions = pd.DataFrame(predictions, columns=[f'{model_name}_predictions'])
+            df_predictions = pd.DataFrame(predictions, columns=['predictions'])
 
             # Make the index column 'Time'
             df_predictions['Time'] = df_features.index
 
             # Make sure predictions are integers and not floats
-            df_predictions[f'{model_name}_predictions'] = df_predictions[f'{model_name}_predictions'].astype(int)
+            df_predictions['predictions'] = df_predictions['predictions'].astype(int)
     
             # save the prediction dataframe as a parquet file in aws
             wr.s3.to_parquet(df_predictions,path = f"s3://{bucket_name}/models/inference_data_outputs/{model_name}.parquet")
 
             print(f"Predictions for {model_name} stored successfully")
+            df_predictions["region"] = model_name.split('extra_trees_')[1].split('.parquet')[0]
+
+            # Append the predictions to the overall_predictions DataFrame
+            overall_predictions = pd.concat([overall_predictions, df_predictions])
+
         else:
            print(f"Error: {model_name} is not a valid model. It is of type {type(model)}")
+    
+    return overall_predictions
 
-def main():
+@st.cache_data(max_entries=1)
+def preprocess_overall_inference_predictions(overall_predictions: pd.DataFrame) -> pd.DataFrame:
+    # Pivot the dataframe to wide format
+    overall_predictions_wide = overall_predictions.pivot(index='Time', columns='region', values='predictions').reset_index()
+
+    # Convert the 'Time' column to datetime format
+    overall_predictions_wide['Time'] = pd.to_datetime(overall_predictions_wide['Time'], errors='coerce')
+
+    # Create a new column to combine both date and day for radio buttons
+    overall_predictions_wide['day_date'] = overall_predictions_wide['Time'].dt.strftime('%d-%m-%Y')
+
+        # Calculate the traffic rate per region
+    for key, value in regions.items():
+        if len(value) == 2:
+            overall_predictions_wide[key] = overall_predictions_wide[value[0]] + overall_predictions_wide[value[1]]
+        else:
+            overall_predictions_wide[key] = overall_predictions_wide[value]
+
+        # Create a weekly relative traffic column with sklearn min-max scaling
+        scaler = MinMaxScaler()
+        overall_predictions_wide[f'weekly_relative_traffic_{key}'] = scaler.fit_transform(overall_predictions_wide[[key]])
+
+        # Create a new column for color coding based on traffic thresholds
+        overall_predictions_wide[f'traffic_color_{key}'] = overall_predictions_wide[f'weekly_relative_traffic_{key}'].apply(
+            lambda x: 'red' if x > 0.40 else 'green' if x < 0.05 else 'blue'
+        )
+
+    return overall_predictions_wide
+
+
+@st.cache_data(max_entries=1)
+def visitor_predictions(inference_data):
 
     loaded_models = load_latest_models(bucket_name, folder_prefix, model_names)
 
     print("Models loaded successfully")
     
-    inference_data = source_preprocess_inference_data()
+    overall_inference_predictions = predict_with_models(loaded_models, inference_data)
 
-    print("Inference data loaded successfully")
-    
-    predict_with_models(loaded_models, inference_data)
+    preprocessed_overall_inference_predictions = preprocess_overall_inference_predictions(overall_inference_predictions)
 
-if __name__ == "__main__":
-    main()
+    return preprocessed_overall_inference_predictions
+

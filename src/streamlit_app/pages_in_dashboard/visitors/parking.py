@@ -2,7 +2,10 @@
 import streamlit as st
 import pydeck as pdk
 import pandas as pd
+import pytz
 from src.streamlit_app.source_data import source_and_preprocess_realtime_parking_data
+from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
+from datetime import datetime
 
 def get_fixed_size():
     """
@@ -47,11 +50,11 @@ def get_occupancy_status(occupancy_rate):
         str: The occupancy status ("High", "Medium", "Low").
     """
     if occupancy_rate >= 80:
-        return "High"
+        return TRANSLATIONS[st.session_state.selected_language]["parking_status_high"]
     elif occupancy_rate >= 60:
-        return "Medium"
+        return TRANSLATIONS[st.session_state.selected_language]["parking_status_moderate"]
     else:
-        return "Low"
+        return TRANSLATIONS[st.session_state.selected_language]["parking_status_low"]
 
 def render_occupancy_bar(occupancy_rate):
     """
@@ -77,7 +80,7 @@ def render_occupancy_bar(occupancy_rate):
     </div>
     """, unsafe_allow_html=True)
 
-@st.fragment(run_every="30min")
+@st.fragment(run_every="15min")
 def get_parking_section():
     """
     Display the parking section of the dashboard with a map showing the real-time parking occupancy 
@@ -90,12 +93,32 @@ def get_parking_section():
         None
     """
 
+    print("Rendering parking section for the visitor dashboard...")
+
+    def get_current_15min_interval():
+        """
+        Get the current 15-minute interval in the format "HH:MM:00".
+
+        Returns:
+            str: The current 15-minute interval in the format "HH:MM:00".
+        """
+        current_time = datetime.now(pytz.timezone('Europe/Berlin'))
+        minutes = (current_time.minute // 15) * 15
+  
+        # Replace the minute value with the truncated value and set seconds and microseconds to 0
+        timestamp_latest_parking_data_fetch = current_time.replace(minute=minutes, second=0, microsecond=0)
+
+        # If you want to format it as a string in the "%Y-%m-%d %H:%M:%S" format
+        timestamp_latest_parking_data_fetch_str = timestamp_latest_parking_data_fetch.strftime("%Y-%m-%d %H:%M:%S")
+
+        return timestamp_latest_parking_data_fetch_str
+    
+    timestamp_latest_parking_data_fetch = get_current_15min_interval()
+
     # Source and preprocess the parking data
-    processed_parking_data, timestamp_latest_parking_data_fetch = source_and_preprocess_realtime_parking_data()
+    processed_parking_data = source_and_preprocess_realtime_parking_data(timestamp_latest_parking_data_fetch)
 
-    st.markdown("### Real Time Parking Occupancy")
-
-    st.write(f"Parking Data last updated: {timestamp_latest_parking_data_fetch}, Europe/Berlin time.")
+    st.markdown(f"### {TRANSLATIONS[st.session_state.selected_language]['real_time_parking_occupancy']}")
     
     # Set a fixed size for all markers
     processed_parking_data['size'] = get_fixed_size()
@@ -132,7 +155,7 @@ def get_parking_section():
         layers=[layer],
         initial_view_state=view_state,
         tooltip={
-            "text": "{location}\nOccupancy Status: {occupancy_status}"
+            "text": "{location}\n" + f"{TRANSLATIONS[st.session_state.selected_language]['occupancy_status']}: " + "{occupancy_status}"
         },
         map_style="road"
     )
@@ -140,7 +163,7 @@ def get_parking_section():
 
     # Interactive Metrics
     selected_location = st.selectbox(
-        "Select a parking section:", 
+        TRANSLATIONS[st.session_state.selected_language]['select_parking_section'], 
         processed_parking_data['location'].unique(),
         key="selectbox_parking_section"
     )
@@ -150,14 +173,12 @@ def get_parking_section():
         selected_data = processed_parking_data[processed_parking_data['location'] == selected_location].iloc[0]
 
         col1, col2, col3 = st.columns(3)
-        # col1.metric(label="Available Spaces", value=f"{selected_data['current_availability']} cars")
-        col1.metric(label="Capacity", value=f"{selected_data['current_capacity']} cars")
+        col1.metric(label=TRANSLATIONS[st.session_state.selected_language]['capacity'], value=f"{selected_data['current_capacity']} 🚗")
         
         # Display occupancy status and bar
         with col2:
-            # st.markdown("**Occupancy Status**")
-            st.metric(label = "Occupancy Status", value=f"{selected_data['occupancy_status']}")
+            st.metric(label = TRANSLATIONS[st.session_state.selected_language]['occupancy_status'], value=f"{selected_data['occupancy_status']}")
         with col3:
-            st.markdown("**Occupancy Rate**")
+            st.markdown(f"**{TRANSLATIONS[st.session_state.selected_language]['occupancy_rate']}**")
             render_occupancy_bar(selected_data['current_occupancy_rate'])
 

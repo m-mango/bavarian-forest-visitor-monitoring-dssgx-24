@@ -6,6 +6,10 @@ from src.streamlit_app.pages_in_dashboard.data_accessibility.upload import uploa
 from src.streamlit_app.pages_in_dashboard.data_accessibility.download import download_section
 from src.streamlit_app.pages_in_dashboard.admin.password import check_password
 
+# Initialize language in session state if it doesn't exist
+if 'selected_language' not in st.session_state:
+    st.session_state.selected_language = 'German'  # Default language
+
 # Define the page layout of the Streamlit app
 
 st.set_page_config(

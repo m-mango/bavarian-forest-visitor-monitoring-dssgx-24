@@ -1,5 +1,6 @@
 # imports
 import streamlit as st
+from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
 
 def get_recreation_section():
     """
@@ -11,34 +12,34 @@ def get_recreation_section():
         None
     """
    
-    st.markdown("### Recreational Activities")
+    st.markdown(f"### {TRANSLATIONS[st.session_state.selected_language]['recreational_activities']}")
 
 
     activities = {
-        "Hiking": {
+        TRANSLATIONS[st.session_state.selected_language]['hiking']: {
             "emoji": "🥾",
-            "description": "Explore trails through the scenic wilderness.",
-            "link": "https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/hiking/index.htm"
+            "description": TRANSLATIONS[st.session_state.selected_language]['hiking_description'],
+            "link": TRANSLATIONS[st.session_state.selected_language]['hiking_link']
         },
-        "Cycling": {
+        TRANSLATIONS[st.session_state.selected_language]['cycling']: {
             "emoji": "🚴‍♂️",
-            "description": "Cycle through picturesque routes.",
-            "link": "https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/bicycling/index.htm"
+            "description": TRANSLATIONS[st.session_state.selected_language]['cycling_description'],
+            "link": TRANSLATIONS[st.session_state.selected_language]['cycling_link']
         },
-        "Camping": {
+        TRANSLATIONS[st.session_state.selected_language]['camping']: {
             "emoji": "🏕️",
-            "description": "Relax under the stars at designated camping spots.",
-            "link": "https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/facilities/camping/index.htm"
+            "description": TRANSLATIONS[st.session_state.selected_language]['camping_description'],
+            "link": TRANSLATIONS[st.session_state.selected_language]['camping_link']
         },
-        "Snowshoeing": {
+        TRANSLATIONS[st.session_state.selected_language]['snowshoeing']: {
             "emoji": "🌨️",
-            "description": "Enjoy snowshoeing during the winter months.",
-            "link": "https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/snowshoeing/index.htm"
+            "description": TRANSLATIONS[st.session_state.selected_language]['snowshoeing_description'],
+            "link": TRANSLATIONS[st.session_state.selected_language]['snowshoeing_link']
         },
-        "Skiing": {
+        TRANSLATIONS[st.session_state.selected_language]['skiing']: {
             "emoji": "🎿",
-            "description": "Ski on the best cross-country trails.",
-            "link": "https://www.nationalpark-bayerischer-wald.bayern.de/english/visitor/cross_country_skiing/index.htm"
+            "description": TRANSLATIONS[st.session_state.selected_language]['skiing_description'],
+            "link": TRANSLATIONS[st.session_state.selected_language]['skiing_link']
         },
     }
 
@@ -52,6 +53,6 @@ def get_recreation_section():
                 text-align: left;">
                 <h5 style="color: #fff; margin: 0;">{info['emoji']} {activity}</h5>
                 <p style="color: #ccc; margin: 3px 0; font-size: 0.9em;">{info['description']}</p>
-                <a href="{info['link']}" target="_blank" style="color: #dee8c7; font-size: 0.9em; text-decoration: none;">Learn More</a>
+                <a href="{info['link']}" target="_blank" style="color: #00a0ff; font-size: 0.9em; text-decoration: none;f">{TRANSLATIONS[st.session_state.selected_language]['learn_more']}</a>
             </div>
         """, unsafe_allow_html=True)
