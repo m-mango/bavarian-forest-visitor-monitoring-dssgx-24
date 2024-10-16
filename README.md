@@ -37,24 +37,38 @@ _A glimpse of the final dashboard ✨_
     ```
 2. Download Docker Desktop from [here](https://www.docker.com/products/docker-desktop/) and install it.
 
-3. Login to your AWS account with Single-Sign-On (SSO) and configure the AWS CLI with your credentials. Follow the instructions [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html).
+3. **Run the container via make:**
+
+    a. **Make sure to have `make` installed.** If not, install it (e.g., with Homebrew for macOS - `brew install make`).
+
+    b. **Authenticate with AWS:** As the project is loading and writing data to a configured AWS S3 object storage, either add AWS permanent credentials (`AWS_ACCESS_KEY_ID`and `AWS_ACCESS_KEY_ID`) to the [Makefile](Makefile), or specify to load them as environmental variables (as currently set up and the preferred option due to security reasons). Alternatively, configure the AWS CLI with Single-Sign-On (SSO), follow the instructions [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html). For example, when using AWS SSO, run the following command to login:
+
     ```bash
     aws sso login --profile my-dev-aws-profile
     ```
 
-3. Run the following command to build and run the streamlit dashboard.
-   ```bash
-   make streamlit
-   ```
+    c. **Run the Dashboard:** Run the following command to build and run the Streamlit dashboard:
+    ```bash
+    make streamlit
+    ```
     [!NOTE]  If you want to run the bash shell in the docker container, run the following command:
     ```bash
     make container
     ```
+4. **Run the container without `make`:**
+
+    a. **Authenticate with AWS:** As the project is loading and writing data to a configured AWS S3 object storage, either add AWS permanent credentials (`AWS_ACCESS_KEY_ID`and `AWS_ACCESS_KEY_ID`) to the [Makefile](Makefile), or specify to load them as environmental variables (as currently set up and the preferred option due to security reasons). Alternatively, configure the AWS CLI with Single-Sign-On (SSO), follow the instructions [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html). For example, when using AWS SSO, run the following command to login:
+
+    ```bash
+    aws sso login --profile my-dev-aws-profile
+    ```
 
 
-### Option 2: Run code in a local a virtual environment
+    c. **Run the `docker run` command** to run a container based on the previously built image. For further details on how to specify the `run` command, check the [Makefile](Makefile).
 
-Choose a virtual environment of your choice and install the dependencies of the `requirements.txt` in the root of the repository. In the following, you see the steps to create a virtual environment with a particularly, specified Python version with `pyenv` and the plugin `pyenv-virtualenv`.
+### Run Notebooks and General Code in a Local, Virtual Environment
+
+Choose a virtual environment tool of your choice and install the dependencies of the respective requirements file, e.g. [requirements.txt](requirements.txt) (for the dashboard), [notebooks-requirements.txt](notebooks-requirements.txt) (for the notebooks), or [docs-requirements.txt](docs-requirements.txt) (for the documentation) from the root of the repository. In the following, you see the steps to create a virtual environment with a particularly, specified Python version with `pyenv` and the plugin `pyenv-virtualenv`.
 
 1.  Install `pyenv-virtualenv`. Follow a tutorial to install `pyenv` and the plugin `pyenv-virtualenv`, e.g. follow [this tutorial](https://medium.com/@adocquin/mastering-python-virtual-environments-with-pyenv-and-pyenv-virtualenv-c4e017c0b173).
 
@@ -66,11 +80,39 @@ Choose a virtual environment of your choice and install the dependencies of the 
     ```bash
     pyenv activate {name-of-virtual-environment}
     ```
-4. Install the dependencies of the `requirements.txt` in the root of the repository.
+4. Install the dependencies of the [requirements.txt](requirements.txt) in the root of the repository.
     ```bash
     pip install -r requirements.txt
     ```
-## Structure of the repository 📁
+#### Run Jupyter Notebooks
+
+1. **Add the virtual environment as Jupyter kernel**
+
+    In order to be able to run Jupyter notebooks in the created virtual environment, you need to specify a new kernel to be used by Jupyter making use of your virtual environment. Run the following command in the CLI by specifying a name for the kernel:
+
+    ```
+    python -m ipykernel install --user --name={name-for-kernel}
+    ```
+
+2. **Open Jupyter notebook**
+
+    Either run the following command in the CLI to trigger the pop-up of the Jupyter interface in your browser:
+
+    ```
+    jupyter notebook
+    ```
+
+    OR: In case you are keen on using Jupyter Notebooks in the IDE VS Code, open the Jupyter Notebook in VS Code. (Tip: this way you can use all other VS Code features in notebooks, for example nice code highlighting, AI Coding features, etc.)
+
+3. **Select kernel**
+
+    In both the Jupyter UI and the notebook in VS Code, you need to select the specified kernel from before running the cells.
+
+4. **Run the notebooks**
+
+    Now go ahead and run the notebooks! :)
+
+## Structure of the Repository 📁
 
 The repository is structured as follows:
 
