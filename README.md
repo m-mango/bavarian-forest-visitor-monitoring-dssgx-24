@@ -1,4 +1,4 @@
-![Bavarian Forest Logo](assets/logo-bavarian-forest-national-park.png)
+![Bavarian Forest Logo](src/streamlit_app/assets/logo-bavarian-forest-national-park.png)
 # Harmonizing tourism and nature protection in the Bavarian Forest National Park 🌲 
 
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_red.svg)](https://nationalpark-bayerischer-wald.streamlit.app/)
@@ -24,7 +24,7 @@ We contribute to the project in the following ways:
 3. Develop a dashboard to visualize the data and insights for the park management, along with visualizing the forecasted visitor traffic from the predictive model.
 4. Create a technical documentation to provide insights on the data pipeline, predictive model and suggestions for future improvements in the project.
 
-![Overall Solution](assets/overall-dashboard.gif)
+![Overall Solution](docs/asset/overall-dashboard.gif)
 _Figure: Solution Dashboard_
 
 ## How to use the code 🛠️
