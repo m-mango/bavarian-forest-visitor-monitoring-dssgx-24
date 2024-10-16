@@ -20,6 +20,7 @@ import src.streamlit_app.pre_processing.process_real_time_parking_data as prtpd
 import src.streamlit_app.pre_processing.process_forecast_weather_data as prfwd
 import streamlit as st
 from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
+from src.prediction_pipeline.sourcing_data.source_weather import get_hourly_data
 
 
 ########################################################################################
@@ -188,26 +189,6 @@ def source_and_preprocess_realtime_parking_data(current_timestamp):
 ########################################################################################
 
 
-def get_hourly_data_forecasted(bavarian_forest):
-    
-    """
-    Fetch hourly weather data for the Bavarian Forest - forecasted from todays date
-
-    Args:
-        bavarian_forest (Point): The location of the Bavarian Forest National Park.
-
-    Returns:
-        pd.DataFrame: Hourly weather data for the Bavarian Forest National Park for the next 7 days
-    
-    """
-    data = Hourly(bavarian_forest, START_TIME, END_TIME)
-    data = data.fetch()
-
-    # Reset the index
-    data.reset_index(inplace=True)
-    return data 
-
-
 def source_weather_data():
     """
     Source the weather data from METEOSTAT API
@@ -223,27 +204,29 @@ def source_weather_data():
     bavarian_forest = Point(lat=LATITUDE, lon=LONGITUDE)
 
     # Fetch hourly data for the location
-    weather_hourly = get_hourly_data_forecasted(bavarian_forest)
+    weather_hourly = get_hourly_data(bavarian_forest, START_TIME, END_TIME)
 
     # Drop unnecessary columns
     weather_hourly = weather_hourly.drop(columns=['dwpt', 'snow', 'wdir', 'wpgt', 'pres', 'coco','prcp', 'tsun'])
 
     # Convert the 'Time' column to datetime format
-    weather_hourly['time'] = pd.to_datetime(weather_hourly['time'])
+    weather_hourly['time'] = pd.to_datetime(weather_hourly['time'], utc=True).dt.tz_convert('Europe/Berlin')
     return weather_hourly
 
-@st.cache_data(ttl="8h")
-def source_and_preprocess_forecasted_weather_data():
+
+def source_and_preprocess_forecasted_weather_data(timestamp_latest_weather_data_fetch: datetime):
 
     """
     Source and preprocess the forecasted weather data for the Bavarian Forest National Park.
 
     Args:
-        None
+        timestamp_latest_weather_data_fetch (datetime): The timestamp of the latest weather data fetch.
 
     Returns:
         pd.DataFrame: Processed forecasted weather dataframe
     """
+
+    print(f"Sourcing and preprocessing weather data from Meteostat API at {timestamp_latest_weather_data_fetch}...")
 
     # Source the weather data
     weather_data_df = source_weather_data()

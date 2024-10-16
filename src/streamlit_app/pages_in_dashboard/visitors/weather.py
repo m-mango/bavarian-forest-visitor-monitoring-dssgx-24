@@ -38,8 +38,6 @@ def get_graph(forecast_data):
         plotly.graph_objects.Figure: The plotly figure object.
     """
 
-    # Ensure that the time column is in datetime format and set it as index
-    forecast_data['time'] = pd.to_datetime(forecast_data['time'])
     forecast_data.set_index('time', inplace=True)
 
     fig = go.Figure()
@@ -119,12 +117,30 @@ def get_weather_section():
     Returns:
         None
     """
-    processed_weather_data = source_and_preprocess_forecasted_weather_data()
+
+    print("Fetching the latest weather forecast data for the current hour...")
+
+    def get_current_hour():
+        """
+        Get the current hour in the format "HH:00:00".
+
+        Returns:
+            str: The current hour interval in the format "HH:MM:00".
+        """
+        current_time = datetime.now(pytz.timezone('Europe/Berlin'))
+
+        # Get the current hour: Replace the minute value with the truncated value and set seconds and microseconds to 0
+        current_hour = current_time.replace(minute=0, second=0, microsecond=0).strftime("%Y-%m-%d %H:00:00")
+
+        return current_hour
+    
+    timestamp_latest_weather_data_fetch = get_current_hour()
+
+    processed_weather_data = source_and_preprocess_forecasted_weather_data(timestamp_latest_weather_data_fetch)
 
 
     st.markdown(f"### {TRANSLATIONS[st.session_state.selected_language]['weather_forecast']}")
-    current_timestamp = datetime.now(pytz.timezone('Europe/Berlin')).strftime("%Y-%m-%d %H:%M:%S")
-    st.markdown(f"{TRANSLATIONS[st.session_state.selected_language]['weather_data_last_updated']} {current_timestamp}")
+    st.markdown(f"{TRANSLATIONS[st.session_state.selected_language]['weather_data_last_updated']} {timestamp_latest_weather_data_fetch}")
 
 
     fig  = get_graph(processed_weather_data)
