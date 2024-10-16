@@ -173,7 +173,7 @@ def get_parking_section():
         selected_data = processed_parking_data[processed_parking_data['location'] == selected_location].iloc[0]
 
         col1, col2, col3 = st.columns(3)
-        col1.metric(label=TRANSLATIONS[st.session_state.selected_language]['capacity'], value=f"{selected_data['current_capacity']} cars")
+        col1.metric(label=TRANSLATIONS[st.session_state.selected_language]['capacity'], value=f"{selected_data['current_capacity']} 🚗")
         
         # Display occupancy status and bar
         with col2:
