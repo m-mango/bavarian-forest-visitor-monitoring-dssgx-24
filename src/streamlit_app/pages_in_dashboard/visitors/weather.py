@@ -106,7 +106,7 @@ def get_graph(forecast_data):
     return fig
 
 
-@st.fragment(run_every="9h")
+@st.fragment(run_every="1h")
 def get_weather_section():
     """
     Display the weather section of the dashboard.
