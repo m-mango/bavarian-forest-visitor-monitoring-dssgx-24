@@ -81,7 +81,7 @@ def get_parking_section(
         layers=[layer],
         initial_view_state=view_state,
         tooltip={
-            "text": "{location}\n" + f"{TRANSLATIONS[st.session_state.selected_language]['available_spaces']}: " + "{current_availability} cars\n" + f"{TRANSLATIONS[st.session_state.selected_language]['occupancy_rate']}: " + "{current_occupancy_rate}%"
+            "text": "{location}\n" + f"{TRANSLATIONS[st.session_state.selected_language]['available_spaces']}: " + "{current_availability} 🚗\n" + f"{TRANSLATIONS[st.session_state.selected_language]['occupancy_rate']}: " + "{current_occupancy_rate}%"
         },  # Updated tooltip text with two decimal points for occupancy rate
         map_style="road"
     )
@@ -99,7 +99,7 @@ def get_parking_section(
         selected_data = processed_parking_data[processed_parking_data['location'] == selected_location].iloc[0]
         
         col1, col2, col3 = st.columns(3)
-        col1.metric(label=TRANSLATIONS[st.session_state.selected_language]['available_spaces'], value=f"{selected_data['current_availability']} cars")
-        col2.metric(label=TRANSLATIONS[st.session_state.selected_language]['capacity'], value=f"{selected_data['current_capacity']} cars")
+        col1.metric(label=TRANSLATIONS[st.session_state.selected_language]['available_spaces'], value=f"{selected_data['current_availability']} 🚗")
+        col2.metric(label=TRANSLATIONS[st.session_state.selected_language]['capacity'], value=f"{selected_data['current_capacity']} 🚗")
         col3.metric(label=TRANSLATIONS[st.session_state.selected_language]['occupancy_rate'], value=f"{selected_data['current_occupancy_rate']}%")
 
