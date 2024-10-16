@@ -1,6 +1,8 @@
 ![Bavarian Forest Logo](assets/logo-bavarian-forest-national-park.png)
 # Harmonizing tourism and nature protection in the Bavarian Forest National Park 🌲 
 
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_red.svg)](https://nationalpark-bayerischer-wald.streamlit.app/)
+
 This repository includes the code and documentation for the project "*Harmonizing tourism and nature protection in the Bavarian Forest National Park*" by [Data Science for Social Good Munich, 2024](https://sites.google.com/view/dssgx-munich-2023/startseite).
 
 ## Project Overview 🌍 
