@@ -213,7 +213,7 @@ def source_weather_data():
     weather_hourly['time'] = pd.to_datetime(weather_hourly['time'], utc=True).dt.tz_convert('Europe/Berlin')
     return weather_hourly
 
-
+@st.cache_data(max_entries=1)
 def source_and_preprocess_forecasted_weather_data(timestamp_latest_weather_data_fetch: datetime):
 
     """
