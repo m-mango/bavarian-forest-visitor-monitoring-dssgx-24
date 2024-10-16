@@ -1,9 +1,9 @@
 ![Bavarian Forest Logo](src/streamlit_app/assets/logo-bavarian-forest-national-park.png)
-# Harmonizing tourism and nature protection in the Bavarian Forest National Park 🌲 
+# Harmonizing Tourism and Nature Protection in the Bavarian Forest National Park 🌲 
 
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_red.svg)](https://nationalpark-bayerischer-wald.streamlit.app/)
 
-This repository includes the code and documentation for the project "*Harmonizing tourism and nature protection in the Bavarian Forest National Park*" by [Data Science for Social Good Munich, 2024](https://sites.google.com/view/dssgx-munich-2023/startseite).
+This repository includes the code and documentation for the project "*Harmonizing tourism and nature protection in the Bavarian Forest National Park*" by the fellowship program [Data Science for Social Good Munich, 2024](https://sites.google.com/view/dssgx-munich-2023/startseite).
 
 ## Project Overview 🌍 
 
@@ -13,23 +13,23 @@ The Bavarian Forest National Park is a protected area in the Bavarian Forest in 
 
 ### Problem Statement 🎯
 
-The park faces the challenge of balancing the needs of nature conservation with the demands of tourism. The park has installed a network of sensors (26 visitor counters and 12 parking sensors) to understand the flow of visitors which will optimize the visitor experience and protect the park's natural resources. These data collected is heterogeneous and needs to be unified and harmonized to provide insights for decision-making.
+The park faces the challenge of balancing the needs of nature conservation with the demands of tourism. The park has installed a network of sensors (26 visitor counters and 12 parking sensors) to understand the flow of visitors which will optimize the visitor experience and protect the park's natural resources. This data is collected heterogeneously and needs to be unified and harmonized to provide insights for decision-making.
 
 ### Project Goal and Contributions 🚀
 
 The goal of this project is to harmonize the data collected from the sensors in the Bavarian Forest National Park to provide insights for decision-making. 
 We contribute to the project in the following ways:
 1. Develop a data pipeline to harmonize the data collected from the all the different sensors and external sources.
-2. Implemented a predictive model to forecast the visitor traffic in the park for the coming weeks.
+2. Implement a predictive model to forecast the visitor traffic in the park for the coming week.
 3. Develop a dashboard to visualize the data and insights for the park management, along with visualizing the forecasted visitor traffic from the predictive model.
-4. Create a technical documentation to provide insights on the data pipeline, predictive model and suggestions for future improvements in the project.
+4. Create technical documentation to provide insights on the data pipeline, predictive model and suggestions for future improvements in the project.
 
 ![Overall Solution](docs/asset/overall-dashboard.gif)
-_Figure: Solution Dashboard_
+_A glimpse of the final dashboard ✨_
 
 ## How to use the code 🛠️
 
-### Option 1: Run code in a Docker container
+### Run Dashboard and Pipeline via a Docker Container
 
 1. Clone the repository:
    ```bash
@@ -117,9 +117,7 @@ NOTE: Be sure to merge the latest from the `upstream` before making a pull reque
 
 ### Requesting new features or reporting bugs 🐞
 
-If you have any suggestions for new features or find any bugs, please create an issue in the repository.
-
-Feel free to submit issues and enhancement requests. We are open to feedback and contributions!
+If you have any suggestions for new features or find any bugs, please [create an issue](https://github.com/DSSGxMunich/bavarian-forest-visitor-monitoring-dssgx-24/issues/new) in the repository. We are open to feedback and contributions! 🙏
 
 ## License 📝
 
