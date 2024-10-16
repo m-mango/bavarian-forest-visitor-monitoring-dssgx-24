@@ -156,16 +156,34 @@ bavarian-forest-visitor-monitoring-dssgx-24/
 
 The technical documentation website is available [here](https://dssgxmunich.github.io/bavarian-forest-visitor-monitoring-dssgx-24/). 
 
-## How to contribute to the project 🤝
+### Update the Docs & Build the Docs Locally
 
-Follow the following steps to contribute to the project:
+In order to update information in the docs and test them, follow these steps:
+
+1. Make sure you have the needed libraries to setup `Mkdocs`. For that, you need to install the [docs-requirements.txt](docs-requirements.txt) (Tip: Create a new virtual environment for this.)
+
+2. You want to locally test the documentation and see changes live reflected? Run the following command from the root of the repository:
+
+    ```
+    mkdocs serve
+    ```
+
+3. You are satisfied with your results and updates to the technical documentation, you have inspected it locally, and now want to make the information available to all users? Run the following command from the root of the repository:
+
+    ```
+    mkdocs gh-deploy
+    ```
+
+## How to Contribute to the Project 🤝
+
+You can find [here](https://github.com/DSSGxMunich/bavarian-forest-visitor-monitoring-dssgx-24/issues) an overview of open issues. Feel free to have a look and contribute to support this open-source project! 🤗 Follow the following steps to contribute to the project:
 
 1. Fork the repository to your GitHub account.
 2. Create a new branch with a descriptive name for the feature you want to contribute to.
 3. Make changes to the code or documentation.
 4. Commit the changes to your branch.
 5. Push the changes to your forked repository.
-6. Create a pull request to the main repository.
+6. Create a pull request to this main repository.
 
 NOTE: Be sure to merge the latest from the `upstream` before making a pull request!
 
