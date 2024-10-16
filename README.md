@@ -52,6 +52,7 @@ _A glimpse of the final dashboard ✨_
     make streamlit
     ```
     [!NOTE]  If you want to run the bash shell in the docker container, run the following command:
+
     ```bash
     make container
     ```
@@ -63,6 +64,7 @@ _A glimpse of the final dashboard ✨_
     aws sso login --profile my-dev-aws-profile
     ```
 
+    b. **Run the `docker build` command** to first build the Docker image needed to run the code. For further details, check the `Makefile`.
 
     c. **Run the `docker run` command** to run a container based on the previously built image. For further details on how to specify the `run` command, check the [Makefile](Makefile).
 
@@ -118,26 +120,36 @@ The repository is structured as follows:
 
 ```
 bavarian-forest-visitor-monitoring-dssgx-24/
-│
-├── assets/                 # Contains images and other assets for the README
-│
-├── data/                   # Contains the data used in the project
+
+|
+├── .streamlit/             # Contains the configurations for the Streamlit Dashboard
 │
 ├── docs/                   # Contains the technical documentation
 │
-├── notebooks/              # Contains the notebooks for the data pipeline and predictive model
+├── notebooks/              # Contains the code notebooks developed during exploration and experimentation of the project
 │
-├── src/                    # Contains the source code for the data pipeline and predictive model
+├── src/                    # Contains the source code for the prediction pipeline and the Streamlit Dasbhoard
 │
-├── pages/                  # Contains the additional pages for the streamlit dashboard
+├── pages/                  # Contains the code for the additional pages for the multi-page Streamlit dashboard
 │
-├── Makefile                # Contains the commands to run the code
+├── .gitignore              # Defines the files that are not being tracked with Git
+│
+└── Dashboard.py            # Contains the code for the Homepage of the Streamlit dashboard
+│
+└── Dockerfile              # Contains the instructions in order to build and run the Docker container
+│
+├── Makefile                # Contains the Docker commands to run the code
 │
 ├── README.md               # Contains the information about the project
 │
-├── requirements.txt        # Contains the dependencies of the project
+└── docs-requirements.txt   # Contains the dependencies for building the technical documentationlocally
 │
-└── Dashboard.py            # Contains the code for the calling the predictive model and the streamlit dashboard
+└── mkdocs.yml              # Contains the configurations for the technical documentation with Mkdocs
+│
+└── notebooks-requirements.txt  # Contains the dependencies for running the code notebooks
+│
+├── requirements.txt        # Contains the dependencies for running the Streamlit dashboard application
+
 ```
 
 ## Technical Documentation 📚
