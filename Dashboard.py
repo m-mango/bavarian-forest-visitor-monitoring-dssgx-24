@@ -16,6 +16,7 @@ import src.streamlit_app.pages_in_dashboard.visitors.recreational_activities as 
 import src.streamlit_app.pages_in_dashboard.visitors.other_information as other_info
 
 # imports for the sourcing and preprocessing pipeline
+from src.prediction_pipeline.sourcing_data.source_visitor_center_data import source_preprocessed_hourly_visitor_center_data
 from src.prediction_pipeline.sourcing_data.source_historic_visitor_count import source_historic_visitor_count 
 from src.prediction_pipeline.pre_processing.preprocess_historic_visitor_count_data import preprocess_visitor_count_data
 from src.prediction_pipeline.sourcing_data.source_visitor_center_data import source_visitor_center_data
@@ -82,19 +83,6 @@ def create_dashboard_main_page(inference_predictions):
         # Get the other information section
         other_info.get_other_information()
 
-
-def source_preprocessed_hourly_visitor_center_data():
-
-    """
-    Load the preprocessed hourly visitor center data from AWS S3.
-    """
-
-    # Load visitor count data from AWS S3
-    preprocessed_hourly_visitor_center_data = wr.s3.read_parquet(
-        path="s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/visitor_centers_hourly.parquet"
-    )
-
-    return preprocessed_hourly_visitor_center_data
 
 @st.fragment(run_every="3h")
 def run_inference(preprocessed_hourly_visitor_center_data):
