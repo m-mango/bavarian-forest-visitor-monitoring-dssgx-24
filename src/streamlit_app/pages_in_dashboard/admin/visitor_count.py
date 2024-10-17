@@ -25,8 +25,11 @@ def visitor_prediction_graph(inference_predictions):
 
     if selected_region:
 
+        predictions_per_region = regions[selected_region]
+        further_columns_to_show = ["Time", "day_date"]
+
         # Filter the DataFrame based on the selected region
-        selected_region_predictions = inference_predictions[["Time", "day_date", selected_region, f"weekly_relative_traffic_{selected_region}", f"traffic_color_{selected_region}"]]
+        selected_region_predictions = inference_predictions[predictions_per_region + further_columns_to_show]
 
         # Get unique values for the day and date list
         days_list = selected_region_predictions['day_date'].unique()
@@ -50,8 +53,8 @@ def visitor_prediction_graph(inference_predictions):
         fig1 = px.bar(
             day_df,
             x='Time',  
-            y=selected_region,
-            color=f'traffic_color_{selected_region}',  # Use the traffic color column
+            y=predictions_per_region,
+            barmode='group',
             labels={f'traffic_{selected_region}': '', 'Time': 'Hour of Day'},
             title=f"{TRANSLATIONS[st.session_state.selected_language]['visitor_foot_traffic_for_day']} - {day_selected}",
             color_discrete_map={'red': 'red', 'blue': 'blue', 'green': 'green'}
@@ -66,7 +69,7 @@ def visitor_prediction_graph(inference_predictions):
         )
 
         # Update layout for relative traffic chart
-        fig1.update_yaxes(range=[0, selected_region_predictions[selected_region].max()])  # Set y-axis to range from 0 to the max traffic value of the forecasted week for a region
+        fig1.update_yaxes(range=[0, selected_region_predictions[predictions_per_region].max()])  # Set y-axis to range from 0 to the max traffic value of the forecasted week for a region
         fig1.update_xaxes(showticklabels=True)  # Keep the x-axis tick labels visible
 
         fig1.update_layout(
@@ -87,12 +90,6 @@ def visitor_prediction_graph(inference_predictions):
             xaxis=dict(
                 tickformat='%H:%M'
             )
-        )
-
-        # Update the legend names
-        fig1.for_each_trace(
-            lambda t: t.update(name={
-                'red': TRANSLATIONS[st.session_state.selected_language]['peak_traffic'], 'green': TRANSLATIONS[st.session_state.selected_language]['low_traffic'], 'blue': TRANSLATIONS[st.session_state.selected_language]['moderate_traffic']}[t.name])
         )
 
         # Display the interactive bar chart for relative traffic below the radio button
