@@ -13,7 +13,7 @@ The functions in this script are used to source the data and return the datafram
 import pandas as pd
 import awswrangler as wr
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from meteostat import Hourly, Point
 import src.streamlit_app.pre_processing.process_real_time_parking_data as prtpd
@@ -21,6 +21,7 @@ import src.streamlit_app.pre_processing.process_forecast_weather_data as prfwd
 import streamlit as st
 from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
 from src.prediction_pipeline.sourcing_data.source_weather import get_hourly_data
+import pytz
 
 
 ########################################################################################
@@ -189,7 +190,7 @@ def source_and_preprocess_realtime_parking_data(current_timestamp):
 ########################################################################################
 
 
-def source_weather_data():
+def source_weather_data(start_time: datetime):
     """
     Source the weather data from METEOSTAT API
 
@@ -203,13 +204,19 @@ def source_weather_data():
     # Create a Point object for the Bavarian Forest National Park entry
     bavarian_forest = Point(lat=LATITUDE, lon=LONGITUDE)
 
+    # Convert start_time to datetime format in utc
+    start_time = start_time.astimezone(pytz.UTC).replace(tzinfo=None)
+
+    # Add 7 days to start_time
+    end_time = start_time + timedelta(days=7)
+
     # Fetch hourly data for the location
-    weather_hourly = get_hourly_data(bavarian_forest, START_TIME, END_TIME)
+    weather_hourly = get_hourly_data(bavarian_forest, start_time, end_time)
 
     # Drop unnecessary columns
     weather_hourly = weather_hourly.drop(columns=['dwpt', 'snow', 'wdir', 'wpgt', 'pres', 'coco','prcp', 'tsun'])
 
-    # Convert the 'Time' column to datetime format
+    # Convert the 'Time' column to datetime format again in Europe/Berlin time
     weather_hourly['time'] = pd.to_datetime(weather_hourly['time'], utc=True).dt.tz_convert('Europe/Berlin')
     return weather_hourly
 
@@ -229,7 +236,7 @@ def source_and_preprocess_forecasted_weather_data(timestamp_latest_weather_data_
     print(f"Sourcing and preprocessing weather data from Meteostat API at {timestamp_latest_weather_data_fetch}...")
 
     # Source the weather data
-    weather_data_df = source_weather_data()
+    weather_data_df = source_weather_data(timestamp_latest_weather_data_fetch)
 
     # Preprocess the weather data
     sourced_and_preprocessed_weather_data = prfwd.process_weather_data(weather_data_df)

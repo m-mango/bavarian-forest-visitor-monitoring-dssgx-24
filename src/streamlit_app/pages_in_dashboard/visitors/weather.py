@@ -130,7 +130,7 @@ def get_weather_section():
         current_time = datetime.now(pytz.timezone('Europe/Berlin'))
 
         # Get the current hour: Replace the minute value with the truncated value and set seconds and microseconds to 0
-        current_hour = current_time.replace(minute=0, second=0, microsecond=0).strftime("%Y-%m-%d %H:00:00")
+        current_hour = current_time.replace(minute=0, second=0, microsecond=0)
 
         return current_hour
     
