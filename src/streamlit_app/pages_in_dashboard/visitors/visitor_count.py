@@ -8,15 +8,6 @@ from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu impor
 from src.prediction_pipeline.config import regions
 
 
-
-# AWS Setup
-########################################################################################
-
-bucket = "dssgx-munich-2024-bavarian-forest"
-inference_data_folder = "/models/inference_data_outputs/"
-
-########################################################################################
-
 @st.fragment
 def get_visitor_counts_section(inference_predictions):
     """

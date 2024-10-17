@@ -16,6 +16,7 @@ import src.streamlit_app.pages_in_dashboard.visitors.recreational_activities as 
 import src.streamlit_app.pages_in_dashboard.visitors.other_information as other_info
 
 # imports for the sourcing and preprocessing pipeline
+from src.prediction_pipeline.sourcing_data.source_visitor_center_data import source_preprocessed_hourly_visitor_center_data
 from src.prediction_pipeline.sourcing_data.source_historic_visitor_count import source_historic_visitor_count 
 from src.prediction_pipeline.pre_processing.preprocess_historic_visitor_count_data import preprocess_visitor_count_data
 from src.prediction_pipeline.sourcing_data.source_visitor_center_data import source_visitor_center_data
@@ -25,15 +26,12 @@ from src.prediction_pipeline.pre_processing.preprocess_weather_data import proce
 from src.prediction_pipeline.pre_processing.join_sensor_weather_visitorcenter import get_joined_dataframe
 from src.prediction_pipeline.pre_processing.features_zscoreweather_distanceholidays import get_zscores_and_nearest_holidays
 
-from datetime import datetime
-
-# imports for inference dataframe
-from src.prediction_pipeline.modeling.preprocess_inference_features import source_preprocess_inference_data
-from src.prediction_pipeline.modeling.create_inference_dfs import visitor_predictions
-
 # imports for training pipeline
 from src.prediction_pipeline.modeling.source_and_feature_selection import get_features
 from src.prediction_pipeline.modeling.train_regressor import train_regressor
+
+# imports for inference pipeline
+from src.prediction_pipeline.modeling.run_inference import run_inference
 
 # Initialize language in session state if it doesn't exist
 if 'selected_language' not in st.session_state:
@@ -81,64 +79,6 @@ def create_dashboard_main_page(inference_predictions):
 
         # Get the other information section
         other_info.get_other_information()
-
-
-def source_preprocessed_hourly_visitor_center_data():
-
-    """
-    Load the preprocessed hourly visitor center data from AWS S3.
-    """
-
-    # Load visitor count data from AWS S3
-    preprocessed_hourly_visitor_center_data = wr.s3.read_parquet(
-        path="s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/visitor_centers_hourly.parquet"
-    )
-
-    return preprocessed_hourly_visitor_center_data
-
-@st.fragment(run_every="3h")
-def run_inference(preprocessed_hourly_visitor_center_data):
-
-    """
-    Run the inference pipeline. Fetches the latest weather forecasts, preprocesses data, and makes predictions.
-
-    Args:
-        preprocessed_hourly_visitor_center_data (pd.DataFrame): The preprocessed hourly visitor center data.
-
-    Returns:
-        None
-    """
-
-    # get the weather data for inference
-    def get_today_midnight_berlin():
-        # Set the timezone to Berlin (CET or CEST)
-        berlin_tz = pytz.timezone('Europe/Berlin')
-        
-        # Get the current time in Berlin
-        now_berlin = datetime.now(berlin_tz)
-        
-        # Replace the hour, minute, second, and microsecond with 0 to get today at 00:00
-        day_today_berlin = now_berlin.date()
-
-        # Convert day_today_berlin to datetime
-        day_today_berlin = datetime.combine(day_today_berlin, datetime.min.time())
-        
-        return day_today_berlin
-
-    today = get_today_midnight_berlin()
-    start_inference_time = today - pd.Timedelta(days=10)
-    end_inference_time = today + pd.Timedelta(days=7)
-    print(f"Running inference part from {start_inference_time} to {end_inference_time}...")
-
-    weather_data_inference = source_weather_data(start_time=start_inference_time, end_time=end_inference_time)
-
-    # preprocess the inference data
-    inference_df = source_preprocess_inference_data(weather_data_inference, preprocessed_hourly_visitor_center_data, start_time=today, end_time=end_inference_time)
-
-    # make predictions
-    overall_visitor_predictions = visitor_predictions(inference_df) 
-
-    return overall_visitor_predictions
 
 
 def run_training():

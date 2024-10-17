@@ -131,10 +131,7 @@ def preprocess_overall_inference_predictions(overall_predictions: pd.DataFrame) 
 
         # Calculate the traffic rate per region
     for key, value in regions.items():
-        if len(value) == 2:
-            overall_predictions_wide[key] = overall_predictions_wide[value[0]] + overall_predictions_wide[value[1]]
-        else:
-            overall_predictions_wide[key] = overall_predictions_wide[value]
+        overall_predictions_wide[key] = overall_predictions_wide[value[0]] + overall_predictions_wide[value[1]]
 
         # Create a weekly relative traffic column with sklearn min-max scaling
         scaler = MinMaxScaler()

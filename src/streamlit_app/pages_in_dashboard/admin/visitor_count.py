@@ -3,87 +3,94 @@ import awswrangler as wr
 import pandas as pd
 import plotly.express as px
 from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
-
-bucket = "dssgx-munich-2024-bavarian-forest"
-preprocessed_data_folder = "preprocessed_data"
+from src.prediction_pipeline.config import regions
 
 
-def visitor_count():
-    st.write("# Visitor Count Information")
+@st.fragment
+def visitor_prediction_graph(inference_predictions):
+    """
+    Get the visitor counts section with the highest occupancy rate.
 
-    # Load the predicted data from the AWS S3 bucket
-    path = f"s3://{bucket}/{preprocessed_data_folder}/predicted_traffic_for_dashboard.csv"
-    predicted_df = wr.s3.read_csv(path=path)
+    Args:
+        None
+    
+    Returns:
+        None
+    """
+    st.markdown(f"## {TRANSLATIONS[st.session_state.selected_language]['visitor_counts_forecasted']}")
+    
+    # do a dropdown for the all_preds
+    regions_to_select = list(regions.keys())
+    selected_region = st.selectbox(TRANSLATIONS[st.session_state.selected_language]['select_region'], regions_to_select)
 
-    # Confirm data load
-    print("Predicted values from model data loaded successfully!")
+    if selected_region:
 
-    # Convert the 'Unnamed: 0' column to datetime format
-    predicted_df['Unnamed: 0'] = pd.to_datetime(predicted_df['Unnamed: 0'])
+        predictions_per_region = regions[selected_region]
+        further_columns_to_show = ["Time", "day_date"]
 
-    # Get the days and dates from the values(dates) in the 'Unnamed: 0' column
-    predicted_df['day'] = predicted_df['Unnamed: 0'].dt.day_name()
-    predicted_df['date'] = predicted_df['Unnamed: 0'].dt.strftime('%Y-%m-%d')
+        # Filter the DataFrame based on the selected region
+        selected_region_predictions = inference_predictions[predictions_per_region + further_columns_to_show]
 
-    # Create a combined day and date column for better interpretation
-    predicted_df['day_date'] = predicted_df['day'] + " (" + predicted_df['date'] + ")"
+        # Get unique values for the day and date list
+        days_list = selected_region_predictions['day_date'].unique()
 
-    # Get unique values for the day and date list
-    days_list = predicted_df['day_date'].unique()
+        # Add a note that this is forecasted data
+        st.markdown(f":green[*{TRANSLATIONS[st.session_state.selected_language]['forecasted_visitor_data']}*].")
 
-    # Get radio button for selecting the day
-    day_selected = st.radio(
-        label=TRANSLATIONS[st.session_state.selected_language]['select_day'], options=days_list, index=0
-    )
+        # Create a layout for the radio button and chart
+        col1, _ = st.columns([1, 3])
 
-    # Filter the DataFrame based on the selected day
-    day_df = predicted_df[predicted_df['day_date'] == day_selected]
+        with col1:
+            # Get radio button for selecting the day
+            day_selected = st.radio(
+                label=TRANSLATIONS[st.session_state.selected_language]['select_day'], options=days_list, index=0
+            )
 
-    # Plot an interactive bar chart for absolute traffic prediction
-    day_df['prediction_color'] = day_df['prediction_label'].apply(
-        lambda x: 'red' if x > 100 else 'green' if x < 30 else 'blue'
-    )
+        # Extract the selected day for filtering (using date)
+        day_df = selected_region_predictions[selected_region_predictions['day_date'] == day_selected]
 
-    # Get the maximum value of the occupancy column for fixing the y-axis
-    max_occupancy_value = predicted_df['prediction_label'].max()
+        # Plot an interactive bar chart for relative traffic
+        fig1 = px.bar(
+            day_df,
+            x='Time',  
+            y=predictions_per_region,
+            barmode='group',
+            labels={f'traffic_{selected_region}': '', 'Time': 'Hour of Day'},
+            title=f"{TRANSLATIONS[st.session_state.selected_language]['visitor_foot_traffic_for_day']} - {day_selected}",
+            color_discrete_map={'red': 'red', 'blue': 'blue', 'green': 'green'}
+        )
 
-    fig2 = px.bar(
-        day_df,
-        x='Unnamed: 0',  # timestamp column
-        y='prediction_label',
-        color='prediction_color',  # Use the prediction color column
-        labels={'prediction_label': 'Expected Traffic (Absolute)', 'Unnamed: 0': 'Hour of Day'},
-        title=f"Expected Visitor Foot Traffic (Absolute , Hourly) for {day_selected}",
-        color_discrete_map={'red': 'red', 'blue': 'blue', 'green': 'green'}
-    )
+        # Customize hover text for relative traffic
+        fig1.update_traces(
+            hovertemplate=(
+                'Traffic: %{y}<br>'  # Display the traffic value
+                'Hour: %{x|%H:%M}<br>'  # Display the hour in HH:MM format
+            )
+        )
 
-    # Customize hover text for absolute traffic prediction
-    fig2.update_traces(
-        hovertemplate=(
-            'Hour: %{x|%H:%M}<br>'
-            'Occupancy: %{y} visitors <br>'  # Add the prediction_label value as "Occupancy" in hover info
-        ),
-    )
+        # Update layout for relative traffic chart
+        fig1.update_yaxes(range=[0, selected_region_predictions[predictions_per_region].max()])  # Set y-axis to range from 0 to the max traffic value of the forecasted week for a region
+        fig1.update_xaxes(showticklabels=True)  # Keep the x-axis tick labels visible
 
+        fig1.update_layout(
+            xaxis_title=None,  # Hide the x-axis title
+            yaxis_title=None,  # Hide the y-axis title
+            template='plotly_dark',
+            legend_title_text=TRANSLATIONS[st.session_state.selected_language]['visitor_foot_traffic'],
+            legend=dict(
+                itemsizing='constant',
+                traceorder="normal",
+                font=dict(size=12),
+                orientation="h",
+                yanchor="top",
+                y=-0.3,  # Position the legend below the chart
+                xanchor="center",
+                x=0.5  # Center the legend horizontally
+            ),
+            xaxis=dict(
+                tickformat='%H:%M'
+            )
+        )
 
-    # Update layout for absolute traffic chart
-    fig2.update_layout(
-        xaxis_title='Hour of the selected day',
-        yaxis_title='Expected Traffic (Absolute)',  # Added y-axis title
-        template='plotly_dark',
-        legend_title_text=TRANSLATIONS[st.session_state.selected_language]['visitor_foot_traffic'],
-        yaxis=dict(range=[0, max_occupancy_value])  # Fixing the y-axis
-    )
-
-    # Update the legend names
-    fig2.for_each_trace(
-        lambda t: t.update(name={
-            'red': 'High Occupancy',
-            'blue': 'Medium Occupancy',
-            'green': 'Low Occupancy'
-        }.get(t.name, t.name))
-    )
-
-
-    # Display the interactive bar chart for absolute traffic prediction
-    st.plotly_chart(fig2)
+        # Display the interactive bar chart for relative traffic below the radio button
+        st.plotly_chart(fig1)

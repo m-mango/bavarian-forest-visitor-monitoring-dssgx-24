@@ -1,5 +1,5 @@
 regions = {
-    'Bayerischer Wald Total': ['traffic_abs'],
+    'Bayerischer Wald Total': ['sum_IN_abs', 'sum_OUT_abs'],
     'Nationalparkzentrum Falkenstein': ['Nationalparkzentrum Falkenstein IN', 'Nationalparkzentrum Falkenstein OUT'],
     'Nationalparkzentrum Lusen': ['Nationalparkzentrum Lusen IN', 'Nationalparkzentrum Lusen OUT'],
     'Falkenstein-Schwellhäusl': ['Falkenstein-Schwellhäusl IN', 'Falkenstein-Schwellhäusl OUT'],

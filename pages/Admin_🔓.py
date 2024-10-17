@@ -1,10 +1,12 @@
 # import the necessary libraries
 import streamlit as st
 from src.streamlit_app.pages_in_dashboard.admin.password import check_password
-from src.streamlit_app.pages_in_dashboard.admin.visitor_count import visitor_count
+from src.streamlit_app.pages_in_dashboard.admin.visitor_count import visitor_prediction_graph
 from src.streamlit_app.pages_in_dashboard.admin.parking import get_parking_section
 from src.streamlit_app.source_data import source_and_preprocess_realtime_parking_data
 from src.streamlit_app.pages_in_dashboard.visitors.language_selection_menu import TRANSLATIONS
+from src.prediction_pipeline.sourcing_data.source_visitor_center_data import source_preprocessed_hourly_visitor_center_data
+from src.prediction_pipeline.modeling.run_inference import run_inference
 from datetime import datetime
 import pytz
 
@@ -18,8 +20,17 @@ st.write(f"# {TRANSLATIONS[st.session_state.selected_language]['admin_page_title
 if not check_password():
     st.stop()  # Do not continue if check_password is not True.
 
-# visitor count information
-visitor_count()
+def get_visitor_predictions_section():
+    """
+    Get the visitor predictions section.
+    """
+
+    preprocessed_hourly_visitor_center_data = source_preprocessed_hourly_visitor_center_data()
+
+    inference_predictions = run_inference(preprocessed_hourly_visitor_center_data)
+
+    visitor_prediction_graph(inference_predictions)
+
 
 @st.fragment(run_every="15min")
 def get_latest_parking_data_and_visualize_it():
@@ -49,5 +60,7 @@ def get_latest_parking_data_and_visualize_it():
     processed_parking_data = source_and_preprocess_realtime_parking_data(timestamp_latest_parking_data_fetch)
 
     get_parking_section(processed_parking_data)
+
+get_visitor_predictions_section()
 
 get_latest_parking_data_and_visualize_it()
