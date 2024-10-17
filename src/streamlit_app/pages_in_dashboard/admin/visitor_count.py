@@ -50,9 +50,9 @@ def visitor_prediction_graph(inference_predictions):
         fig1 = px.bar(
             day_df,
             x='Time',  
-            y=f'weekly_relative_traffic_{selected_region}',
+            y=selected_region,
             color=f'traffic_color_{selected_region}',  # Use the traffic color column
-            labels={f'weekly_relative_traffic_{selected_region}': '', 'Time': 'Hour of Day'},
+            labels={f'traffic_{selected_region}': '', 'Time': 'Hour of Day'},
             title=f"{TRANSLATIONS[st.session_state.selected_language]['visitor_foot_traffic_for_day']} - {day_selected}",
             color_discrete_map={'red': 'red', 'blue': 'blue', 'green': 'green'}
         )
@@ -60,12 +60,13 @@ def visitor_prediction_graph(inference_predictions):
         # Customize hover text for relative traffic
         fig1.update_traces(
             hovertemplate=(
+                'Traffic: %{y}<br>'  # Display the traffic value
                 'Hour: %{x|%H:%M}<br>'  # Display the hour in HH:MM format
             )
         )
 
         # Update layout for relative traffic chart
-        fig1.update_yaxes(range=[0, 1], showticklabels=False)  # Set y-axis to range from 0 to 1 and hide tick labels
+        fig1.update_yaxes(range=[0, selected_region_predictions[selected_region].max()])  # Set y-axis to range from 0 to the max traffic value of the forecasted week for a region
         fig1.update_xaxes(showticklabels=True)  # Keep the x-axis tick labels visible
 
         fig1.update_layout(
