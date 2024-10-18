@@ -68,8 +68,10 @@ def visitor_prediction_graph(inference_predictions):
             )
         )
 
+        weekly_max_value_per_region = selected_region_predictions[predictions_per_region].max().max()
+
         # Update layout for relative traffic chart
-        fig1.update_yaxes(range=[0, selected_region_predictions[predictions_per_region].max()])  # Set y-axis to range from 0 to the max traffic value of the forecasted week for a region
+        fig1.update_yaxes(range=[0, weekly_max_value_per_region])  # Set y-axis to range from 0 to the max traffic value of the forecasted week for a region
         fig1.update_xaxes(showticklabels=True)  # Keep the x-axis tick labels visible
 
         fig1.update_layout(
