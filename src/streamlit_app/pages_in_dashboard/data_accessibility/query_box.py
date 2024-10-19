@@ -55,7 +55,7 @@ def select_date():
 
     return start_date, end_date
 
-def select_filters(category):
+def select_filters(category, start_date, end_date):
 
     """
     Select additional filters such as sensors, weather values, or parking values.
@@ -171,7 +171,14 @@ def select_filters(category):
         selected_sensors = st.multiselect("Select the parking sensor you want to find the values for?", category_based_filters[category]['sensors'], default=None)
 
     elif category == "visitor_sensors":
-        selected_sensors = st.multiselect("Select the visitor sensor you want to find the count for?", category_based_filters[category], default=None)
+        visitor_sensors_data = get_data_from_query(
+            selected_category=category,
+            selected_query=None,
+            selected_query_type=None,
+            start_date=start_date,
+            end_date=end_date)
+
+        selected_sensors = st.multiselect("Select the visitor sensor you want to find the count for?", visitor_sensors_data.columns.tolist(), default=None)
         selected_properties = None
 
     elif category == "visitor_centers":
@@ -324,7 +331,7 @@ def get_query_section():
         start_date, end_date = select_date()
         print(start_date, end_date)
        
-    selected_properties, selected_sensors = select_filters(selected_category)
+    selected_properties, selected_sensors = select_filters(selected_category, start_date, end_date)
     
     # Give options to select your queries in form of a dropdown
     queries_dict = generate_queries(selected_category, start_date, end_date, selected_properties,selected_sensors)

@@ -369,7 +369,7 @@ def create_temporal_columns(df):
 
     return df
 
-def get_sensors_data(objects):
+def get_sensors_data():
     """Fetches sensor data from the most recently modified object.
 
     This function retrieves the sensor data from a specified object
@@ -385,10 +385,8 @@ def get_sensors_data(objects):
         pandas.DataFrame: A DataFrame containing the sensor data read
         from the CSV file.
     """
-    # if there are multiple objects get the last modified one
-    object_to_be_queried = objects[-1]
-    # Read the csv file from S3. Skips the first two rows, which are headers
-    df = wr.s3.read_csv(f"{object_to_be_queried}", skiprows=2)
+
+    df = wr.s3.read_parquet("s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/preprocessed_visitor_count_sensors_data.parquet")
     return df
 def get_visitor_centers_data(objects):
     """Fetches visitor centers data from the most recently modified Excel file.
@@ -530,6 +528,7 @@ def parse_german_dates_regex(
 
     return df
 
+@st.cache_data(max_entries=1)
 def get_data_from_query(selected_category,selected_query,selected_query_type, start_date, end_date):
 
     """Retrieve data based on the selected category and query.
@@ -557,12 +556,9 @@ def get_data_from_query(selected_category,selected_query,selected_query_type, st
     """
 
     if selected_category == 'visitor_sensors':
-
-        objects = get_files_from_aws(selected_category)
-        category_df = get_sensors_data(objects)
-        parsed_df = parse_german_dates_regex(category_df, 'Time')
-        parsed_df = parsed_df.set_index('Time') 
-        processed_category_df = create_temporal_columns(parsed_df)
+        sensor_df = get_sensors_data()
+        sensor_df = sensor_df.set_index('Time') 
+        processed_category_df = create_temporal_columns(sensor_df)
         
     if selected_category == 'parking':
        selected_sensor = re.search(r'for the sensor (.+?) ', selected_query).group(1)
