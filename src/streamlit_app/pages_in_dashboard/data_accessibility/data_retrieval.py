@@ -132,6 +132,9 @@ def extract_values_according_to_type(selected_query,type):
         AttributeError: If the expected regex match is not found in the selected_query.
     """
 
+    if selected_query == None:
+        return None
+    
     if type == 'type1':
         property = re.search(r'What is the (.+?) value', selected_query).group(1)
         sensor = re.search(r'for the sensor (.+?) from', selected_query).group(1)
@@ -143,14 +146,14 @@ def extract_values_according_to_type(selected_query,type):
         sensor = re.search(r'for the sensor (.+?) for the month of', selected_query).group(1)
         month = re.search(r'for the month of (.+?) ', selected_query).group(1)
         year = re.search(r'for the year (.+?)\?', selected_query).group(1)
-        extracted_values = [property, sensor, month, year]
+        extracted_values = [property, sensor]
         
     elif type == 'type3':
         property = re.search(r'What is the (.+?) value', selected_query).group(1)
         sensor = re.search(r'for the sensor (.+?) for the season of', selected_query).group(1)
         season = re.search(r'for the season of (.+?) for', selected_query).group(1)
         year = re.search(r'for the year (.+?)\?', selected_query).group(1)
-        extracted_values = [property, sensor, season, year]
+        extracted_values = [property, sensor]
 
     elif type == 'type4':
         property = re.search(r'What is the (.+?) value', selected_query).group(1)
@@ -162,13 +165,13 @@ def extract_values_according_to_type(selected_query,type):
         property = re.search(r'What is the (.+?) value', selected_query).group(1)
         month = re.search(r'for the month of (.+?) for the year', selected_query).group(1)
         year = re.search(r'for the year (.+?)\?', selected_query).group(1)
-        extracted_values = [property, month, year]
+        extracted_values = [property]
 
     elif type == 'type6':
         property = re.search(r'What is the (.+?) value', selected_query).group(1)
         season = re.search(r'for the season of (.+?) for the year', selected_query).group(1)
         year = re.search(r'for the year (.+?)\?', selected_query).group(1)
-        extracted_values = [property, season, year]
+        extracted_values = [property]
 
 
     # Get the structure from query_types for 'type1'
@@ -180,7 +183,7 @@ def extract_values_according_to_type(selected_query,type):
     return result
 
 
-def get_queried_df(processed_category_df, get_values, type, selected_category):
+def get_queried_df(processed_category_df, get_values, type, selected_category, start_date, end_date):
    
     """Retrieve a filtered DataFrame based on the selected category and query type.
 
@@ -217,6 +220,16 @@ def get_queried_df(processed_category_df, get_values, type, selected_category):
         KeyError: If 'property' is not in `get_values`.
         ValueError: If an invalid type or selected_category is provided.
     """
+
+    if get_values is None:
+        start_date = pd.to_datetime(start_date)
+        end_date = pd.to_datetime(end_date)
+        queried_df = processed_category_df[
+            (processed_category_df.index.date >= start_date.date()) &
+            (processed_category_df.index.date <= end_date.date())
+        ]
+        return queried_df
+
     # get the property value from the get values dictionary
     if 'property' in get_values:
         property_value = get_values['property']
@@ -509,7 +522,7 @@ def parse_german_dates_regex(
 
     return df
 
-def get_data_from_query(selected_category,selected_query,selected_query_type):
+def get_data_from_query(selected_category,selected_query,selected_query_type, start_date, end_date):
 
     """Retrieve data based on the selected category and query.
 
@@ -534,8 +547,6 @@ def get_data_from_query(selected_category,selected_query,selected_query_type):
         ValueError: If the selected category is not recognized.
         KeyError: If the expected values are not found in the query.
     """
-
-    get_values = extract_values_according_to_type(selected_query,selected_query_type)
 
     if selected_category == 'visitor_sensors':
 
@@ -562,8 +573,10 @@ def get_data_from_query(selected_category,selected_query,selected_query_type):
         category_df = category_df.set_index('Datum')
         processed_category_df = create_temporal_columns(category_df)
 
-    queried_df = get_queried_df(processed_category_df, get_values,selected_query_type, selected_category)
+    get_values = extract_values_according_to_type(selected_query,selected_query_type)
 
-    return queried_df
+    processed_category_df = get_queried_df(processed_category_df, get_values,selected_query_type, selected_category, start_date, end_date)
+
+    return processed_category_df
 
 

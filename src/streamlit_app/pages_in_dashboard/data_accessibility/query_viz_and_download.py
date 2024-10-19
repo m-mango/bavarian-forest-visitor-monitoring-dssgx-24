@@ -11,9 +11,8 @@ def get_visualization_section(retrieved_df):
     """
     st.markdown("# Data visualization")
 
-    st.line_chart(retrieved_df)
+    st.dataframe(retrieved_df)
 
     # Generate Pandas Profiling report
-    # pr = retrieved_df.profile_report()
     pr = ProfileReport(retrieved_df,minimal=True)
     st_profile_report(pr)
