@@ -1,7 +1,10 @@
 from ydata_profiling import ProfileReport
 import streamlit as st
 
+@st.cache_data(max_entries=1)
 def custom_pandas_profiling_report(data):
+    
+    print("Profiling the uploaded data...")
 
     report = ProfileReport(data, minimal=True)
 
