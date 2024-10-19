@@ -391,25 +391,33 @@ def get_sensors_data(objects):
     df = wr.s3.read_csv(f"{object_to_be_queried}", skiprows=2)
     return df
 def get_visitor_centers_data(objects):
-    """Fetches visitor centers data from the most recently modified object.
+    """Fetches visitor centers data from the most recently modified Excel file.
 
-    This function retrieves visitor centers data from a specified object
-    in S3 by reading an Excel file. It selects the last object from
-    the provided list of objects, assuming this is the most recently
-    modified.
+    This function retrieves visitor centers data from a specified Excel file
+    in S3. It selects the last object from the provided list of objects
+    that is an Excel file (with extensions '.xlsx' or '.xls'), assuming this
+    is the most recently modified Excel file.
 
     Args:
         objects (list): A list of S3 object paths, where the last
-            object is the most recently modified.
+            object ending in '.xlsx' or '.xls' is the most recently modified Excel file.
 
     Returns:
         pandas.DataFrame: A DataFrame containing the visitor centers
         data read from the Excel file.
     """
-    # if there are multiple objects get the last modified one
-    object_to_be_queried = objects[-1]
-    # Read the excel file from S3 skipping the last row which is a NaN row. Probably this would have to be dropped if data quality check is implemented
+    # Filter the list to include only objects that are Excel files
+    excel_objects = [obj for obj in objects if obj.endswith(('.xlsx', '.xls'))]
+    
+    if not excel_objects:
+        raise ValueError("No visitor center data found!")
+    
+    # Select the most recently modified Excel file (i.e., the last one in the list)
+    object_to_be_queried = excel_objects[-1]
+    
+    # Read the Excel file from S3, skipping the last row which is a NaN row
     df = wr.s3.read_excel(f"{object_to_be_queried}", skipfooter=1, engine="openpyxl")
+
     return df
 
 def get_weather_data(objects):
