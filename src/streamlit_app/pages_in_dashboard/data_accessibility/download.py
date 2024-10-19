@@ -16,6 +16,7 @@ def list_files_in_s3(category: str) -> list:
 def load_csv_files_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
     """Loads individual or multiple CSV files from an AWS S3 bucket."""
     df = wr.s3.read_csv(path=path, **kwargs)
+    return df
 
 
 def download_section():
