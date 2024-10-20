@@ -442,7 +442,7 @@ def get_weather_data(objects):
     df = wr.s3.read_parquet(f"{object_to_be_queried}")
     return df
 
-def get_parking_data_for_selected_sensor(objects, selected_sensor):
+def get_parking_data_for_selected_sensor(selected_sensor):
 
     """Fetches parking data for a specified sensor from S3.
 
@@ -463,18 +463,9 @@ def get_parking_data_for_selected_sensor(objects, selected_sensor):
     Raises:
         ValueError: If the selected sensor is not found in any object.
     """
-    object_to_be_queried = None
-    for obj in objects:
-        # check if the selected sensor string is in the chosen object
-        if selected_sensor in obj:
-            object_to_be_queried = obj
-            break  # Exit loop after finding the first match
-
-    if object_to_be_queried is None:
-        raise ValueError(f"Selected sensor '{selected_sensor}' not found in any objects.")
-
-    # Read the parquet file from S3
-    df = wr.s3.read_parquet(f"{object_to_be_queried}")
+    path = f"s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/preprocessed_parking_data/merged_parking_data/{selected_sensor}.csv"
+    df = wr.s3.read_csv(path)
+    df.set_index("time", inplace=True)
     return df
 
 
@@ -529,7 +520,7 @@ def parse_german_dates_regex(
     return df
 
 @st.cache_data(max_entries=1)
-def get_data_from_query(selected_category,selected_query,selected_query_type, start_date, end_date):
+def get_data_from_query(selected_category,selected_query,selected_query_type, start_date, end_date, selected_sensors):
 
     """Retrieve data based on the selected category and query.
 
@@ -561,10 +552,8 @@ def get_data_from_query(selected_category,selected_query,selected_query_type, st
         processed_category_df = create_temporal_columns(sensor_df)
         
     if selected_category == 'parking':
-       selected_sensor = re.search(r'for the sensor (.+?) ', selected_query).group(1)
-       objects = get_files_from_aws(selected_category)
-       category_df = get_parking_data_for_selected_sensor(objects, selected_sensor)
-       processed_category_df = create_temporal_columns(category_df)
+        category_df = get_parking_data_for_selected_sensor(selected_sensors)
+        processed_category_df = create_temporal_columns(category_df)
 
     if selected_category == 'weather':
         objects = get_files_from_aws(selected_category)

@@ -73,11 +73,11 @@ def select_filters(category, start_date, end_date):
     # Select the sensors or weather values or parking values
     category_based_filters = {
         "weather" : [
-            'Temperature (°C)', 'Precipitation (mm)', 'Wind Speed (km/h)', 'Relative Humidity (%)', 'Sunshine Duration (min'
+            'Temperature (°C)', 'Precipitation (mm)', 'Wind Speed (km/h)', 'Relative Humidity (%)', 'Sunshine Duration (min)'
             ],
         "parking" : {'sensors':[
                                 'p-r-spiegelau-1','parkplatz-fredenbruecke-1','parkplatz-graupsaege-1',
-                                'parkplatz-nationalparkzentrum-falkenstein-2','parkplatz-nationalparkzentrum-lusen-p2'
+                                'parkplatz-nationalparkzentrum-falkenstein-2','parkplatz-nationalparkzentrum-lusen-p2',
                                 'parkplatz-skisportzentrum-finsterau-1','parkplatz-waldhaeuser-ausblick-1',
                                 'parkplatz-waldhaeuser-kirche-1','parkplatz-zwieslerwaldhaus-1',
                                 'parkplatz-zwieslerwaldhaus-nord-1','scheidt-bachmann-parkplatz-1',
@@ -168,7 +168,7 @@ def select_filters(category, start_date, end_date):
 
     elif category == "parking":
         selected_properties = st.multiselect("Select the parking values", category_based_filters[category]['properties'], default=None)  
-        selected_sensors = st.multiselect("Select the parking sensor you want to find the values for?", category_based_filters[category]['sensors'], default=None)
+        selected_sensors = st.selectbox("Select the parking sensor you want to find the values for?", category_based_filters[category]['sensors'])
 
     elif category == "visitor_sensors":
         visitor_sensors_data = get_data_from_query(
@@ -176,9 +176,12 @@ def select_filters(category, start_date, end_date):
             selected_query=None,
             selected_query_type=None,
             start_date=start_date,
-            end_date=end_date)
+            end_date=end_date,
+            selected_sensors=None)
+        
+        visitor_sensor_options = list(set(visitor_sensors_data.columns.tolist()) - set(["month", "year", "season"]))
 
-        selected_sensors = st.multiselect("Select the visitor sensor you want to find the count for?", visitor_sensors_data.columns.tolist(), default=None)
+        selected_sensors = st.multiselect("Select the visitor sensor you want to find the count for?", visitor_sensor_options, default=None)
         selected_properties = None
 
     elif category == "visitor_centers":
@@ -209,12 +212,10 @@ def get_queries_for_parking(start_date, end_date, selected_properties, selected_
     queries = {}
 
     if selected_sensors:
-        for sensor in selected_sensors:
-            # Queries for the start_date and end_date range
-            for property in selected_properties:
-                queries.setdefault("type1", []).append(
-                    f"What is the {property} value for the sensor {sensor} from {start_date} to {end_date}?"
-                )
+        for property in selected_properties:
+            queries.setdefault("type1", []).append(
+                f"What is the {property} value for the sensor {selected_sensors} from {start_date} to {end_date}?"
+            )
 
     return queries
 
@@ -354,7 +355,7 @@ def get_query_section():
         submitted = st.form_submit_button(":green[Run Query]")
     if submitted:
         # get_data_from_query(selected_query,selected_query_type,selected_category)
-        queried_df = get_data_from_query(selected_category,selected_query,selected_query_type, start_date, end_date)
+        queried_df = get_data_from_query(selected_category,selected_query,selected_query_type, start_date, end_date, selected_sensors)
         
         # handle error if the queried df is an empty dataframe
         if queried_df.empty:
