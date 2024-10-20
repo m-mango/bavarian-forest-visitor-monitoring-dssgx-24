@@ -132,6 +132,9 @@ def extract_values_according_to_type(selected_query,type):
         AttributeError: If the expected regex match is not found in the selected_query.
     """
 
+    if selected_query == None:
+        return None
+    
     if type == 'type1':
         property = re.search(r'What is the (.+?) value', selected_query).group(1)
         sensor = re.search(r'for the sensor (.+?) from', selected_query).group(1)
@@ -143,14 +146,14 @@ def extract_values_according_to_type(selected_query,type):
         sensor = re.search(r'for the sensor (.+?) for the month of', selected_query).group(1)
         month = re.search(r'for the month of (.+?) ', selected_query).group(1)
         year = re.search(r'for the year (.+?)\?', selected_query).group(1)
-        extracted_values = [property, sensor, month, year]
+        extracted_values = [property, sensor]
         
     elif type == 'type3':
         property = re.search(r'What is the (.+?) value', selected_query).group(1)
         sensor = re.search(r'for the sensor (.+?) for the season of', selected_query).group(1)
         season = re.search(r'for the season of (.+?) for', selected_query).group(1)
         year = re.search(r'for the year (.+?)\?', selected_query).group(1)
-        extracted_values = [property, sensor, season, year]
+        extracted_values = [property, sensor]
 
     elif type == 'type4':
         property = re.search(r'What is the (.+?) value', selected_query).group(1)
@@ -162,13 +165,13 @@ def extract_values_according_to_type(selected_query,type):
         property = re.search(r'What is the (.+?) value', selected_query).group(1)
         month = re.search(r'for the month of (.+?) for the year', selected_query).group(1)
         year = re.search(r'for the year (.+?)\?', selected_query).group(1)
-        extracted_values = [property, month, year]
+        extracted_values = [property]
 
     elif type == 'type6':
         property = re.search(r'What is the (.+?) value', selected_query).group(1)
         season = re.search(r'for the season of (.+?) for the year', selected_query).group(1)
         year = re.search(r'for the year (.+?)\?', selected_query).group(1)
-        extracted_values = [property, season, year]
+        extracted_values = [property]
 
 
     # Get the structure from query_types for 'type1'
@@ -180,7 +183,7 @@ def extract_values_according_to_type(selected_query,type):
     return result
 
 
-def get_queried_df(processed_category_df, get_values, type, selected_category):
+def get_queried_df(processed_category_df, get_values, type, selected_category, start_date, end_date):
    
     """Retrieve a filtered DataFrame based on the selected category and query type.
 
@@ -217,6 +220,16 @@ def get_queried_df(processed_category_df, get_values, type, selected_category):
         KeyError: If 'property' is not in `get_values`.
         ValueError: If an invalid type or selected_category is provided.
     """
+
+    if get_values is None:
+        start_date = pd.to_datetime(start_date)
+        end_date = pd.to_datetime(end_date)
+        queried_df = processed_category_df[
+            (processed_category_df.index.date >= start_date.date()) &
+            (processed_category_df.index.date <= end_date.date())
+        ]
+        return queried_df
+
     # get the property value from the get values dictionary
     if 'property' in get_values:
         property_value = get_values['property']
@@ -356,7 +369,7 @@ def create_temporal_columns(df):
 
     return df
 
-def get_sensors_data(objects):
+def get_sensors_data():
     """Fetches sensor data from the most recently modified object.
 
     This function retrieves the sensor data from a specified object
@@ -372,31 +385,37 @@ def get_sensors_data(objects):
         pandas.DataFrame: A DataFrame containing the sensor data read
         from the CSV file.
     """
-    # if there are multiple objects get the last modified one
-    object_to_be_queried = objects[-1]
-    # Read the csv file from S3. Skips the first two rows, which are headers
-    df = wr.s3.read_csv(f"{object_to_be_queried}", skiprows=2)
+
+    df = wr.s3.read_parquet("s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/preprocessed_visitor_count_sensors_data.parquet")
     return df
 def get_visitor_centers_data(objects):
-    """Fetches visitor centers data from the most recently modified object.
+    """Fetches visitor centers data from the most recently modified Excel file.
 
-    This function retrieves visitor centers data from a specified object
-    in S3 by reading an Excel file. It selects the last object from
-    the provided list of objects, assuming this is the most recently
-    modified.
+    This function retrieves visitor centers data from a specified Excel file
+    in S3. It selects the last object from the provided list of objects
+    that is an Excel file (with extensions '.xlsx' or '.xls'), assuming this
+    is the most recently modified Excel file.
 
     Args:
         objects (list): A list of S3 object paths, where the last
-            object is the most recently modified.
+            object ending in '.xlsx' or '.xls' is the most recently modified Excel file.
 
     Returns:
         pandas.DataFrame: A DataFrame containing the visitor centers
         data read from the Excel file.
     """
-    # if there are multiple objects get the last modified one
-    object_to_be_queried = objects[-1]
-    # Read the excel file from S3 skipping the last row which is a NaN row. Probably this would have to be dropped if data quality check is implemented
+    # Filter the list to include only objects that are Excel files
+    excel_objects = [obj for obj in objects if obj.endswith(('.xlsx', '.xls'))]
+    
+    if not excel_objects:
+        raise ValueError("No visitor center data found!")
+    
+    # Select the most recently modified Excel file (i.e., the last one in the list)
+    object_to_be_queried = excel_objects[-1]
+    
+    # Read the Excel file from S3, skipping the last row which is a NaN row
     df = wr.s3.read_excel(f"{object_to_be_queried}", skipfooter=1, engine="openpyxl")
+
     return df
 
 def get_weather_data(objects):
@@ -423,7 +442,7 @@ def get_weather_data(objects):
     df = wr.s3.read_parquet(f"{object_to_be_queried}")
     return df
 
-def get_parking_data_for_selected_sensor(objects, selected_sensor):
+def get_parking_data_for_selected_sensor(selected_sensor):
 
     """Fetches parking data for a specified sensor from S3.
 
@@ -444,18 +463,9 @@ def get_parking_data_for_selected_sensor(objects, selected_sensor):
     Raises:
         ValueError: If the selected sensor is not found in any object.
     """
-    object_to_be_queried = None
-    for obj in objects:
-        # check if the selected sensor string is in the chosen object
-        if selected_sensor in obj:
-            object_to_be_queried = obj
-            break  # Exit loop after finding the first match
-
-    if object_to_be_queried is None:
-        raise ValueError(f"Selected sensor '{selected_sensor}' not found in any objects.")
-
-    # Read the parquet file from S3
-    df = wr.s3.read_parquet(f"{object_to_be_queried}")
+    path = f"s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/preprocessed_parking_data/merged_parking_data/{selected_sensor}.csv"
+    df = wr.s3.read_csv(path)
+    df.set_index("time", inplace=True)
     return df
 
 
@@ -509,7 +519,8 @@ def parse_german_dates_regex(
 
     return df
 
-def get_data_from_query(selected_category,selected_query,selected_query_type):
+@st.cache_data(max_entries=1)
+def get_data_from_query(selected_category,selected_query,selected_query_type, start_date, end_date, selected_sensors):
 
     """Retrieve data based on the selected category and query.
 
@@ -535,21 +546,14 @@ def get_data_from_query(selected_category,selected_query,selected_query_type):
         KeyError: If the expected values are not found in the query.
     """
 
-    get_values = extract_values_according_to_type(selected_query,selected_query_type)
-
     if selected_category == 'visitor_sensors':
-
-        objects = get_files_from_aws(selected_category)
-        category_df = get_sensors_data(objects)
-        parsed_df = parse_german_dates_regex(category_df, 'Time')
-        parsed_df = parsed_df.set_index('Time') 
-        processed_category_df = create_temporal_columns(parsed_df)
+        sensor_df = get_sensors_data()
+        sensor_df = sensor_df.set_index('Time') 
+        processed_category_df = create_temporal_columns(sensor_df)
         
     if selected_category == 'parking':
-       selected_sensor = re.search(r'for the sensor (.+?) ', selected_query).group(1)
-       objects = get_files_from_aws(selected_category)
-       category_df = get_parking_data_for_selected_sensor(objects, selected_sensor)
-       processed_category_df = create_temporal_columns(category_df)
+        category_df = get_parking_data_for_selected_sensor(selected_sensors)
+        processed_category_df = create_temporal_columns(category_df)
 
     if selected_category == 'weather':
         objects = get_files_from_aws(selected_category)
@@ -562,8 +566,10 @@ def get_data_from_query(selected_category,selected_query,selected_query_type):
         category_df = category_df.set_index('Datum')
         processed_category_df = create_temporal_columns(category_df)
 
-    queried_df = get_queried_df(processed_category_df, get_values,selected_query_type, selected_category)
+    get_values = extract_values_according_to_type(selected_query,selected_query_type)
 
-    return queried_df
+    processed_category_df = get_queried_df(processed_category_df, get_values,selected_query_type, selected_category, start_date, end_date)
+
+    return processed_category_df
 
 
