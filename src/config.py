@@ -1,3 +1,5 @@
+aws_s3_bucket = 'dssgx-munich-2024-bavarian-forest'
+
 regions = {
     'Bayerischer Wald Total': ['sum_IN_abs', 'sum_OUT_abs'],
     'Nationalparkzentrum Falkenstein': ['Nationalparkzentrum Falkenstein IN', 'Nationalparkzentrum Falkenstein OUT'],
