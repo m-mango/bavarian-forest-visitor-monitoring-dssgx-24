@@ -1,7 +1,8 @@
 import awswrangler as wr
 import pandas as pd
+from src.config import aws_s3_bucket
 
-visitor_center_data_path = "s3://dssgx-munich-2024-bavarian-forest/raw-data/national-park-vacation-times-houses-opening-times-visitors.xlsx"
+visitor_center_data_path = f"s3://{aws_s3_bucket}/raw-data/national-park-vacation-times-houses-opening-times-visitors.xlsx"
 
 def source_data_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
     """Loads individual or multiple CSV files from an AWS S3 bucket.
@@ -27,7 +28,7 @@ def source_preprocessed_hourly_visitor_center_data():
 
     # Load visitor count data from AWS S3
     preprocessed_hourly_visitor_center_data = wr.s3.read_parquet(
-        path="s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/visitor_centers_hourly.parquet"
+        path=f"s3://{aws_s3_bucket}/preprocessed_data/visitor_centers_hourly.parquet"
     )
 
     return preprocessed_hourly_visitor_center_data

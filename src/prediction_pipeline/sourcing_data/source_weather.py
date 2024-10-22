@@ -27,10 +27,6 @@ END_TIME = datetime(2024, 7, 22 )
 LATITUDE = 49.31452390542327
 LONGITUDE = 12.711573421032
 
-# Set up S3 bucket and folder
-bucket = "dssgx-munich-2024-bavarian-forest"
-preprocessed_data_folder = "preprocessed_data"
-
 # Define weather condition code mapping
 coco_to_coco_2_mapping = {
     1: 1,  # Clear

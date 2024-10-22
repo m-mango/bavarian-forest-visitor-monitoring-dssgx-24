@@ -4,8 +4,7 @@ import streamlit as st
 import pandas as pd
 import awswrangler as wr
 import re
-
-bucket = "dssgx-munich-2024-bavarian-forest"
+from src.config import aws_s3_bucket
 
 # Types of queries that the functions will use to know what data to retrieve
 
@@ -41,7 +40,7 @@ def get_files_from_aws(selected_category):
     # Specify the S3 bucket and folder path
     prefix = f"/preprocessed_data/bf_preprocessed_files/{selected_category}/"  # Make sure to include trailing slash
     # List all objects in the specified S3 folder
-    objects = wr.s3.list_objects(f"s3://{bucket}{prefix}")
+    objects = wr.s3.list_objects(f"s3://{aws_s3_bucket}{prefix}")
     return objects
 
 def convert_number_to_month_name(month):
@@ -352,7 +351,7 @@ def get_sensors_data():
         from the CSV file.
     """
 
-    df = wr.s3.read_parquet("s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/preprocessed_visitor_count_sensors_data.parquet")
+    df = wr.s3.read_parquet(f"s3://{aws_s3_bucket}/preprocessed_data/preprocessed_visitor_count_sensors_data.parquet")
     return df
 def get_visitor_centers_data(objects):
     """Fetches visitor centers data from the most recently modified Excel file.
@@ -429,7 +428,7 @@ def get_parking_data_for_selected_sensor(selected_sensor):
     Raises:
         ValueError: If the selected sensor is not found in any object.
     """
-    path = f"s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/preprocessed_parking_data/merged_parking_data/{selected_sensor}.csv"
+    path = f"s3://{aws_s3_bucket}/preprocessed_data/preprocessed_parking_data/merged_parking_data/{selected_sensor}.csv"
     df = wr.s3.read_csv(path)
     df.set_index("time", inplace=True)
     return df

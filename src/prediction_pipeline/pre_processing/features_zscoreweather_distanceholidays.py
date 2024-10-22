@@ -3,12 +3,12 @@
 import pandas as pd
 import awswrangler as wr
 import numpy as np
+from src.config import aws_s3_bucket
 
 ##############################################################################################
 
 # GLOBAL VARIABLES
 
-bucket = "dssgx-munich-2024-bavarian-forest"
 output_file_name = "holidays_deltaweather_features_df.csv"
 output_data_folder = "preprocessed_data"
 
@@ -219,7 +219,7 @@ def get_zscores_and_nearest_holidays(df,columns_for_zscores):
 
     write_csv_file_to_aws_s3(
                         df=df_zscores_and_nearest_holidays,
-                        path=f"s3://{bucket}/{output_data_folder}/{output_file_name}",
+                        path=f"s3://{aws_s3_bucket}/{output_data_folder}/{output_file_name}",
                         index=False
     )
 

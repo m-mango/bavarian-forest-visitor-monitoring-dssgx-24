@@ -6,12 +6,12 @@ from pycaret.regression import *
 import os
 import awswrangler as wr
 import uuid
+from src.config import aws_s3_bucket
 
 
 save_path_models = 'models/models_trained'
 save_path_predictions = 'models/test_data_predictions'
 local_path = os.path.join('outputs','models_trained')
-bucket_name = 'dssgx-munich-2024-bavarian-forest'
 
 # Define target columns
 target_vars_et  = ['traffic_abs', 'sum_IN_abs', 'sum_OUT_abs', 'Lusen-Mauth-Finsterau IN', 'Lusen-Mauth-Finsterau OUT', 
@@ -54,7 +54,7 @@ def save_predictions_to_aws_s3(df: pd.DataFrame, save_path_predictions: str, fil
         None
     """
 
-    aws_s3_path = f"s3://{bucket_name}/{save_path_predictions}/{uuid}/{filename}"
+    aws_s3_path = f"s3://{aws_s3_bucket}/{save_path_predictions}/{uuid}/{filename}"
 
     wr.s3.to_parquet(df, path=aws_s3_path,index= True)
     print(f"Predictions for test data saved in AWS S3 under {aws_s3_path}")
@@ -81,7 +81,7 @@ def save_models_to_aws_s3(model, save_path_models: str, model_name: str, local_p
     save_model_path = os.path.join(local_path, model_name)
     save_model(model, save_model_path, model_only=True)
 
-    save_path_aws = f"s3://{bucket_name}/{save_path_models}/{uuid}/{model_name}.pkl"
+    save_path_aws = f"s3://{aws_s3_bucket}/{save_path_models}/{uuid}/{model_name}.pkl"
 
     wr.s3.upload(f"{save_model_path}.pkl",save_path_aws)
     print(f"Model saved in AWS S3 under {save_path_aws}")

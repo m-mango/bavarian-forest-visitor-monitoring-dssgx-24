@@ -3,9 +3,9 @@ import streamlit as st
 import awswrangler as wr
 from src.streamlit_app.pages_in_dashboard.data_accessibility.pandas_profiling_styling import custom_pandas_profiling_report 
 from src.streamlit_app.pre_processing.data_quality_check import data_quality_check
+from src.config import aws_s3_bucket
 
 # AWS Setup
-bucket = "dssgx-munich-2024-bavarian-forest"
 base_folder = "raw-data/bf_raw_files"
 
 
@@ -95,7 +95,7 @@ def upload_section():
 
                 # Generate file name and S3 path
                 file_name = generate_file_name(category, upload_timestamp)
-                s3_path = f"s3://{bucket}/{base_folder}/{category.replace(' ', '_')}/{file_name}"
+                s3_path = f"s3://{aws_s3_bucket}/{base_folder}/{category.replace(' ', '_')}/{file_name}"
 
                 # Upload the raw file to AWS S3
                 write_csv_file_to_aws_s3(st.session_state.data, s3_path, index=False)

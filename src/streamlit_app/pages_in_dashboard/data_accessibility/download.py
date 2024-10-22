@@ -1,16 +1,16 @@
 import streamlit as st
 import awswrangler as wr
 import pandas as pd
+from src.config import aws_s3_bucket
 
 
 # AWS Setup
-bucket = "dssgx-munich-2024-bavarian-forest"
 base_folder = "raw-data/bf_raw_files"
 
 def list_files_in_s3(category: str) -> list:
     """Lists files in S3 for a given category and returns only file names."""
     s3_prefix = f"{base_folder}/{category.replace(' ', '_')}"
-    full_paths = wr.s3.list_objects(f"s3://{bucket}/{s3_prefix}/")
+    full_paths = wr.s3.list_objects(f"s3://{aws_s3_bucket}/{s3_prefix}/")
     return [path.split('/')[-1] for path in full_paths]  # Extract only the file names
 
 def load_csv_files_from_aws_s3(path: str, **kwargs) -> pd.DataFrame:
@@ -44,7 +44,7 @@ def download_section():
 
             if preview_confirm:
                 # Correctly construct the full path to the selected file
-                file_path = f"s3://{bucket}/{base_folder}/{category.replace(' ', '_')}/{selected_file}"
+                file_path = f"s3://{aws_s3_bucket}/{base_folder}/{category.replace(' ', '_')}/{selected_file}"
 
                 # Load and preview selected file
                 st.write(f"Preview of {selected_file}")

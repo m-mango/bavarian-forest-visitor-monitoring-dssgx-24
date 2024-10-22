@@ -26,7 +26,6 @@ pd.options.mode.chained_assignment = None
 #GLOBAL VARIABLES
 ###########################################################################################
 
-bucket = "dssgx-munich-2024-bavarian-forest"
 output_data_folder = "preprocessed_data"
 output_file_name = "preprocessed_visitor_sensor_data.csv"
 

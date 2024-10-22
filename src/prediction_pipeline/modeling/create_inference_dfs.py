@@ -6,11 +6,10 @@ import joblib
 import io
 from pycaret.regression import load_model
 from sklearn.preprocessing import MinMaxScaler
-from src.prediction_pipeline.config import regions
+from src.config import regions, aws_s3_bucket
 
 
 # Your AWS bucket and folder details where models are stored
-bucket_name = 'dssgx-munich-2024-bavarian-forest'
 folder_prefix = 'models/models_trained/1483317c-343a-4424-88a6-bd57459901d1/'  # If you have a specific folder
 
 
@@ -98,7 +97,7 @@ def predict_with_models(loaded_models, df_features):
             df_predictions['predictions'] = df_predictions['predictions'].astype(int)
     
             # save the prediction dataframe as a parquet file in aws
-            wr.s3.to_parquet(df_predictions,path = f"s3://{bucket_name}/models/inference_data_outputs/{model_name}.parquet")
+            wr.s3.to_parquet(df_predictions,path = f"s3://{aws_s3_bucket}/models/inference_data_outputs/{model_name}.parquet")
 
             print(f"Predictions for {model_name} stored successfully")
             df_predictions["region"] = model_name.split('extra_trees_')[1].split('.parquet')[0]
@@ -141,7 +140,7 @@ def preprocess_overall_inference_predictions(overall_predictions: pd.DataFrame) 
 @st.cache_data(max_entries=1)
 def visitor_predictions(inference_data):
 
-    loaded_models = load_latest_models(bucket_name, folder_prefix, model_names)
+    loaded_models = load_latest_models(aws_s3_bucket, folder_prefix, model_names)
 
     print("Models loaded successfully")
     

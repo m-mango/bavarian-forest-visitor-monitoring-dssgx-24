@@ -13,10 +13,6 @@ warnings.filterwarnings('ignore')
 # START_TIME = datetime.now()
 # END_TIME = (START_TIME + pd.Timedelta(days=7))
 
-# Set up S3 bucket and folder
-bucket = "dssgx-munich-2024-bavarian-forest"
-preprocessed_data_folder = "preprocessed_data"
-
 
 ############################################################################################################
 # Define functions

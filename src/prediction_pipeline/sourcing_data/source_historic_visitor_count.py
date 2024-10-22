@@ -1,8 +1,8 @@
 import awswrangler as wr
+from src.config import aws_s3_bucket
 
 raw_data_folder = "raw-data"
 visitor_counts_folder = "hourly-historic-visitor-counts-all-sensors"
-bucket = "dssgx-munich-2024-bavarian-forest"
 
 # needed columns across all dfs 
 common_columns = ['Time',
@@ -108,7 +108,7 @@ def source_historic_visitor_count():
 
     # Load visitor count data from AWS S3
     visitor_counts = wr.s3.read_csv(
-        path=f"s3://{bucket}/{raw_data_folder}/{visitor_counts_folder}/*.csv",
+        path=f"s3://{aws_s3_bucket}/{raw_data_folder}/{visitor_counts_folder}/*.csv",
         skiprows=2,
         usecols=common_columns
     )

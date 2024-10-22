@@ -9,11 +9,12 @@ import awswrangler as wr
 import boto3
 import logging
 import os
+from src.config import aws_s3_bucket
 
 
-visitor_center_data_path = "s3://dssgx-munich-2024-bavarian-forest/raw-data/national-park-vacation-times-houses-opening-times-visitors.xlsx"
-saved_path_visitor_center_query = "s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/bf_preprocessed_files/visitor_centers/visitor_centers_2017_to_2024.parquet"
-saved_path_visitor_center_modeling = "s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/visitor_centers_hourly.parquet"
+visitor_center_data_path = f"s3://{aws_s3_bucket}/raw-data/national-park-vacation-times-houses-opening-times-visitors.xlsx"
+saved_path_visitor_center_query = f"s3://{aws_s3_bucket}/preprocessed_data/bf_preprocessed_files/visitor_centers/visitor_centers_2017_to_2024.parquet"
+saved_path_visitor_center_modeling = f"s3://{aws_s3_bucket}/preprocessed_data/visitor_centers_hourly.parquet"
 
 ##########################################################################
 ##########################################################################
