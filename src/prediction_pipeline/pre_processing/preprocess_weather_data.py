@@ -1,20 +1,3 @@
-"""
-Weather Data Sourcing
-
-This script retrieves hourly weather data (Precipitation, Temperature, Wind Speed, Relative Humidity, Sunshine Duration, and coco) for the Bavarian Forest region from the Meteostat API, and saves the processed data to a CSV file.
-
-Usage:
-- To run this script, simply execute it using Python:
-  $ python src/weather_data_sourcing_and_processing.py
-- The script will automatically fetch weather data for the specified date range, process it, and save it to a CSV file.
-- Please change the AWS credentials, global variables (start and end time, latitude, and longitude), and the S3 bucket and folder name before running the script.
-
-Output:
-- The sourced and processed weather data is saved as '/sourced_weather_data_2016-24_non_imputed.csv' and '/processed_weather_data_2016-24_imputed.csv' in the 'preprocessed_data' folder 
-    in the 'dssgx-munich-2024-bavarian-forest' AWS S3 bucket.
-
-"""
-
 # Import necessary libraries
 import warnings
 

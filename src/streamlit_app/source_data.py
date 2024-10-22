@@ -1,14 +1,3 @@
-"""
-This script files pulls the data from the Bayern Cloud API, AWS S3 bucket, and METEOSTAT API to source the data for the Bavarian Forest National Park dashboard.
-
-The data sourced includes:
-- Historic visitor counts data - from the AWS S3 bucket
-- Real-time parking data - from the Bayern Cloud API
-- Hourly weather data - from the METEOSTAT API
-
-The functions in this script are used to source the data and return the dataframes for further processing.
-
-"""
 # import the necessary libraries
 import pandas as pd
 import awswrangler as wr
@@ -67,15 +56,14 @@ LONGITUDE = 12.711573421032
 ########################################################################################
 
 
-def source_parking_data_from_cloud(location_slug: str):
+def source_parking_data_from_cloud(location_slug: str) -> pd.DataFrame:
     """Sources the current occupancy data from the Bayern Cloud API.
     
     Args:
         location_slug (str): The location slug of the parking sensor.
     
     Returns:
-        pd.DataFrame: A DataFrame containing the current occupancy data, occupancy rate, capacity and spatial 
-        coordinates.
+        parking_df_with_spatial_info (pd.DataFrame): A DataFrame containing the current occupancy data, occupancy rate, capacity and spatial coordinates.
     """
     
     API_endpoint = f'https://data.bayerncloud.digital/api/v4/endpoints/list_occupancy/{location_slug}'
@@ -115,13 +103,13 @@ def source_parking_data_from_cloud(location_slug: str):
 def add_spatial_info_to_parking_sensors(parking_data_df):
 
     """
-    Add spatial information to the parking dataframe
+    Add spatial information to the parking dataframe.
 
     Args:
-        parking_data_df (pd.DataFrame): DataFrame containing parking sensor data (occupnaacy, capacity, occupancy rate).
+        parking_data_df (pd.DataFrame): DataFrame containing parking sensor data (occupancy, capacity, occupancy rate).
     
     Returns:
-        pd.DataFrame: DataFrame containing parking sensor data with spatial information.
+        parking_data_df (pd.DataFrame): DataFrame containing parking sensor data with spatial information.
     """
 
     for location_slug in parking_sensors.keys():
@@ -140,7 +128,7 @@ def merge_all_df_from_list(df_list):
         df_list (list): A list of pandas DataFrames to merge.
 
     Returns:
-        pd.DataFrame: The merged DataFrame.
+        merged_dataframe (pd.DataFrame): The merged DataFrame.
     """
     # Merge all the dataframes in the list with the 'time' column as index
     merged_dataframe = pd.concat(df_list, axis=0, ignore_index=True)
@@ -154,10 +142,10 @@ def source_and_preprocess_realtime_parking_data(current_timestamp):
     Source and preprocess the real-time parking data. Returns the timestamp of when the function was run.
 
     Args:
-        None
+        current_timestamp (datetime): The timestamp of when the function was run.
 
     Returns:
-        pd.DataFrame: Preprocessed real-time parking data.
+        processed_parking_data (pd.DataFram): Preprocessed real-time parking data.
     """
     print(f"Fetching and saving real-time parking occupancy data at '{current_timestamp}'...")
     
@@ -192,13 +180,13 @@ def source_and_preprocess_realtime_parking_data(current_timestamp):
 
 def source_weather_data(start_time: datetime):
     """
-    Source the weather data from METEOSTAT API
+    Source forecasted weather data from the Meteostat API for the Bavarian Forest National Park in the next 7 days in hourly intervals.
 
     Args:
-        None
+        start_time (datetime): The start time of the weather data.
 
     Returns:
-        pd.DataFrame: Hourly weather data for the Bavarian Forest National Park for the next 7 days
+        weather_hourly (pd.DataFrame): Hourly weather data for the Bavarian Forest National Park for the next 7 days
     """
 
     # Create a Point object for the Bavarian Forest National Park entry
@@ -230,7 +218,7 @@ def source_and_preprocess_forecasted_weather_data(timestamp_latest_weather_data_
         timestamp_latest_weather_data_fetch (datetime): The timestamp of the latest weather data fetch.
 
     Returns:
-        pd.DataFrame: Processed forecasted weather dataframe
+        sourced_and_preprocessed_weather_data (pd.DataFrame): Processed forecasted weather dataframe
     """
 
     print(f"Sourcing and preprocessing weather data from Meteostat API at {timestamp_latest_weather_data_fetch}...")

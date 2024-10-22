@@ -12,11 +12,11 @@ def fill_missing_values(data, parameters):
     Fill missing values in the weather data using linear interpolation or zero values.
 
     Args:
-        data (pandas.DataFrame): Processed hourly weather data.
+        data (pd.DataFrame): Processed hourly weather data.
         parameters (list): List of column names to process.
 
     Returns:
-        pandas.DataFrame: DataFrame with missing values filled.
+        data (pd.DataFrame): DataFrame with missing values filled.
     """
     total_rows = data.shape[0]
 
@@ -63,7 +63,7 @@ def process_weather_data(weather_data_df):
         weather_data_df (pandas.DataFrame): Hourly weather data.
     
     Returns:
-        pandas.DataFrame: Processed weather data with missing values filled.
+        imputed_data (pandas.DataFrame): Processed weather data with missing values filled.
     """
 
 

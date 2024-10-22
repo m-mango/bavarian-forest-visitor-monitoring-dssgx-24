@@ -1,38 +1,3 @@
-"""
-This script fetches historical parking data from the BayernCloud API for the parking sensors in the Bavarian Forest National Park.
-
-The script fetches historical data for the following types of data:
-- Occupancy
-- Occupancy rate
-- Capacity
-
-The script fetches historical data for the following parking sensors:
-- parkplatz-graupsaege-1
-- p-r-spiegelau-1
-- parkplatz-zwieslerwaldhaus-1
-- parkplatz-zwieslerwaldhaus-nord-1
-- parkplatz-nationalparkzentrum-falkenstein-2
-- scheidt-bachmann-parkplatz-1
-- parkplatz-nationalparkzentrum-lusen-p2
-- parkplatz-waldhaeuser-kirche-1
-- parkplatz-waldhaeuser-ausblick-1
-- parkplatz-skisportzentrum-finsterau-1
-
-
-To run the script, you need to set the Bayern Cloud API key as an environment variable named 'BAYERN_CLOUD_API_KEY' and run the script using the following command:
-```
-python src/source_historic_parking_data.py
-
-```
-
-
-Output:
-- The script saves the historical parking data for each location as a CSV file in the 'outputs/parking_data_final/' directory.
-
-"""
-
-
-
 # Install libraries
 import pandas as pd
 import requests
@@ -80,20 +45,16 @@ def get_historical_data_for_location(
     """
     Fetch historical data from the BayernCloud API and save it as a CSV file.
 
-    Parameters:
-    ----------
-    location_id : str
-        The ID of the location for which the data is to be fetched.
-    location_slug : str
-        A slug (a URL-friendly string) representing the location.
-    data_type : str
-        The type of data being fetched (e.g., 'occupancy', 'occupancy_rate', 'capacity').
-    api_endpoint_suffix : str
-        The specific suffix of the API endpoint for the data type (e.g., 'dcls_occupancy', 'dcls_occupancy_rate').
-    column_name : str
-        The name of the column to store the fetched data in the DataFrame.
-    save_file_path : str, optional
-        The base directory where the CSV file will be saved (default is 'outputs').
+    Args:
+        location_id (str): The ID of the location for which the data is to be fetched.
+        location_slug (str): A slug (a URL-friendly string) representing the location.
+        data_type (str): The type of data being fetched (e.g., 'occupancy', 'occupancy_rate', 'capacity').
+        api_endpoint_suffix (str): The specific suffix of the API endpoint for the data type (e.g., 'dcls_occupancy', 'dcls_occupancy_rate').
+        column_name (str): The name of the column to store the fetched data in the DataFrame.
+        save_file_path (str, optional): The base directory where the CSV file will be saved (default is 'outputs').
+
+    Returns:
+        historical_df (pd.DataFrame): A Pandas DataFrame containing the historical data for a location.
     """
     # Construct the API endpoint URL
     API_endpoint = f'https://data.bayerncloud.digital/api/v4/things/{location_id}/{api_endpoint_suffix}/'
@@ -119,11 +80,10 @@ def process_all_locations(parking_sensors):
     """
     Process and fetch all types of historical data for each location in the parking sensors dictionary.
 
-    Parameters:
-    ----------
-    parking_sensors : dict
-        Dictionary containing location slugs as keys and location IDs as values.
+    Args:
+        parking_sensors (dict): Dictionary containing location slugs as keys and location IDs as values.
     """
+
     data_types = [
         ('occupancy', 'dcls_occupancy', 'occupancy'),
         ('occupancy_rate', 'dcls_occupancy_rate', 'occupancy_rate'),

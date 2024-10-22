@@ -1,21 +1,3 @@
-"""
-This script processes and merges weather data with visitor center data to create a comprehensive 
-inference dataset for prediction. It imports necessary functions for sourcing and preprocessing weather and visitor 
-center data, as well as functions for feature engineering related to z-scores and holiday distances. 
-
-The main functionalities include:
-
-1. **Merging Data**: The `join_inference_data` function merges weather data with selected columns 
-   from visitor center data based on a common 'Time' column.
-   
-2. **Data Preprocessing**: The `source_preprocess_inference_data` function sources weather and 
-   visitor center data for a specified date range, processes it to compute additional features 
-   (like holiday distances, daily maximum values, and moving z-scores), and filters the data to 
-   include only future timestamps.
-
-The result is a processed DataFrame ready for further analysis or modeling.
-"""
-
 from src.prediction_pipeline.pre_processing.features_zscoreweather_distanceholidays import add_nearest_holiday_distance, add_daily_max_values, add_moving_z_scores 
 from src.prediction_pipeline.modeling.source_and_feature_selection import process_transformations
 

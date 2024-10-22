@@ -1,10 +1,3 @@
-"""
-This script creates a dictionary with predictions for the selected models. 
-
-This needs to load the models from AWS and train on an inference df that is generated from 
-the source_preprocess_inference_data function. 
-"""
-
 import awswrangler as wr
 import pandas as pd
 import streamlit as st

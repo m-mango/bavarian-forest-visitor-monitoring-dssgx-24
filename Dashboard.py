@@ -43,13 +43,10 @@ col1, col2 = page_layout_config.get_page_layout()
 def create_dashboard_main_page(inference_predictions):
 
     """
-    Create the dashboard for the Bavarian Forest National Park visitor information page.
+    Creates the dashboard page for the Bavarian Forest National Park visitor information. This includes the visitor count, parking, weather, recreation, and other information.
 
     Args:
         inference_predictions (pd.DataFrame): The inference predictions for region-wise visitor counts.
-
-    Returns:
-        None
     """
     
     with col1:
@@ -82,6 +79,10 @@ def create_dashboard_main_page(inference_predictions):
 
 
 def run_training():
+
+    """
+    Runs the training pipeline. This includes sourcing and preprocessing the data, training the model, and saving the model.
+    """
 
     # source and preprocess the historic visitor count data
     sourced_visitor_count_df = source_historic_visitor_count()

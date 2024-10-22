@@ -5,43 +5,9 @@ import pandas as pd
 import awswrangler as wr
 import re
 
-################################################################################################################
-"""
-This script retrieves and processes various types of environmental and visitor-related data
-from AWS S3 using the AWS Wrangler library. It defines multiple functions to handle
-data extraction, transformation, and querying based on user-defined queries.
-
-Functions include:
-- Fetching data for visitor sensors, parking, weather, and visitor centers.
-- Converting numerical month representations to names.
-- Extracting values from queries based on defined types.
-- Creating additional temporal columns (month, year, season) in DataFrames.
-- Creating a DataFrame containing processed data and filtering it based on user-defined queries.
-
-Note: Ensure the necessary AWS credentials and permissions are configured to access the S3 bucket.
-"""
-################################################################################################################
-
 bucket = "dssgx-munich-2024-bavarian-forest"
 
 # Types of queries that the functions will use to know what data to retrieve
-
-"""
-Dictionary: query_types
-
-Purpose:
-This dictionary serves as a template for generating and extracting values from different types of queries related to data retrieval.
-
-Structure:
-- Each key represents a type of query (e.g., 'type2', 'type3').
-- Each value is a list containing:
-    1. A string template that outlines the query format, with placeholders for dynamic values.
-    2. A list of field names corresponding to the placeholders in the string template, indicating the order of extracted values.
-
-Usage:
-- When generating a query, refer to the corresponding template string and replace the placeholders with actual values.
-- When extracting values from a generated query, use the list of field names to identify and retrieve the required information.
-"""
 
 query_types = {
     'type1': ['What is the property value for the sensor sensor from start_date to end_date?' ,
