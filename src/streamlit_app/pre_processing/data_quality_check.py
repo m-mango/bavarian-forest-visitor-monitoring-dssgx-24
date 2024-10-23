@@ -5,11 +5,11 @@ import re
 import awswrangler as wr
 import streamlit as st
 import os
+from src.config import aws_s3_bucket
 
 raw_folder = "raw-data/bf_raw_files"
 preprocessed_folder = "preprocessed_data/bf_preprocessed_files"
 invalid_upload_folder = "invalid-data/bf_invalid_upload_files"
-bucket = "dssgx-munich-2024-bavarian-forest"
 
 def convert_sensor_dictionary_to_excel_file(
         sensor_dict: dict,
@@ -253,7 +253,7 @@ def parse_german_dates(
 
 def write_csv_file_to_aws_s3(df, path):
 
-    save_path = f"s3://{bucket}/{path}"
+    save_path = f"s3://{aws_s3_bucket}/{path}"
     wr.s3.to_csv(df, path=save_path, index=False)
 
 def start_and_end_dates(df,time_column):
@@ -327,7 +327,7 @@ def data_quality_check(data,category):
         new_processed_df["Upload_time"] = pd.to_datetime("today").strftime('%Y-%m-%d %H:%M:%S')
 
         # Define the S3 path for the preprocessed file
-        preprocessed_file_path = f"s3://{bucket}/{preprocessed_folder}/{category}/{category}_preprocessed.csv"
+        preprocessed_file_path = f"s3://{aws_s3_bucket}/{preprocessed_folder}/{category}/{category}_preprocessed.csv"
         process_and_upload_data(new_processed_df, preprocessed_file_path, time_column)
 
     else:

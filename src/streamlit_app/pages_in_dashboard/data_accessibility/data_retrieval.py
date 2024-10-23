@@ -4,44 +4,9 @@ import streamlit as st
 import pandas as pd
 import awswrangler as wr
 import re
-
-################################################################################################################
-"""
-This script retrieves and processes various types of environmental and visitor-related data
-from AWS S3 using the AWS Wrangler library. It defines multiple functions to handle
-data extraction, transformation, and querying based on user-defined queries.
-
-Functions include:
-- Fetching data for visitor sensors, parking, weather, and visitor centers.
-- Converting numerical month representations to names.
-- Extracting values from queries based on defined types.
-- Creating additional temporal columns (month, year, season) in DataFrames.
-- Creating a DataFrame containing processed data and filtering it based on user-defined queries.
-
-Note: Ensure the necessary AWS credentials and permissions are configured to access the S3 bucket.
-"""
-################################################################################################################
-
-bucket = "dssgx-munich-2024-bavarian-forest"
+from src.config import aws_s3_bucket
 
 # Types of queries that the functions will use to know what data to retrieve
-
-"""
-Dictionary: query_types
-
-Purpose:
-This dictionary serves as a template for generating and extracting values from different types of queries related to data retrieval.
-
-Structure:
-- Each key represents a type of query (e.g., 'type2', 'type3').
-- Each value is a list containing:
-    1. A string template that outlines the query format, with placeholders for dynamic values.
-    2. A list of field names corresponding to the placeholders in the string template, indicating the order of extracted values.
-
-Usage:
-- When generating a query, refer to the corresponding template string and replace the placeholders with actual values.
-- When extracting values from a generated query, use the list of field names to identify and retrieve the required information.
-"""
 
 query_types = {
     'type1': ['What is the property value for the sensor sensor from start_date to end_date?' ,
@@ -75,7 +40,7 @@ def get_files_from_aws(selected_category):
     # Specify the S3 bucket and folder path
     prefix = f"/preprocessed_data/bf_preprocessed_files/{selected_category}/"  # Make sure to include trailing slash
     # List all objects in the specified S3 folder
-    objects = wr.s3.list_objects(f"s3://{bucket}{prefix}")
+    objects = wr.s3.list_objects(f"s3://{aws_s3_bucket}{prefix}")
     return objects
 
 def convert_number_to_month_name(month):
@@ -386,7 +351,7 @@ def get_sensors_data():
         from the CSV file.
     """
 
-    df = wr.s3.read_parquet("s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/preprocessed_visitor_count_sensors_data.parquet")
+    df = wr.s3.read_parquet(f"s3://{aws_s3_bucket}/preprocessed_data/preprocessed_visitor_count_sensors_data.parquet")
     return df
 def get_visitor_centers_data(objects):
     """Fetches visitor centers data from the most recently modified Excel file.
@@ -463,7 +428,7 @@ def get_parking_data_for_selected_sensor(selected_sensor):
     Raises:
         ValueError: If the selected sensor is not found in any object.
     """
-    path = f"s3://dssgx-munich-2024-bavarian-forest/preprocessed_data/preprocessed_parking_data/merged_parking_data/{selected_sensor}.csv"
+    path = f"s3://{aws_s3_bucket}/preprocessed_data/preprocessed_parking_data/merged_parking_data/{selected_sensor}.csv"
     df = wr.s3.read_csv(path)
     df.set_index("time", inplace=True)
     return df

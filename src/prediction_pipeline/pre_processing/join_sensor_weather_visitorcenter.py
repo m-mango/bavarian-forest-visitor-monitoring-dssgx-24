@@ -1,14 +1,3 @@
-"""
-Join sensor, weather and visitor center data script.
-
-This script sources  three different data sources, joins them over a datetime index, and returns the joined data to be used for the model.
-
-Usage:
-
-- Run the script:
-
-  $ python src/join_sensor_weather_visitorcenter.py
-"""
 import pandas as pd
 from functools import reduce
 

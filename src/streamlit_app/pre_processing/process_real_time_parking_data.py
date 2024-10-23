@@ -3,6 +3,15 @@ import pandas as pd
 
 
 def impute_missing_data(all_parking_data):
+    """
+    Impute missing values in the parking data.
+
+    Args:
+        all_parking_data (pandas.DataFrame): Raw parking data.
+
+    Returns:
+        all_parking_data (pandas.DataFrame): Processed parking data.
+    """
 
     # Fill missing values in the parking data
 
@@ -35,7 +44,7 @@ def process_real_time_parking_data(parking_data_df):
         parking_data_df (pandas.DataFrame): Raw real-time parking data.
     
     Returns:
-        pandas.DataFrame: Processed real-time parking data.
+        clean_parking_data (pandas.DataFrame): Processed real-time parking data.
     """
 
 

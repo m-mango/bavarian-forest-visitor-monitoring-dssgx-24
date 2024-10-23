@@ -22,7 +22,7 @@ if not check_password():
 
 def get_visitor_predictions_section():
     """
-    Get the visitor predictions section.
+    Build the visitor predictions section by running/loading the inference pipeline and displaying the predictions in actual number of visitors.
     """
 
     preprocessed_hourly_visitor_center_data = source_preprocessed_hourly_visitor_center_data()
@@ -34,6 +34,11 @@ def get_visitor_predictions_section():
 
 @st.fragment(run_every="15min")
 def get_latest_parking_data_and_visualize_it():
+
+    """
+    Display the parking section of the dashboard with a map showing the real-time parking occupancy 
+    and interactive metrics with actual numbers of visitors. It will update every 15 minutes.
+    """
     print("Rendering parking section for the visitor dashboard...")
 
     def get_current_15min_interval():
