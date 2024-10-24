@@ -167,7 +167,7 @@ def add_moving_z_scores(df, columns, window_size):
         # Calculate the z-score
         daily_df[f'ZScore_{daily_max_col}'] = (
             (daily_df[daily_max_col] - daily_df[f'Rolling_Mean_{daily_max_col}']) /
-            daily_df[f'Rolling_Std_{daily_max_col}']
+            (daily_df[f'Rolling_Std_{daily_max_col}'] + 1e-8)  # Add a small value to prevent division by zero
         )
 
         # Drop the rolling mean and std columns as they are intermediate calculations
